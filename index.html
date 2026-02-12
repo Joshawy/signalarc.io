@@ -111,20 +111,29 @@
   <div class="container">
     <h2>Get Started</h2>
 
-   https://formspree.io/f/xojneaal
-      <input type="text" placeholder="Name" required>
-      <input type="email" placeholder="Email" required>
-      <input type="text" placeholder="Company">
-      <select required>
-        <option value="">Monthly Budget</option>
-        <option>$1k–$3k</option>
-        <option>$3k–$6k</option>
-        <option>$6k–$10k</option>
-        <option>$10k+</option>
-      </select>
-      <textarea placeholder="What do you need help with?" required></textarea>
-      <button type="submit" class="btn-secondary">Send Request</button>
-    </form>
+  <form class="form" action="https://formspree.io/f/xojneaal" method="POST">
+  <input name="name" type="text" placeholder="Name" required>
+
+  <input name="email" type="email" placeholder="Email" required>
+
+  <input name="company" type="text" placeholder="Company">
+
+  <select name="budget" required>
+    <option value="">Monthly Budget</option>
+    <option value="$1k–$3k">$1k–$3k</option>
+    <option value="$3k–$6k">$3k–$6k</option>
+    <option value="$6k–$10k">$6k–$10k</option>
+    <option value="$10k+">$10k+</option>
+  </select>
+
+  <textarea name="message" placeholder="What do you need help with?" required></textarea>
+
+  <!-- Honeypot spam protection -->
+  <input type="text" name="_gotcha" style="display:none">
+
+  <button type="submit" class="btn-secondary">Send Request</button>
+</form>
+
   </div>
 </section>
 
