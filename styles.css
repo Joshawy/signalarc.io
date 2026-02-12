@@ -70,11 +70,12 @@ a{ color:inherit; text-decoration:none; }
 }
 
 .brand-logo{
-  height: 34px;
+  height: 24px;   /* smaller + cleaner */
   width: auto;
-  display:block;
-  filter: drop-shadow(0 10px 22px rgba(77,145,127,.12));
+  display: block;
+  object-fit: contain;
 }
+
 
 
 nav{
