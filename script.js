@@ -91,14 +91,37 @@ contactForm.addEventListener('submit', function(e) {
     
     // Get form data
     const formData = new FormData(contactForm);
-    const data = Object.fromEntries(formData);
     
-    // Log form data (in production, you would send this to your backend)
-    console.log('Form submitted with data:', data);
-    
-    // Show success message
-    contactForm.style.display = 'none';
-    successMessage.style.display = 'block';
+    // Send to Formspree
+    fetch('https://formspree.io/f/xreaplzq', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'Accept': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            // Show success message
+            contactForm.style.display = 'none';
+            successMessage.style.display = 'block';
+            
+            // Scroll to success message
+            setTimeout(() => {
+                successMessage.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            }, 100);
+        } else {
+            alert('There was an error submitting the form. Please try again.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('There was an error submitting the form. Please try again.');
+    });
+});
     
     // Optional: Send to backend
     // You can integrate with services like:
