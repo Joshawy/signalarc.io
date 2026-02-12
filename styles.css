@@ -63,6 +63,19 @@ a{ color:inherit; text-decoration:none; }
   font-weight:700;
   letter-spacing:-0.01em;
 }
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.brand-logo{
+  height: 34px;
+  width: auto;
+  display:block;
+  filter: drop-shadow(0 10px 22px rgba(77,145,127,.12));
+}
+
 
 nav{
   display:flex;
