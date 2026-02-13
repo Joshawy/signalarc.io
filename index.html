@@ -261,101 +261,223 @@
         </div>
     </section>
 
-    <!-- Contact Form Section -->
-    <section id="contact" class="contact">
-        <div class="container">
-            <h2 class="section-title">Get a Custom Quote</h2>
-            <p class="contact-subtitle">Tell us about your business and goals. We'll create a tailored system for your MSP.</p>
-            
-            <form id="contactForm" class="contact-form">
-                <!-- Service Type Dropdown -->
-                <div class="form-group">
-                    <label for="serviceType">Select Service *</label>
-                    <select id="serviceType" name="serviceType" required>
-                        <option value="">Choose a service...</option>
-                        <option value="outreach">Automated Email Outreach (Book Meetings)</option>
-                        <option value="contentsyn">Content Syndication</option>
-                    </select>
-                </div>
+<!-- Contact Form Section -->
+<section id="contact" class="contact">
+  <div class="container">
+    <h2 class="section-title">Get a Custom Quote</h2>
+    <p class="contact-subtitle">Tell us about your business and goals. We'll create a tailored system for your MSP.</p>
 
-                <!-- Common Fields -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="name">Name *</label>
-                        <input type="text" id="name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email *</label>
-                        <input type="email" id="email" name="email" required>
-                    </div>
-                </div>
+    <form
+      id="contactForm"
+      class="contact-form"
+      action="https://formspree.io/f/xreaplzq"
+      method="POST"
+    >
+      <!-- Service Type Dropdown -->
+      <div class="form-group">
+        <label for="serviceType">Select Service *</label>
+        <select id="serviceType" name="Service" required>
+          <option value="">Choose a service...</option>
+          <option value="Automated Email Outreach (Book Meetings)">Automated Email Outreach (Book Meetings)</option>
+          <option value="Content Syndication">Content Syndication</option>
+        </select>
+      </div>
 
-                <div class="form-group">
-                    <label for="company">Company *</label>
-                    <input type="text" id="company" name="company" required>
-                </div>
-
-                <!-- Email Outreach Fields -->
-                <div id="outreach-fields" class="conditional-fields" style="display: none;">
-                    <div class="form-group">
-                        <label for="budget">Monthly Budget *</label>
-                        <select id="budget" name="budget">
-                            <option value="">Select budget range...</option>
-                            <option value="1k-3k">$1k–$3k</option>
-                            <option value="3k-6k">$3k–$6k</option>
-                            <option value="6k-10k">$6k–$10k</option>
-                            <option value="10k+">$10k+</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="message">Message/Details</label>
-                        <textarea id="message" name="message" rows="4" placeholder="Tell us about your goals, ideal customers, or any questions"></textarea>
-                    </div>
-                </div>
-
-                <!-- Content Syndication Fields -->
-                <div id="contentsyn-fields" class="conditional-fields" style="display: none;">
-                    <div class="form-group">
-                        <label for="geographic">Geographic Targeting *</label>
-                        <input type="text" id="geographic" name="geographic" placeholder="Which regions/states do you serve?">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="jobTitles">Job Titles to Target *</label>
-                        <input type="text" id="jobTitles" name="jobTitles" placeholder="E.g., IT Director, CFO, Operations Manager">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="companySize">Company Size/Type *</label>
-                        <input type="text" id="companySize" name="companySize" placeholder="E.g., 50-200 employees, manufacturing, healthcare">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="industries">Industries *</label>
-                        <input type="text" id="industries" name="industries" placeholder="Which industries do you specialize in?">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="leadVolume">Monthly Lead Volume Needed *</label>
-                        <input type="text" id="leadVolume" name="leadVolume" placeholder="How many qualified leads do you need each month?">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="content">Content You Want to Use *</label>
-                        <textarea id="content" name="content" rows="4" placeholder="Describe the content/messaging you want to distribute (whitepapers, case studies, service overviews, etc.)"></textarea>
-                    </div>
-                </div>
-
-                <button type="submit" class="cta-button primary submit-button">Send Request</button>
-            </form>
-
-            <div id="successMessage" class="success-message" style="display: none;">
-                <h3>Thank you!</h3>
-                <p>We'll review your information and get back to you within 24 hours with a custom proposal.</p>
-            </div>
+      <!-- Common Fields -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name">Name *</label>
+          <input type="text" id="name" name="Name" autocomplete="name" required />
         </div>
-    </section>
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="Email" autocomplete="email" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="company">Company *</label>
+        <input type="text" id="company" name="Company" autocomplete="organization" required />
+      </div>
+
+      <!-- Email Outreach Fields -->
+      <div id="outreach-fields" class="conditional-fields" hidden>
+        <div class="form-group">
+          <label for="budget">Monthly Budget *</label>
+          <select id="budget" name="Monthly Budget">
+            <option value="">Select budget range...</option>
+            <option value="$1k–$3k">$1k–$3k</option>
+            <option value="$3k–$6k">$3k–$6k</option>
+            <option value="$6k–$10k">$6k–$10k</option>
+            <option value="$10k+">$10k+</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="message">Message/Details</label>
+          <textarea
+            id="message"
+            name="Message"
+            rows="4"
+            placeholder="Tell us about your goals, ideal customers, or any questions"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Content Syndication Fields -->
+      <div id="contentsyn-fields" class="conditional-fields" hidden>
+        <div class="form-group">
+          <label for="geographic">Geographic Targeting *</label>
+          <input type="text" id="geographic" name="Geographic Targeting" placeholder="Which regions/states do you serve?" />
+        </div>
+
+        <div class="form-group">
+          <label for="jobTitles">Job Titles to Target *</label>
+          <input type="text" id="jobTitles" name="Job Titles" placeholder="E.g., IT Director, CFO, Operations Manager" />
+        </div>
+
+        <div class="form-group">
+          <label for="companySize">Company Size/Type *</label>
+          <input type="text" id="companySize" name="Company Size/Type" placeholder="E.g., 50-200 employees, manufacturing, healthcare" />
+        </div>
+
+        <div class="form-group">
+          <label for="industries">Industries *</label>
+          <input type="text" id="industries" name="Industries" placeholder="Which industries do you specialize in?" />
+        </div>
+
+        <div class="form-group">
+          <label for="leadVolume">Monthly Lead Volume Needed *</label>
+          <input type="text" id="leadVolume" name="Monthly Lead Volume Needed" placeholder="How many qualified leads do you need each month?" />
+        </div>
+
+        <div class="form-group">
+          <label for="content">Content You Want to Use *</label>
+          <textarea
+            id="content"
+            name="Content To Use"
+            rows="4"
+            placeholder="Describe the content/messaging you want to distribute (whitepapers, case studies, service overviews, etc.)"
+          ></textarea>
+        </div>
+      </div>
+
+      <!-- Optional: helps Formspree reply-to -->
+      <input type="hidden" name="_subject" value="New Signal Arc Quote Request" />
+      <input type="hidden" name="_replyto" id="replytoHidden" value="" />
+
+      <button type="submit" class="cta-button primary submit-button">Send Request</button>
+    </form>
+
+    <div id="successMessage" class="success-message" style="display:none;">
+      <h3>Thank you!</h3>
+      <p>We'll review your information and get back to you within 24 hours with a custom proposal.</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    const form = document.getElementById("contactForm");
+    const serviceType = document.getElementById("serviceType");
+
+    const outreachWrap = document.getElementById("outreach-fields");
+    const contentWrap = document.getElementById("contentsyn-fields");
+
+    // Fields that should become required depending on selection
+    const outreachRequired = [
+      document.getElementById("budget"),
+    ];
+
+    const contentRequired = [
+      document.getElementById("geographic"),
+      document.getElementById("jobTitles"),
+      document.getElementById("companySize"),
+      document.getElementById("industries"),
+      document.getElementById("leadVolume"),
+      document.getElementById("content"),
+    ];
+
+    function setRequired(fields, required) {
+      fields.forEach((el) => {
+        if (!el) return;
+        if (required) el.setAttribute("required", "required");
+        else el.removeAttribute("required");
+      });
+    }
+
+    function updateVisibleFields() {
+      const value = serviceType.value;
+
+      // Hide both by default
+      outreachWrap.hidden = true;
+      contentWrap.hidden = true;
+
+      // Remove required from both sets
+      setRequired(outreachRequired, false);
+      setRequired(contentRequired, false);
+
+      if (value === "Automated Email Outreach (Book Meetings)") {
+        outreachWrap.hidden = false;
+        setRequired(outreachRequired, true);
+      }
+
+      if (value === "Content Syndication") {
+        contentWrap.hidden = false;
+        setRequired(contentRequired, true);
+      }
+    }
+
+    // Set initial state (in case browser autofills/keeps selection)
+    updateVisibleFields();
+
+    serviceType.addEventListener("change", updateVisibleFields);
+
+    // Keep reply-to aligned with the Email field
+    const emailInput = document.getElementById("email");
+    const replytoHidden = document.getElementById("replytoHidden");
+    emailInput.addEventListener("input", () => {
+      replytoHidden.value = emailInput.value || "";
+    });
+
+    // Submit to Formspree via AJAX so you can show your custom success message
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      // If service isn't chosen, trigger native validation UI
+      if (!serviceType.value) {
+        serviceType.focus();
+        form.reportValidity();
+        return;
+      }
+
+      const formData = new FormData(form);
+
+      try {
+        const res = await fetch(form.action, {
+          method: "POST",
+          body: formData,
+          headers: {
+            "Accept": "application/json"
+          }
+        });
+
+        if (res.ok) {
+          form.style.display = "none";
+          document.getElementById("successMessage").style.display = "block";
+          form.reset();
+          updateVisibleFields();
+        } else {
+          // Fall back to basic error
+          alert("Something went wrong sending your request. Please try again.");
+        }
+      } catch (err) {
+        alert("Network error. Please try again.");
+      }
+    });
+  })();
+</script>
+
 
     <!-- Footer -->
     <footer class="footer">
