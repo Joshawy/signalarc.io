@@ -1,180 +1,171 @@
 // Smooth scrolling for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-    });
+  anchor.addEventListener('click', function (e) {
+    const href = this.getAttribute('href');
+    const target = document.querySelector(href);
+
+    // Only intercept if the target exists on the page
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start'
+      });
+    }
+  });
 });
 
-// Form dropdown logic
+
+// ---------------------------
+// Contact form conditional logic + submit
+// ---------------------------
 const serviceTypeSelect = document.getElementById('serviceType');
 const outreachFields = document.getElementById('outreach-fields');
 const contentSynFields = document.getElementById('contentsyn-fields');
 const contactForm = document.getElementById('contactForm');
-const successMessage = document.getElementById('successMessage');
 
-// Handle service type change
-serviceTypeSelect.addEventListener('change', function() {
+// If these elements aren't on this page, stop here safely.
+if (serviceTypeSelect && outreachFields && contentSynFields && contactForm) {
+
+  const budgetEl = document.getElementById('budget');
+
+  const contentRequiredEls = [
+    document.getElementById('geographic'),
+    document.getElementById('jobTitles'),
+    document.getElementById('companySize'),
+    document.getElementById('industries'),
+    document.getElementById('leadVolume'),
+    document.getElementById('content'),
+  ].filter(Boolean);
+
+  function setRequired(el, isRequired) {
+    if (!el) return;
+    if (isRequired) el.setAttribute('required', 'required');
+    else el.removeAttribute('required');
+  }
+
+  function setRequiredGroup(els, isRequired) {
+    els.forEach(el => setRequired(el, isRequired));
+  }
+
+  function showOutreach() {
+    outreachFields.style.display = 'block';
+    contentSynFields.style.display = 'none';
+
+    setRequired(budgetEl, true);
+    setRequiredGroup(contentRequiredEls, false);
+  }
+
+  function showContentSyn() {
+    outreachFields.style.display = 'none';
+    contentSynFields.style.display = 'block';
+
+    setRequired(budgetEl, false);
+    setRequiredGroup(contentRequiredEls, true);
+  }
+
+  function hideAllConditional() {
+    outreachFields.style.display = 'none';
+    contentSynFields.style.display = 'none';
+
+    setRequired(budgetEl, false);
+    setRequiredGroup(contentRequiredEls, false);
+  }
+
+  // Handle service type change
+  serviceTypeSelect.addEventListener('change', function () {
     const selectedService = this.value;
-    
+
     if (selectedService === 'outreach') {
-        outreachFields.style.display = 'block';
-        contentSynFields.style.display = 'none';
-        
-        // Make outreach fields required
-        document.getElementById('budget').setAttribute('required', 'required');
-        
-        // Remove required from content syndication fields
-        removeRequiredFromContentSyn();
+      showOutreach();
     } else if (selectedService === 'contentsyn') {
-        outreachFields.style.display = 'none';
-        contentSynFields.style.display = 'block';
-        
-        // Remove required from outreach fields
-        document.getElementById('budget').removeAttribute('required');
-        
-        // Make content syndication fields required
-        document.getElementById('geographic').setAttribute('required', 'required');
-        document.getElementById('jobTitles').setAttribute('required', 'required');
-        document.getElementById('companySize').setAttribute('required', 'required');
-        document.getElementById('industries').setAttribute('required', 'required');
-        document.getElementById('leadVolume').setAttribute('required', 'required');
-        document.getElementById('content').setAttribute('required', 'required');
+      showContentSyn();
     } else {
-        outreachFields.style.display = 'none';
-        contentSynFields.style.display = 'none';
-        
-        // Remove all conditional required attributes
-        document.getElementById('budget').removeAttribute('required');
-        removeRequiredFromContentSyn();
+      hideAllConditional();
     }
-});
+  });
 
-function removeRequiredFromContentSyn() {
-    document.getElementById('geographic').removeAttribute('required');
-    document.getElementById('jobTitles').removeAttribute('required');
-    document.getElementById('companySize').removeAttribute('required');
-    document.getElementById('industries').removeAttribute('required');
-    document.getElementById('leadVolume').removeAttribute('required');
-    document.getElementById('content').removeAttribute('required');
-}
+  // Set initial state on page load (important if browser keeps selection)
+  if (serviceTypeSelect.value === 'outreach') showOutreach();
+  else if (serviceTypeSelect.value === 'contentsyn') showContentSyn();
+  else hideAllConditional();
 
-// Handle service card CTA clicks to pre-select service
-document.querySelectorAll('.service-cta').forEach(button => {
-    button.addEventListener('click', function(e) {
-        e.preventDefault();
-        const service = this.getAttribute('data-service');
-        
-        // Scroll to form
-        document.getElementById('contact').scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
+
+  // Handle service card CTA clicks to pre-select service
+  document.querySelectorAll('.service-cta').forEach(button => {
+    button.addEventListener('click', function (e) {
+      e.preventDefault();
+
+      const service = this.getAttribute('data-service');
+
+      const contactSection = document.getElementById('contact');
+      if (contactSection) {
+        contactSection.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
         });
-        
-        // Pre-select the service after a short delay
-        setTimeout(() => {
-            serviceTypeSelect.value = service;
-            serviceTypeSelect.dispatchEvent(new Event('change'));
-        }, 500);
-    });
-});
+      }
 
-// Handle form submission
-contactForm.addEventListener('submit', function(e) {
+      setTimeout(() => {
+        serviceTypeSelect.value = service;
+        serviceTypeSelect.dispatchEvent(new Event('change'));
+      }, 350);
+    });
+  });
+
+
+  // Handle form submission -> Formspree -> redirect to thank-you page
+  contactForm.addEventListener('submit', async function (e) {
     e.preventDefault();
-    
-    // Get form data
+
+    // Trigger built-in validation UI
+    if (!contactForm.reportValidity()) return;
+
     const formData = new FormData(contactForm);
-    
-    // Send to Formspree
-    fetch('https://formspree.io/f/xreaplzq', {
+
+    try {
+      const response = await fetch('https://formspree.io/f/xreaplzq', {
         method: 'POST',
         body: formData,
-        headers: {
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => {
-        if (response.ok) {
-            // Show success message
-            contactForm.style.display = 'none';
-            successMessage.style.display = 'block';
-            
-            // Scroll to success message
-            setTimeout(() => {
-                successMessage.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center'
-                });
-            }, 100);
-        } else {
-            alert('There was an error submitting the form. Please try again.');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('There was an error submitting the form. Please try again.');
-    });
-});
-    
-    // Optional: Send to backend
-    // You can integrate with services like:
-    // - Formspree: https://formspree.io/
-    // - Basin: https://usebasin.com/
-    // - Your own backend API
-    
-    /*
-    fetch('YOUR_FORM_ENDPOINT', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Success:', data);
-        contactForm.style.display = 'none';
-        successMessage.style.display = 'block';
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-        alert('There was an error submitting the form. Please try again.');
-    });
-    */
-    
-    // Scroll to success message
-    setTimeout(() => {
-        successMessage.scrollIntoView({
-            behavior: 'smooth',
-            block: 'center'
-        });
-    }, 100);
-});
+        headers: { 'Accept': 'application/json' }
+      });
 
-// Add scroll effect to navigation
-let lastScrollTop = 0;
-const nav = document.querySelector('.nav');
-
-window.addEventListener('scroll', function() {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    
-    if (scrollTop > lastScrollTop && scrollTop > 100) {
-        // Scrolling down
-        nav.style.transform = 'translateY(-100%)';
-    } else {
-        // Scrolling up
-        nav.style.transform = 'translateY(0)';
+      if (response.ok) {
+        // IMPORTANT: if your site is in a subfolder, change this path.
+        // Examples:
+        // window.location.href = "/thank-you.html";
+        // window.location.href = "/signalarc.io/thank-you.html";
+        window.location.href = "/thank-you.html";
+      } else {
+        alert('There was an error submitting the form. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('There was an error submitting the form. Please try again.');
     }
-    
-    lastScrollTop = scrollTop;
-}, false);
+  });
+}
 
-// Add CSS for nav transform
-nav.style.transition = 'transform 0.3s ease';
+
+// ---------------------------
+// Navigation hide/show on scroll
+// ---------------------------
+const nav = document.querySelector('.nav');
+if (nav) {
+  let lastScrollTop = 0;
+  nav.style.transition = 'transform 0.3s ease';
+
+  window.addEventListener('scroll', function () {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+    if (scrollTop > lastScrollTop && scrollTop > 100) {
+      // Scrolling down
+      nav.style.transform = 'translateY(-100%)';
+    } else {
+      // Scrolling up
+      nav.style.transform = 'translateY(0)';
+    }
+
+    lastScrollTop = scrollTop;
+  }, false);
+}
