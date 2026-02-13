@@ -6,7 +6,6 @@
   <meta name="description" content="Predictable pipeline growth for MSPs. Automated email outreach and content syndication targeting your exact buyers. Built for $1M-$5M US-based managed service providers." />
   <title>Signal Arc | Predictable Pipeline for MSPs</title>
 
-  <!-- Use ONE stylesheet path (keep the one that actually exists in your repo) -->
   <link rel="stylesheet" href="styles.css" />
 
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -271,6 +270,9 @@
       <p class="contact-subtitle">Tell us about your business and goals. We'll create a tailored system for your MSP.</p>
 
       <form id="contactForm" class="contact-form" action="https://formspree.io/f/xreaplzq" method="POST">
+        <!-- Honeypot (spam trap) -->
+        <input type="text" name="_gotcha" style="display:none">
+
         <div class="form-group">
           <label for="serviceType">Select Service *</label>
           <select id="serviceType" name="serviceType" required>
@@ -283,23 +285,23 @@
         <div class="form-row">
           <div class="form-group">
             <label for="name">Name *</label>
-            <input type="text" id="name" name="Name" autocomplete="name" required />
+            <input type="text" id="name" name="name" autocomplete="name" required />
           </div>
           <div class="form-group">
             <label for="email">Email *</label>
-            <input type="email" id="email" name="Email" autocomplete="email" required />
+            <input type="email" id="email" name="email" autocomplete="email" required />
           </div>
         </div>
 
         <div class="form-group">
           <label for="company">Company *</label>
-          <input type="text" id="company" name="Company" autocomplete="organization" required />
+          <input type="text" id="company" name="company" autocomplete="organization" required />
         </div>
 
         <div id="outreach-fields" class="conditional-fields" hidden>
           <div class="form-group">
             <label for="budget">Monthly Budget *</label>
-            <select id="budget" name="Monthly Budget">
+            <select id="budget" name="budget">
               <option value="">Select budget range...</option>
               <option value="$1k–$3k">$1k–$3k</option>
               <option value="$3k–$6k">$3k–$6k</option>
@@ -310,39 +312,39 @@
 
           <div class="form-group">
             <label for="message">Message/Details</label>
-            <textarea id="message" name="Message" rows="4" placeholder="Tell us about your goals, ideal customers, or any questions"></textarea>
+            <textarea id="message" name="message" rows="4" placeholder="Tell us about your goals, ideal customers, or any questions"></textarea>
           </div>
         </div>
 
         <div id="contentsyn-fields" class="conditional-fields" hidden>
           <div class="form-group">
             <label for="geographic">Geographic Targeting *</label>
-            <input type="text" id="geographic" name="Geographic Targeting" placeholder="Which regions/states do you serve?" />
+            <input type="text" id="geographic" name="geographic" placeholder="Which regions/states do you serve?" />
           </div>
 
           <div class="form-group">
             <label for="jobTitles">Job Titles to Target *</label>
-            <input type="text" id="jobTitles" name="Job Titles" placeholder="E.g., IT Director, CFO, Operations Manager" />
+            <input type="text" id="jobTitles" name="jobTitles" placeholder="E.g., IT Director, CFO, Operations Manager" />
           </div>
 
           <div class="form-group">
             <label for="companySize">Company Size *</label>
-            <input type="text" id="companySize" name="Company Size/Type" placeholder="E.g., 50-200 employees" />
+            <input type="text" id="companySize" name="companySize" placeholder="E.g., 50-200 employees" />
           </div>
 
           <div class="form-group">
             <label for="industries">Industries *</label>
-            <input type="text" id="industries" name="Industries" placeholder="Which industries do you specialize in?" />
+            <input type="text" id="industries" name="industries" placeholder="Which industries do you specialize in?" />
           </div>
 
           <div class="form-group">
             <label for="leadVolume">Monthly Lead Volume Needed *</label>
-            <input type="text" id="leadVolume" name="Monthly Lead Volume Needed" placeholder="How many qualified leads do you need each month?" />
+            <input type="text" id="leadVolume" name="leadVolume" placeholder="How many qualified leads do you need each month?" />
           </div>
 
           <div class="form-group">
             <label for="content">Content You Want to Use *</label>
-            <textarea id="content" name="Content To Use" rows="4" placeholder="Describe the content/messaging you want to distribute (whitepapers, case studies, service overviews, etc.)"></textarea>
+            <textarea id="content" name="content" rows="4" placeholder="Describe the content/messaging you want to distribute (whitepapers, case studies, service overviews, etc.)"></textarea>
           </div>
         </div>
 
@@ -369,7 +371,6 @@
     </div>
   </footer>
 
-  <!-- ONE script only -->
   <script>
     (function () {
       // Smooth scrolling for anchor links
@@ -414,7 +415,6 @@
       function updateVisibleFields() {
         const value = serviceType.value;
 
-        // Default: hide all + clear required
         outreachWrap.hidden = true;
         contentWrap.hidden = true;
 
@@ -432,25 +432,8 @@
         }
       }
 
-      // Initial state
       updateVisibleFields();
       serviceType.addEventListener("change", updateVisibleFields);
-
-      // Service CTA buttons (preselect service)
-      document.querySelectorAll(".service-cta").forEach(btn => {
-        btn.addEventListener("click", function (e) {
-          e.preventDefault();
-          const svc = this.getAttribute("data-service");
-          const contactSection = document.getElementById("contact");
-          if (contactSection) {
-            contactSection.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
-          setTimeout(() => {
-            serviceType.value = svc;
-            serviceType.dispatchEvent(new Event("change"));
-          }, 250);
-        });
-      });
 
       // Keep reply-to aligned with the Email field
       const emailInput = document.getElementById("email");
@@ -462,11 +445,9 @@
       }
 
       // Submit to Formspree then redirect to thank-you page
-      /*
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
 
-        // Native validation
         if (!form.reportValidity()) return;
 
         const formData = new FormData(form);
@@ -487,7 +468,6 @@
           alert("Network error. Please try again.");
         }
       });
-      */
 
       // Nav hide/show on scroll
       const nav = document.querySelector(".nav");
