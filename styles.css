@@ -70,8 +70,8 @@ body {
 
 
 .logo-img {
-  height: 42px !important;
-  width: auto !important;
+  height: 80px;
+  width: auto;
   display: block;
   border: 2px solid red;
 }
