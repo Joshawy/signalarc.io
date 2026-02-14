@@ -52,7 +52,7 @@ body {
   align-items: center;
 }
 
-/* ===================================
+/* =================================== 
    LOGO FIX - CRITICAL SECTION
    =================================== */
 .logo {
@@ -62,25 +62,22 @@ body {
 }
 
 .logo-img {
-  height: 45px !important;
-  width: auto !important;
-  max-height: 45px !important;
-  display: block !important;
+  width: 200px;  /* Set the width you want */
+  height: auto;  /* Let height scale proportionally */
+  display: block;
 }
 
 /* Larger screens - bigger logo */
 @media (min-width: 1024px) {
   .logo-img {
-    height: 50px !important;
-    max-height: 50px !important;
+    width: 250px;
   }
 }
 
 /* Mobile - slightly smaller */
 @media (max-width: 768px) {
   .logo-img {
-    height: 38px !important;
-    max-height: 38px !important;
+    width: 150px;
   }
 }
 
