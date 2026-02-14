@@ -17,11 +17,9 @@
   <nav class="nav">
     <div class="container">
       <div class="nav-content">
-    <a href="#top" class="logo" aria-label="Signal Arc">
- <img src="signal-arc-logo.png" alt="Signal Arc" style="height:80px;border:3px solid red;" class="logo-img" />
-
-</a>
-
+        <a href="#top" class="logo" aria-label="Signal Arc">
+          <img src="signal-arc-logo.png" alt="Signal Arc" class="logo-img" />
+        </a>
 
         <div class="nav-links">
           <a href="#services">Services</a>
@@ -273,7 +271,6 @@
       <p class="contact-subtitle">Tell us about your business and goals. We'll create a tailored system for your MSP.</p>
 
       <form id="contactForm" class="contact-form" action="https://formspree.io/f/xreaplzq" method="POST" novalidate>
-
         <!-- Honeypot (spam trap) -->
         <input type="text" name="_gotcha" style="display:none">
 
@@ -464,8 +461,7 @@
           });
 
           if (res.ok) {
-           window.location.href = "https://www.signalarc.io/thank-you.html";
-
+            window.location.href = "https://www.signalarc.io/thank-you.html";
           } else {
             alert("Something went wrong sending your request. Please try again.");
           }
