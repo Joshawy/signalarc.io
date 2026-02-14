@@ -18,7 +18,7 @@
     <div class="container">
       <div class="nav-content">
         <a href="#top" class="logo" aria-label="Signal Arc">
-        <img src="signal-arc-logo.svg" alt="Signal Arc" class="logo-img" />
+        <img src="signal-arc-logo.png" alt="Signal Arc" class="logo-img" />
 
         </a>
 
@@ -191,108 +191,70 @@
         <div class="service-card">
           <h3>Automated Email Outreach</h3>
           <p class="service-description"><strong>What It Is:</strong> End-to-end email prospecting system that books qualified meetings on your calendar</p>
-          <p class="service-description"><strong>Best For:</strong> MSPs who need consistent meeting flow and have time to close deals</p>
-          <p class="service-description"><strong>Pricing Model:</strong> Monthly retainer (scales with targeting scope)</p>
-          <a href="#contact" class="cta-button secondary service-cta" data-service="outreach">Request Quote</a>
+          <ul class="service-features">
+            <li>Precision ICP targeting</li>
+            <li>Automated email sequences</li>
+            <li>Meetings booked directly</li>
+            <li>Full reporting & optimization</li>
+          </ul>
+          <p class="service-pricing"><strong>From $3k/month</strong></p>
+          <button class="cta-button service-cta" data-service="outreach">Get Pricing</button>
         </div>
+
         <div class="service-card">
           <h3>Content Syndication</h3>
-          <p class="service-description"><strong>What It Is:</strong> Distribute your content to your exact Ideal Customer Personas, generating high-intent leads</p>
-          <p class="service-description"><strong>Best For:</strong> MSPs building brand authority while filling pipeline</p>
-          <p class="service-description"><strong>Pricing Model:</strong> Monthly retainer (can be standalone or combined with email outreach)</p>
-          <a href="#contact" class="cta-button secondary service-cta" data-service="contentsyn">Request Quote</a>
+          <p class="service-description"><strong>What It Is:</strong> Distribute your content to decision-makers in your exact target accounts</p>
+          <ul class="service-features">
+            <li>Hyper-targeted placement</li>
+            <li>High-intent leads</li>
+            <li>Full engagement tracking</li>
+            <li>Works with your existing content</li>
+          </ul>
+          <p class="service-pricing"><strong>Custom pricing</strong></p>
+          <button class="cta-button service-cta" data-service="contentsyn">Get Pricing</button>
+        </div>
+
+        <div class="service-card">
+          <h3>Buyer Match Targeting</h3>
+          <p class="service-description"><strong>What It Is:</strong> Combine both systems for maximum reach and relevance</p>
+          <ul class="service-features">
+            <li>Multi-channel engagement</li>
+            <li>Higher conversion rates</li>
+            <li>Synchronized campaigns</li>
+            <li>Priority support</li>
+          </ul>
+          <p class="service-pricing"><strong>Custom pricing</strong></p>
+          <button class="cta-button service-cta" data-service="both">Get Pricing</button>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- What We Need Section -->
-  <section class="what-we-need">
-    <div class="container">
-      <h2 class="section-title">What We Need From You</h2>
-      <p class="intro-text">To build a system that actually works, we need to understand your business. Here's what we'll ask for:</p>
-      <div class="requirements-grid">
-        <div class="requirement">
-          <div class="req-icon">✓</div>
-          <div class="req-content">
-            <h4>Your Ideal Customer Personas</h4>
-            <p>What types of businesses do you serve best? (Don't worry if you're not sure—we'll help you clarify this)</p>
-          </div>
-        </div>
-        <div class="requirement">
-          <div class="req-icon">✓</div>
-          <div class="req-content">
-            <h4>Geographic Targeting</h4>
-            <p>Where are your best customers located?</p>
-          </div>
-        </div>
-        <div class="requirement">
-          <div class="req-icon">✓</div>
-          <div class="req-content">
-            <h4>Decision-Maker Titles</h4>
-            <p>Who do you typically sell to? (IT Directors, CFOs, Operations Managers, etc.)</p>
-          </div>
-        </div>
-        <div class="requirement">
-          <div class="req-icon">✓</div>
-          <div class="req-content">
-            <h4>Company Size & Type</h4>
-            <p>Revenue range, employee count, or industry verticals you specialize in</p>
-          </div>
-        </div>
-        <div class="requirement">
-          <div class="req-icon">✓</div>
-          <div class="req-content">
-            <h4>Your Differentiators</h4>
-            <p>How do you outperform competitors? What makes you the right choice?</p>
-          </div>
-        </div>
-        <div class="requirement">
-          <div class="req-icon">✓</div>
-          <div class="req-content">
-            <h4>Monthly Volume Goals</h4>
-            <p>How many new qualified meetings do you need each month?</p>
-          </div>
-        </div>
-        <div class="requirement">
-          <div class="req-icon">✓</div>
-          <div class="req-content">
-            <h4>Content/Messaging</h4>
-            <p>What do you want prospects to know about your services?</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact Form Section -->
+  <!-- Contact Section -->
   <section id="contact" class="contact">
     <div class="container">
       <h2 class="section-title">Get a Custom Quote</h2>
-      <p class="contact-subtitle">Tell us about your business and goals. We'll create a tailored system for your MSP.</p>
+      <p class="contact-subtitle">Choose the service you want and we'll send you pricing tailored to your needs.</p>
 
-      <form id="contactForm" class="contact-form" action="https://formspree.io/f/xreaplzq" method="POST" novalidate>
-        <!-- Honeypot (spam trap) -->
-        <input type="text" name="_gotcha" style="display:none">
-
+      <form id="contactForm" action="https://formspree.io/f/xreaplzq" method="POST" class="contact-form">
         <div class="form-group">
-          <label for="serviceType">Select Service *</label>
+          <label for="serviceType">Service of Interest *</label>
           <select id="serviceType" name="serviceType" required>
-            <option value="">Choose a service...</option>
-            <option value="outreach">Automated Email Outreach (Book Meetings)</option>
+            <option value="">Select a service...</option>
+            <option value="outreach">Automated Email Outreach</option>
             <option value="contentsyn">Content Syndication</option>
+            <option value="both">Buyer Match Targeting (Both)</option>
           </select>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label for="name">Name *</label>
-            <input type="text" id="name" name="name" autocomplete="name" required />
-          </div>
-          <div class="form-group">
-            <label for="email">Email *</label>
-            <input type="email" id="email" name="email" autocomplete="email" required />
-          </div>
+        <div class="form-group">
+          <label for="name">Name *</label>
+          <input type="text" id="name" name="name" autocomplete="name" required />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input type="email" id="email" name="email" autocomplete="email" required />
         </div>
 
         <div class="form-group">
