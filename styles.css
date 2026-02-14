@@ -52,6 +52,7 @@ body {
   align-items: center;
 }
 
+ /* =================================== 
    LOGO FIX - CRITICAL SECTION
    =================================== */
 .logo {
@@ -61,22 +62,25 @@ body {
 }
 
 .logo-img {
-  width: 200px;  /* Set the width you want */
-  height: auto;  /* Let height scale proportionally */
+  width: 120px;  /* Smaller size */
+  height: auto;
   display: block;
 }
 
 /* Larger screens - bigger logo */
 @media (min-width: 1024px) {
   .logo-img {
-    width: 250px;
+    width: 140px;
   }
 }
 
 /* Mobile - slightly smaller */
 @media (max-width: 768px) {
   .logo-img {
-    width: 150px;
+    width: 100px;
+  }
+}  /* <-- THIS WAS MISSING! */
+
 /* ===================================
    NAV LINKS
    =================================== */
