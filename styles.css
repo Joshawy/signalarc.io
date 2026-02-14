@@ -72,7 +72,8 @@ body {
 }
 
 .logo-img {
-  height: var(--logo-height);
+  height: --logo-height: 72px;
+;
   width: auto;
   display: block;
 }
