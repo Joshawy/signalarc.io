@@ -70,11 +70,11 @@ body {
 
 
 .logo-img {
-    height: 40px;
+    height: 42px;
     width: auto;
     display: block;
-    object-fit: contain;
 }
+
 
 
 .nav-links {
