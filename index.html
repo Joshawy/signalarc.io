@@ -623,7 +623,8 @@
     }
     .form-group select option { background: var(--bg2); }
     .form-group textarea { resize: vertical; }
-    .conditional-fields { display: contents; }
+    .conditional-fields { display: flex; flex-direction: column; gap: 20px; }
+    .conditional-fields[hidden] { display: none; }
     .submit-button {
       width: 100%;
       padding: 16px;
