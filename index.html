@@ -970,23 +970,25 @@
           <input type="email" id="email" name="email" autocomplete="email" required />
         </div>
 
+        <!-- Email Outreach fields -->
         <div id="outreach-fields" class="conditional-fields" hidden>
           <div class="form-group">
             <label for="budget">Monthly Budget *</label>
             <select id="budget" name="budget">
               <option value="">Select budget range...</option>
-              <option value="$1k–$3k">$1k–$3k</option>
-              <option value="$3k–$6k">$3k–$6k</option>
-              <option value="$6k–$10k">$6k–$10k</option>
+              <option value="$1k-$3k">$1k–$3k</option>
+              <option value="$3k-$6k">$3k–$6k</option>
+              <option value="$6k-$10k">$6k–$10k</option>
               <option value="$10k+">$10k+</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="message">Anything else we should know?</label>
-            <textarea id="message" name="message" rows="3" placeholder="Your goals, target market, questions..."></textarea>
+            <label for="outreach-message">Anything else we should know?</label>
+            <textarea id="outreach-message" name="message" rows="3" placeholder="Your goals, target market, questions..."></textarea>
           </div>
         </div>
 
+        <!-- Content Syndication fields -->
         <div id="contentsyn-fields" class="conditional-fields" hidden>
           <div class="form-row">
             <div class="form-group">
@@ -994,17 +996,21 @@
               <input type="text" id="geographic" name="geographic" placeholder="Regions/states you serve" />
             </div>
             <div class="form-group">
-              <label for="companySize">Target Company Size *</label>
-              <input type="text" id="companySize" name="companySize" placeholder="E.g., 50–200 employees" />
+              <label for="jobTitles">Job Titles to Target *</label>
+              <input type="text" id="jobTitles" name="jobTitles" placeholder="E.g., IT Director, CFO" />
             </div>
-          </div>
-          <div class="form-group">
-            <label for="jobTitles">Job Titles to Target *</label>
-            <input type="text" id="jobTitles" name="jobTitles" placeholder="E.g., IT Director, CFO, Operations Manager" />
           </div>
           <div class="form-group">
             <label for="content">Content You Want to Syndicate *</label>
             <textarea id="content" name="content" rows="3" placeholder="Whitepapers, case studies, service overviews, etc."></textarea>
+          </div>
+        </div>
+
+        <!-- Buyer Match fields -->
+        <div id="both-fields" class="conditional-fields" hidden>
+          <div class="form-group">
+            <label for="both-message">Tell us about your goals *</label>
+            <textarea id="both-message" name="message" rows="4" placeholder="What does success look like for your MSP? Who are your ideal clients?"></textarea>
           </div>
         </div>
 
@@ -1054,13 +1060,15 @@
       const serviceType = document.getElementById("serviceType");
       const outreachWrap = document.getElementById("outreach-fields");
       const contentWrap = document.getElementById("contentsyn-fields");
+      const bothWrap = document.getElementById("both-fields");
       const budgetEl = document.getElementById("budget");
-
-      const contentRequired = [
+      const synRequired = [
         document.getElementById("geographic"),
         document.getElementById("jobTitles"),
-        document.getElementById("companySize"),
         document.getElementById("content"),
+      ].filter(Boolean);
+      const bothRequiredEls = [
+        document.getElementById("both-message"),
       ].filter(Boolean);
 
       function setRequired(el, required) {
@@ -1071,24 +1079,24 @@
 
       function updateVisibleFields() {
         const value = serviceType.value;
+        // Hide all conditional sections
         outreachWrap.hidden = true;
         contentWrap.hidden = true;
+        bothWrap.hidden = true;
+        // Clear all conditional required attrs
         setRequired(budgetEl, false);
-        contentRequired.forEach(el => setRequired(el, false));
+        synRequired.forEach(el => setRequired(el, false));
+        bothRequiredEls.forEach(el => setRequired(el, false));
 
         if (value === "outreach") {
           outreachWrap.hidden = false;
           setRequired(budgetEl, true);
-        }
-        if (value === "contentsyn") {
+        } else if (value === "contentsyn") {
           contentWrap.hidden = false;
-          contentRequired.forEach(el => setRequired(el, true));
-        }
-        if (value === "both") {
-          outreachWrap.hidden = false;
-          contentWrap.hidden = false;
-          setRequired(budgetEl, true);
-          contentRequired.forEach(el => setRequired(el, true));
+          synRequired.forEach(el => setRequired(el, true));
+        } else if (value === "both") {
+          bothWrap.hidden = false;
+          bothRequiredEls.forEach(el => setRequired(el, true));
         }
       }
 
