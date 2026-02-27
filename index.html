@@ -1258,118 +1258,118 @@
 
   </div>
 </section>
-  <!-- Contact Section -->
-  <section id="contact" class="contact">
-    <div class="container">
-      <div class="section-label">Get Started</div>
-      <h2 class="section-title">Get a Custom Quote</h2>
-      <p class="contact-subtitle">Tell us which service interests you and we'll send tailored pricing within one business day.</p>
+ <!-- Contact Section -->
+<section id="contact" class="contact">
+  <div class="container">
+    <div class="section-label">Get Started</div>
+    <h2 class="section-title">Get a Custom Quote</h2>
+    <p class="contact-subtitle">Tell us which service interests you and we'll send tailored pricing within one business day.</p>
 
-      <form id="contactForm" action="https://formspree.io/f/xreaplzq" method="POST" class="contact-form">
+    <form id="contactForm" action="https://formspree.io/f/xreaplzq" method="POST" class="contact-form">
+      <div class="form-group">
+        <label for="serviceType">Service of Interest *</label>
+        <select id="serviceType" name="serviceType" required>
+          <option value="">Select a service...</option>
+          <option value="audit">Email Audit & Copywriting</option>
+          <option value="contentsyn">Content Syndication</option>
+          <option value="outbound">Done-For-You Outbound</option>
+        </select>
+      </div>
+
+      <div class="form-row">
         <div class="form-group">
-          <label for="serviceType">Service of Interest *</label>
-          <select id="serviceType" name="serviceType" required>
-            <option value="">Select a service...</option>
-            <option value="outreach">Automated Email Outreach</option>
-            <option value="contentsyn">Content Syndication</option>
-            <option value="both">Buyer Match Targeting (Both)</option>
-          </select>
+          <label for="name">Name *</label>
+          <input type="text" id="name" name="name" autocomplete="name" required />
         </div>
+        <div class="form-group">
+          <label for="company">Company *</label>
+          <input type="text" id="company" name="company" autocomplete="organization" required />
+        </div>
+      </div>
 
+      <div class="form-group">
+        <label for="email">Work Email *</label>
+        <input type="email" id="email" name="email" autocomplete="email" required />
+      </div>
+
+      <!-- Email Audit & Copywriting fields -->
+      <div id="audit-fields" class="conditional-fields" hidden>
+        <div class="form-group">
+          <label for="audit-platform">Email Platform *</label>
+          <input type="text" id="audit-platform" name="audit_platform" placeholder="E.g., Mailchimp, HubSpot, Instantly, none" />
+        </div>
+        <div class="form-group">
+          <label for="audit-sequences">Do you have existing email sequences? *</label>
+          <textarea id="audit-sequences" name="audit_sequences" rows="3" placeholder="Describe what you have — or tell us you're starting from scratch"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="audit-message">Anything else we should know?</label>
+          <textarea id="audit-message" name="audit_message" rows="3" placeholder="Goals, open rates, what's not working..."></textarea>
+        </div>
+      </div>
+
+      <!-- Content Syndication fields -->
+      <div id="contentsyn-fields" class="conditional-fields" hidden>
         <div class="form-row">
           <div class="form-group">
-            <label for="name">Name *</label>
-            <input type="text" id="name" name="name" autocomplete="name" required />
+            <label for="syn-geo">Geographic Targeting *</label>
+            <input type="text" id="syn-geo" name="syn_geographic" placeholder="Regions/states you serve" />
           </div>
           <div class="form-group">
-            <label for="company">Company *</label>
-            <input type="text" id="company" name="company" autocomplete="organization" required />
+            <label for="syn-titles">Job Titles to Target *</label>
+            <input type="text" id="syn-titles" name="syn_jobTitles" placeholder="E.g., IT Director, CFO" />
           </div>
         </div>
-
         <div class="form-group">
-          <label for="email">Work Email *</label>
-          <input type="email" id="email" name="email" autocomplete="email" required />
+          <label for="syn-asset">Content Asset Link *</label>
+          <input type="url" id="syn-asset" name="syn_assetLink" placeholder="Google Drive or Dropbox link to your content" />
         </div>
+        <div class="form-group">
+          <label for="syn-message">Anything else we should know?</label>
+          <textarea id="syn-message" name="syn_message" rows="3" placeholder="Goals, questions, anything relevant..."></textarea>
+        </div>
+      </div>
 
-        <!-- Email Outreach fields -->
-        <div id="outreach-fields" class="conditional-fields" hidden>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="outreach-geo">Geographic Targeting *</label>
-              <input type="text" id="outreach-geo" name="outreach_geographic" placeholder="Regions/states you serve" />
-            </div>
-            <div class="form-group">
-              <label for="outreach-titles">Job Titles to Target *</label>
-              <input type="text" id="outreach-titles" name="outreach_jobTitles" placeholder="E.g., IT Director, CFO" />
-            </div>
+      <!-- Done-For-You Outbound fields -->
+      <div id="outbound-fields" class="conditional-fields" hidden>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="out-geo">Geographic Targeting *</label>
+            <input type="text" id="out-geo" name="out_geographic" placeholder="Regions/states you serve" />
           </div>
           <div class="form-group">
-            <label for="outreach-strategy">Current Email Outreach Strategy *</label>
-            <textarea id="outreach-strategy" name="outreach_strategy" rows="3" placeholder="What are you doing today for outreach? E.g., cold calling, referrals, no formal process..."></textarea>
-          </div>
-          <div class="form-group">
-            <label for="outreach-message">Anything else we should know?</label>
-            <textarea id="outreach-message" name="outreach_message" rows="3" placeholder="Goals, questions, anything relevant..."></textarea>
+            <label for="out-titles">Job Titles to Target *</label>
+            <input type="text" id="out-titles" name="out_jobTitles" placeholder="E.g., IT Director, CFO" />
           </div>
         </div>
-
-        <!-- Content Syndication fields -->
-        <div id="contentsyn-fields" class="conditional-fields" hidden>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="syn-geo">Geographic Targeting *</label>
-              <input type="text" id="syn-geo" name="syn_geographic" placeholder="Regions/states you serve" />
-            </div>
-            <div class="form-group">
-              <label for="syn-titles">Job Titles to Target *</label>
-              <input type="text" id="syn-titles" name="syn_jobTitles" placeholder="E.g., IT Director, CFO" />
-            </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="out-size">Target Company Size *</label>
+            <input type="text" id="out-size" name="out_companySize" placeholder="E.g., 10–200 employees" />
           </div>
           <div class="form-group">
-            <label for="syn-content">Content You Want to Syndicate *</label>
-            <textarea id="syn-content" name="syn_content" rows="3" placeholder="Whitepapers, case studies, service overviews, etc."></textarea>
-          </div>
-          <div class="form-group">
-            <label for="syn-message">Anything else we should know?</label>
-            <textarea id="syn-message" name="syn_message" rows="3" placeholder="Goals, questions, anything relevant..."></textarea>
+            <label for="out-industry">Target Industries</label>
+            <input type="text" id="out-industry" name="out_industry" placeholder="E.g., dental, legal, manufacturing" />
           </div>
         </div>
-
-        <!-- Buyer Match fields -->
-        <div id="both-fields" class="conditional-fields" hidden>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="both-geo">Geographic Targeting *</label>
-              <input type="text" id="both-geo" name="both_geographic" placeholder="Regions/states you serve" />
-            </div>
-            <div class="form-group">
-              <label for="both-titles">Job Titles to Target *</label>
-              <input type="text" id="both-titles" name="both_jobTitles" placeholder="E.g., IT Director, CFO" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="both-strategy">Current Email Outreach Strategy *</label>
-            <textarea id="both-strategy" name="both_strategy" rows="3" placeholder="What are you doing today for outreach? E.g., cold calling, referrals, no formal process..."></textarea>
-          </div>
-          <div class="form-group">
-            <label for="both-content">Content You Want to Syndicate *</label>
-            <textarea id="both-content" name="both_content" rows="3" placeholder="Whitepapers, case studies, service overviews, etc."></textarea>
-          </div>
-          <div class="form-group">
-            <label for="both-message">Anything else we should know?</label>
-            <textarea id="both-message" name="both_message" rows="3" placeholder="Goals, questions, anything relevant..."></textarea>
-          </div>
+        <div class="form-group">
+          <label for="out-strategy">Current Outreach Strategy *</label>
+          <textarea id="out-strategy" name="out_strategy" rows="3" placeholder="What are you doing today? E.g., cold calling, referrals, no formal process..."></textarea>
         </div>
+        <div class="form-group">
+          <label for="out-message">Anything else we should know?</label>
+          <textarea id="out-message" name="out_message" rows="3" placeholder="Goals, questions, anything relevant..."></textarea>
+        </div>
+      </div>
 
-        <input type="hidden" name="_subject" value="New Signal Arc Quote Request" />
-        <input type="hidden" name="_replyto" id="replytoHidden" value="" />
+      <input type="hidden" name="_subject" value="New SignalArc Quote Request" />
+      <input type="hidden" name="_replyto" id="replytoHidden" value="" />
 
-        <button type="submit" class="cta-button primary submit-button">Send Request →</button>
-        <p class="form-privacy">No spam. No cold lists. Just a reply with pricing tailored to your MSP.</p>
-      </form>
-    </div>
-  </section>
+      <button type="submit" class="cta-button primary submit-button">Send Request →</button>
+      <p class="form-privacy">No spam. No cold lists. Just a reply with pricing tailored to your MSP.</p>
+    </form>
+  </div>
+</section>
 
   <!-- Footer -->
   <footer class="footer">
@@ -1404,59 +1404,35 @@
         });
       });
 
-      const form = document.getElementById("contactForm");
-      const serviceType = document.getElementById("serviceType");
-      const outreachWrap = document.getElementById("outreach-fields");
-      const contentWrap = document.getElementById("contentsyn-fields");
-      const bothWrap = document.getElementById("both-fields");
+const serviceType = document.getElementById("serviceType");
+const auditWrap = document.getElementById("audit-fields");
+const contentWrap = document.getElementById("contentsyn-fields");
+const outboundWrap = document.getElementById("outbound-fields");
 
-      const outreachRequired = [
-        document.getElementById("outreach-geo"),
-        document.getElementById("outreach-titles"),
-        document.getElementById("outreach-strategy"),
-      ].filter(Boolean);
-      const synRequired = [
-        document.getElementById("syn-geo"),
-        document.getElementById("syn-titles"),
-        document.getElementById("syn-content"),
-      ].filter(Boolean);
-      const bothRequired = [
-        document.getElementById("both-geo"),
-        document.getElementById("both-titles"),
-        document.getElementById("both-strategy"),
-        document.getElementById("both-content"),
-      ].filter(Boolean);
+const auditRequired = [document.getElementById("audit-platform"), document.getElementById("audit-sequences")].filter(Boolean);
+const synRequired = [document.getElementById("syn-geo"), document.getElementById("syn-titles"), document.getElementById("syn-asset")].filter(Boolean);
+const outboundRequired = [document.getElementById("out-geo"), document.getElementById("out-titles"), document.getElementById("out-strategy")].filter(Boolean);
 
-      function setRequired(el, required) {
-        if (!el) return;
-        if (required) el.setAttribute("required", "required");
-        else el.removeAttribute("required");
-      }
+function setRequired(el, required) {
+  if (!el) return;
+  if (required) el.setAttribute("required", "required");
+  else el.removeAttribute("required");
+}
 
-      function updateVisibleFields() {
-        const value = serviceType.value;
-        outreachWrap.hidden = true;
-        contentWrap.hidden = true;
-        bothWrap.hidden = true;
-        outreachRequired.forEach(el => setRequired(el, false));
-        synRequired.forEach(el => setRequired(el, false));
-        bothRequired.forEach(el => setRequired(el, false));
+function updateVisibleFields() {
+  const value = serviceType.value;
+  auditWrap.hidden = true;
+  contentWrap.hidden = true;
+  outboundWrap.hidden = true;
+  [...auditRequired, ...synRequired, ...outboundRequired].forEach(el => setRequired(el, false));
 
-        if (value === "outreach") {
-          outreachWrap.hidden = false;
-          outreachRequired.forEach(el => setRequired(el, true));
-        } else if (value === "contentsyn") {
-          contentWrap.hidden = false;
-          synRequired.forEach(el => setRequired(el, true));
-        } else if (value === "both") {
-          bothWrap.hidden = false;
-          bothRequired.forEach(el => setRequired(el, true));
-        }
-      }
+  if (value === "audit") { auditWrap.hidden = false; auditRequired.forEach(el => setRequired(el, true)); }
+  else if (value === "contentsyn") { contentWrap.hidden = false; synRequired.forEach(el => setRequired(el, true)); }
+  else if (value === "outbound") { outboundWrap.hidden = false; outboundRequired.forEach(el => setRequired(el, true)); }
+}
 
-      updateVisibleFields();
-      serviceType.addEventListener("change", updateVisibleFields);
-
+updateVisibleFields();
+serviceType.addEventListener("change", updateVisibleFields);
       // Wire service card buttons to the form
       document.querySelectorAll('.service-cta').forEach(btn => {
         btn.addEventListener('click', () => {
