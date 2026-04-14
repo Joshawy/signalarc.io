@@ -201,11 +201,13 @@ async function sb(path, method='GET', body=null) {
 async function loadData() {
   document.getElementById('last-refresh').textContent = 'Updated: ' + new Date().toLocaleTimeString();
   // Populate CSV client dropdown
-  const sel = document.getElementById('csv-client-select');
-  if (sel && credits) {
-    sel.innerHTML = '<option value="">-- Select existing client --</option>' +
-      credits.map(c => '<option value="'+c.email+'">'+c.email+'</option>').join('');
-  }
+  setTimeout(() => {
+    const sel = document.getElementById('csv-client-select');
+    if (sel && credits) {
+      sel.innerHTML = '<option value="">-- Select existing client --</option>' +
+        credits.map(c => '<option value="'+c.email+'">'+c.email+'</option>').join('');
+    }
+  }, 100);
 
   const [credits, txns, deliveries] = await Promise.all([
     sb('credit_accounts?select=*&order=updated_at.desc'),
