@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Account | SignalArc</title>
-<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800;900&family=Barlow Condensed:wght@700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -32,21 +32,24 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .portal-header .label{font-size:12px;font-weight:700;letter-spacing:0.12em;color:var(--teal);text-transform:uppercase;margin-bottom:8px}
 .portal-header h1{font-family:var(--font-display);font-size:42px;font-weight:900}
 .portal-header h1 em{color:var(--teal);font-style:normal}
-.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:40px}
+.stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
 .stat-card{background:var(--bg2);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:24px}
 .stat-card .stat-label{font-size:13px;color:var(--muted);margin-bottom:8px}
-.stat-card .stat-value{font-family:var(--font-display);font-size:40px;font-weight:900;color:var(--teal);line-height:1}
+.stat-card .stat-value{font-family:var(--font-display);font-size:36px;font-weight:900;color:var(--teal);line-height:1}
 .stat-card .stat-sub{font-size:12px;color:var(--muted);margin-top:4px}
 .stat-card.highlight{border-color:var(--teal-border);background:rgba(0,212,168,0.05)}
+.bonus-card{background:linear-gradient(135deg,rgba(250,200,100,0.08),rgba(250,200,100,0.03));border:1px solid rgba(250,200,100,0.3);border-radius:12px;padding:20px 24px;display:flex;align-items:center;gap:16px;margin-bottom:24px}
+.bonus-card .bonus-icon{font-size:32px;line-height:1}
+.bonus-card .bonus-title{font-family:var(--font-display);font-size:20px;font-weight:800;color:#fac864;margin-bottom:4px}
+.bonus-card .bonus-sub{font-size:13px;color:var(--muted)}
 .section-title{font-size:18px;font-weight:700;margin-bottom:16px}
 .section-wrap{background:var(--bg2);border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;margin-bottom:32px}
 table{width:100%;border-collapse:collapse}
 th{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;padding:14px 20px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06)}
 td{padding:14px 20px;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.04)}
 tr:last-child td{border-bottom:none}
-.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px}
-.badge-purchase{background:rgba(0,212,168,0.15);color:var(--teal)}
-.badge-usage{background:rgba(250,200,100,0.15);color:#fac864}
+.badge-purchase{background:rgba(0,212,168,0.15);color:var(--teal);display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px}
+.badge-usage{background:rgba(250,200,100,0.15);color:#fac864;display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px}
 .empty-state{text-align:center;padding:40px;color:var(--muted);font-size:14px}
 .delivery-row{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.04)}
 .delivery-row:last-child{border-bottom:none}
@@ -58,6 +61,7 @@ tr:last-child td{border-bottom:none}
 .add-credits-card h3 em{color:var(--teal);font-style:normal}
 .add-credits-card p{font-size:14px;color:var(--muted)}
 .btn-teal{background:var(--teal);color:#071012;font-weight:700;font-size:14px;padding:12px 24px;border-radius:8px;text-decoration:none;white-space:nowrap}
+@media(max-width:768px){.stat-grid{grid-template-columns:1fr 1fr}.portal-wrap{padding:80px 24px 40px}}
 </style>
 </head>
 <body>
@@ -68,7 +72,6 @@ tr:last-child td{border-bottom:none}
     <button class="sign-out-btn" onclick="signOut()" style="display:none" id="sign-out-btn">Sign Out</button>
   </div>
 </nav>
-
 <div class="login-wrap" id="login-state">
   <div class="login-card">
     <h1>Your <em>Account</em></h1>
@@ -79,7 +82,6 @@ tr:last-child td{border-bottom:none}
     <div class="success-msg" id="login-success">&#10003; Magic link sent! Check your inbox.</div>
   </div>
 </div>
-
 <div class="portal-wrap" id="portal-state">
   <div class="portal-header">
     <div class="label">Client Portal</div>
@@ -89,6 +91,14 @@ tr:last-child td{border-bottom:none}
     <div class="stat-card highlight"><div class="stat-label">Available Credits</div><div class="stat-value" id="credit-balance">$0</div><div class="stat-sub">Ready to use</div></div>
     <div class="stat-card"><div class="stat-label">Total Purchased</div><div class="stat-value" id="total-purchased">$0</div><div class="stat-sub">All time</div></div>
     <div class="stat-card"><div class="stat-label">Total Used</div><div class="stat-value" id="total-used">$0</div><div class="stat-sub">All time</div></div>
+    <div class="stat-card"><div class="stat-label">Total Leads</div><div class="stat-value" id="total-leads">0</div><div class="stat-sub">In your list</div></div>
+  </div>
+  <div class="bonus-card" id="bonus-card" style="display:none">
+    <div class="bonus-icon">&#127873;</div>
+    <div>
+      <div class="bonus-title">Bonus Leads from SignalARC!</div>
+      <div class="bonus-sub" id="bonus-sub">You received extra leads on us &mdash; a little gift from our team.</div>
+    </div>
   </div>
   <div class="add-credits-card">
     <div><h3>Need More <em>Credits?</em></h3><p>Minimum $625 &middot; No expiry &middot; Use whenever you're ready</p></div>
@@ -101,87 +111,77 @@ tr:last-child td{border-bottom:none}
   <div class="section-title">Your Leads</div>
   <div class="section-wrap" id="leads-wrap"><div class="empty-state">No leads yet.</div></div>
 </div>
-
 <script src="signalarc-chat-widget.js"></script>
 <script>
-const {createClient} = supabase;
-const db = createClient('https://jvsflvwisxprelbwxupj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2c2Zsdndpc3hwcmVsYnd4dXBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNzM1MTksImV4cCI6MjA5MTc0OTUxOX0.0Vt0fN_dxFt-G57uBOoVhHOrhO6CtwVwK-j4jrx5VjU');
+const {createClient}=supabase;
+const db=createClient('https://jvsflvwisxprelbwxupj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2c2Zsdndpc3hwcmVsYnd4dXBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNzM1MTksImV4cCI6MjA5MTc0OTUxOX0.0Vt0fN_dxFt-G57uBOoVhHOrhO6CtwVwK-j4jrx5VjU');
 
-async function sendMagicLink() {
-  const email = document.getElementById('login-email').value.trim();
-  if (!email) { alert('Please enter your email.'); return; }
-  const btn = document.getElementById('login-btn');
-  btn.disabled = true; btn.textContent = 'Sending...';
-  const {error} = await db.auth.signInWithOtp({
-    email,
-    options: { emailRedirectTo: 'https://signalarc.io/account.html' }
-  });
-  if (error) {
-    alert('Error: ' + error.message);
-    btn.disabled = false; btn.textContent = 'Send Magic Link →';
-  } else {
-    document.getElementById('login-success').style.display = 'block';
-    btn.textContent = 'Link Sent ✓';
-  }
+async function sendMagicLink(){
+  const email=document.getElementById('login-email').value.trim();
+  if(!email){alert('Please enter your email.');return;}
+  const btn=document.getElementById('login-btn');
+  btn.disabled=true;btn.textContent='Sending...';
+  const{error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:'https://signalarc.io/account.html'}});
+  if(error){alert('Error: '+error.message);btn.disabled=false;btn.textContent='Send Magic Link →';}
+  else{document.getElementById('login-success').style.display='block';btn.textContent='Link Sent ✓';}
 }
 
-async function signOut() {
-  await db.auth.signOut();
-  location.reload();
-}
+async function signOut(){await db.auth.signOut();location.reload();}
 
-async function loadPortal(email) {
-  document.getElementById('login-state').style.display = 'none';
-  document.getElementById('portal-state').style.display = 'block';
-  document.getElementById('nav-email').textContent = email;
-  document.getElementById('sign-out-btn').style.display = 'block';
+async function loadPortal(email){
+  document.getElementById('login-state').style.display='none';
+  document.getElementById('portal-state').style.display='block';
+  document.getElementById('nav-email').textContent=email;
+  document.getElementById('sign-out-btn').style.display='block';
 
-  const [credRes, txnRes, dlRes, leadsRes] = await Promise.all([
-    db.from('credit_accounts').select('*').eq('email', email).single(),
-    db.from('transactions').select('*').eq('email', email).order('created_at', {ascending: false}),
-    db.from('lead_deliveries').select('*').eq('email', email).order('delivery_date', {ascending: false}),
-    db.from('leads').select('*').eq('client_email', email).order('created_at', {ascending: false})
+  const[credRes,txnRes,dlRes,leadsRes]=await Promise.all([
+    db.from('credit_accounts').select('*').eq('email',email).single(),
+    db.from('transactions').select('*').eq('email',email).order('created_at',{ascending:false}),
+    db.from('lead_deliveries').select('*').eq('email',email).order('delivery_date',{ascending:false}),
+    db.from('leads').select('id,lead_first_name,lead_last_name,lead_email,lead_title,lead_company').eq('client_email',email).order('created_at',{ascending:false})
   ]);
 
-  const c = credRes.data;
-  if (c) {
-    document.getElementById('credit-balance').textContent = '$' + parseFloat(c.credit_balance).toLocaleString();
-    document.getElementById('total-purchased').textContent = '$' + parseFloat(c.total_purchased).toLocaleString();
-    document.getElementById('total-used').textContent = '$' + parseFloat(c.total_used).toLocaleString();
+  const c=credRes.data;
+  if(c){
+    document.getElementById('credit-balance').textContent='$'+parseFloat(c.credit_balance).toLocaleString();
+    document.getElementById('total-purchased').textContent='$'+parseFloat(c.total_purchased).toLocaleString();
+    document.getElementById('total-used').textContent='$'+parseFloat(c.total_used).toLocaleString();
+    if(c.bonus_leads>0){
+      document.getElementById('bonus-card').style.display='flex';
+      document.getElementById('bonus-sub').textContent='You received '+c.bonus_leads+' bonus lead'+(c.bonus_leads>1?'s':'')+' on us — a little gift from our team. 🎉';
+    }
   }
 
-  const txns = txnRes.data;
-  const tbody = document.getElementById('transactions-body');
-  if (txns && txns.length > 0) {
-    tbody.innerHTML = txns.map(t => '<tr><td>' + new Date(t.created_at).toLocaleDateString() + '</td><td>' + (t.description||'&mdash;') + '</td><td><span class="badge badge-' + t.type + '">' + t.type + '</span></td><td style="text-align:right;color:' + (t.type==='usage'?'#fac864':'var(--teal)') + ';">' + (t.type==='usage'?'-':'+') + ' $' + parseFloat(t.amount).toLocaleString() + '</td></tr>').join('');
+  const leads=leadsRes.data;
+  document.getElementById('total-leads').textContent=(leads?.length||0).toLocaleString();
+
+  const txns=txnRes.data;
+  const tbody=document.getElementById('transactions-body');
+  if(txns&&txns.length>0){
+    tbody.innerHTML=txns.map(t=>'<tr><td>'+new Date(t.created_at).toLocaleDateString()+'</td><td>'+(t.description||'&mdash;')+'</td><td><span class="badge-'+t.type+'">'+t.type+'</span></td><td style="text-align:right;color:'+(t.type==='usage'?'#fac864':'var(--teal)')+';">'+(t.type==='usage'?'-':'+')+' $'+parseFloat(t.amount).toLocaleString()+'</td></tr>').join('');
   }
 
-  const dl = dlRes.data;
-  const dw = document.getElementById('deliveries-wrap');
-  if (dl && dl.length > 0) {
-    dw.innerHTML = dl.map(d => '<div class="delivery-row"><div><div class="delivery-count">' + d.leads_delivered + ' Leads</div><div class="delivery-meta">' + (d.industry||'All industries') + (d.notes?' &middot; '+d.notes:'') + '</div></div><div class="delivery-date">' + new Date(d.delivery_date).toLocaleDateString() + '</div></div>').join('');
+  const dl=dlRes.data;
+  const dw=document.getElementById('deliveries-wrap');
+  if(dl&&dl.length>0){
+    dw.innerHTML=dl.map(d=>'<div class="delivery-row"><div><div class="delivery-count">'+d.leads_delivered+' Leads</div><div class="delivery-meta">'+(d.industry||'All industries')+(d.notes?' &middot; '+d.notes:'')+'</div></div><div class="delivery-date">'+new Date(d.delivery_date).toLocaleDateString()+'</div></div>').join('');
   }
 
-  const leads = leadsRes.data;
-  const lw = document.getElementById('leads-wrap');
-  if (leads && leads.length > 0) {
-    lw.innerHTML = '<div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>Email</th><th>Title</th><th>Company</th></tr></thead><tbody>' +
-      leads.map(l => '<tr><td>' + (l.lead_first_name||'') + ' ' + (l.lead_last_name||'') + '</td><td style="color:var(--teal)">' + (l.lead_email||'-') + '</td><td style="color:var(--muted)">' + (l.lead_title||'-') + '</td><td>' + (l.lead_company||'-') + '</td></tr>').join('') +
-      '</tbody></table></div>';
+  const lw=document.getElementById('leads-wrap');
+  if(leads&&leads.length>0){
+    lw.innerHTML='<div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>Email</th><th>Title</th><th>Company</th></tr></thead><tbody>'+
+    leads.map(l=>'<tr><td>'+(l.lead_first_name||'')+' '+(l.lead_last_name||'')+'</td><td style="color:var(--teal)">'+(l.lead_email||'-')+'</td><td style="color:var(--muted)">'+(l.lead_title||'-')+'</td><td>'+(l.lead_company||'-')+'</td></tr>').join('')+
+    '</tbody></table></div>';
   }
 }
 
-(async () => {
-  const {data: {session}} = await db.auth.getSession();
-  if (session?.user) await loadPortal(session.user.email);
-  db.auth.onAuthStateChange(async (event, session) => {
-    if (event === 'SIGNED_IN' && session?.user) await loadPortal(session.user.email);
-  });
+(async()=>{
+  const{data:{session}}=await db.auth.getSession();
+  if(session?.user)await loadPortal(session.user.email);
+  db.auth.onAuthStateChange(async(event,session)=>{if(event==='SIGNED_IN'&&session?.user)await loadPortal(session.user.email);});
 })();
 
-document.getElementById('login-email').addEventListener('keydown', e => {
-  if (e.key === 'Enter') sendMagicLink();
-});
+document.getElementById('login-email').addEventListener('keydown',e=>{if(e.key==='Enter')sendMagicLink();});
 </script>
 </body>
 </html>
