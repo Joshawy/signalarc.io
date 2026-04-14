@@ -134,16 +134,18 @@ code{background:var(--bg3);padding:2px 8px;border-radius:4px;font-size:12px;colo
 const SUPABASE_URL='https://jvsflvwisxprelbwxupj.supabase.co';
 const SERVICE_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2c2Zsdndpc3hwcmVsYnd4dXBqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjE3MzUxOSwiZXhwIjoyMDkxNzQ5NTE5fQ.yXxzQuFoWsFl8UiGLlCIOzxKPMK4s7yO7w3BrAaA5LY';
 const ADMIN_PASSWORD='Signalarcstrum33!';
+
+document.getElementById('pwd-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword();});
 function checkPassword(){
   if(document.getElementById('pwd-input').value===ADMIN_PASSWORD){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('dashboard').style.display='block';
     loadData();
+    setInterval(loadData, 30000);
   } else {
     const e=document.getElementById('pwd-error');e.style.display='block';setTimeout(()=>e.style.display='none',2000);
   }
 }
-document.getElementById('pwd-input').addEventListener('keydown',e=>{if(e.key==='Enter')checkPassword();});
 async function sb(path,method='GET',body=null){
   const opts={method,headers:{'apikey':SERVICE_KEY,'Authorization':'Bearer '+SERVICE_KEY,'Content-Type':'application/json','Prefer':method==='POST'?'return=representation':''}};
   if(body)opts.body=JSON.stringify(body);
@@ -243,7 +245,7 @@ async function importCSV(){
   let imported=0;
   for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
   showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
-  btn.disabled=false;btn.textContent='Import All Leads';
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
 }
 document.getElementById('csv-file').addEventListener('change',function(){
   const file=this.files[0];if(!file)return;
