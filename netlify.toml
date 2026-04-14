@@ -3,7 +3,7 @@
 
 [functions]
   node_bundler = "esbuild"
-  external_node_modules = ["stripe"]
+  external_node_modules = ["stripe", "@supabase/supabase-js"]
 
 [[plugins]]
   package = "@netlify/plugin-functions-install-core"
