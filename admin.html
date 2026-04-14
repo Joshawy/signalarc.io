@@ -150,6 +150,19 @@ tr:hover td{background:rgba(255,255,255,0.02)}
       <div id="del-table"><div class="loading">Loading...</div></div>
     </div>
   </div>
+
+    <!-- CSV UPLOAD -->
+    <div class="table-wrap" style="margin-bottom:32px">
+      <div class="table-header"><h3>&#8679; Import Leads from CSV</h3></div>
+      <div style="padding:24px">
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px">CSV columns (in order): <code style="background:var(--bg3);padding:2px 8px;border-radius:4px;font-size:12px">client_email, lead_first_name, lead_last_name, lead_email, lead_title, lead_company, lead_phone, industry, content_piece, delivery_batch</code></p>
+        <div class="field"><label>Client Email (applies to all rows if not in CSV)</label><input type="email" id="csv-client-email" class="input" placeholder="client@company.com" style="max-width:360px"></div>
+        <div class="field"><label>Upload CSV File</label><input type="file" id="csv-file" accept=".csv" style="color:var(--white);font-size:14px"></div>
+        <div id="csv-preview" style="display:none;margin:16px 0;background:var(--bg3);border-radius:8px;padding:16px;font-size:13px;color:var(--muted);max-height:200px;overflow-y:auto"></div>
+        <button class="btn btn-sm" id="csv-import-btn" onclick="importCSV()" style="display:none;margin-top:8px">Import All Leads to Supabase</button>
+        <div class="msg" id="csv-msg"></div>
+      </div>
+    </div>
 </div>
 
 <script>
@@ -298,6 +311,67 @@ async function createClient() {
   showMsg('new-msg', 'Account created for ' + email);
   loadData();
 }
+
+async function importCSV() {
+  const file = document.getElementById('csv-file').files[0];
+  const clientEmail = document.getElementById('csv-client-email').value.trim();
+  if (!file) return showMsg('csv-msg', 'Please select a CSV file.', 'error');
+
+  const text = await file.text();
+  const lines = text.trim().split('\n');
+  const headers = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/"/g,''));
+  const rows = lines.slice(1);
+
+  const leads = rows.map(row => {
+    const vals = row.split(',').map(v => v.trim().replace(/"/g,''));
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = vals[i] || '');
+
+    // Map common header variations
+    return {
+      client_email: obj.client_email || clientEmail || '',
+      lead_first_name: obj.lead_first_name || obj.first_name || obj.firstname || '',
+      lead_last_name: obj.lead_last_name || obj.last_name || obj.lastname || '',
+      lead_email: obj.lead_email || obj.email || '',
+      lead_title: obj.lead_title || obj.title || obj.job_title || obj.jobtitle || '',
+      lead_company: obj.lead_company || obj.company || obj.organization || '',
+      lead_phone: obj.lead_phone || obj.phone || obj.phone_number || '',
+      industry: obj.industry || '',
+      content_piece: obj.content_piece || obj.content || '',
+      delivery_batch: obj.delivery_batch || obj.batch || ''
+    };
+  }).filter(l => l.lead_email || l.lead_first_name);
+
+  if (!leads.length) return showMsg('csv-msg', 'No valid leads found in CSV.', 'error');
+
+  const btn = document.getElementById('csv-import-btn');
+  btn.disabled = true; btn.textContent = 'Importing...';
+
+  // Insert in batches of 50
+  let imported = 0;
+  for (let i = 0; i < leads.length; i += 50) {
+    const batch = leads.slice(i, i + 50);
+    await sb('leads', 'POST', batch);
+    imported += batch.length;
+  }
+
+  showMsg('csv-msg', imported + ' leads imported successfully!');
+  btn.disabled = false; btn.textContent = 'Import All Leads to Supabase';
+  loadData();
+}
+
+document.getElementById('csv-file').addEventListener('change', function() {
+  const file = this.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const lines = e.target.result.trim().split('\n').slice(0, 6);
+    document.getElementById('csv-preview').style.display = 'block';
+    document.getElementById('csv-preview').innerHTML = '<strong style="color:var(--white)">Preview (' + (e.target.result.trim().split('\n').length - 1) + ' rows):</strong><br>' + lines.map(l => l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display = 'inline-block';
+  };
+  reader.readAsText(file);
+});
 </script>
 </body>
 </html>
