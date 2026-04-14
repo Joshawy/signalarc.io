@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Account | SignalArc</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800;900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#071012;--bg2:#0d1c20;--bg3:#112228;--teal:#00d4a8;--teal-dim:rgba(0,212,168,0.12);--teal-border:rgba(0,212,168,0.25);--white:#f0f8f6;--muted:#7a9e98;--font-display:'Barlow Condensed',sans-serif;--font-body:'Barlow',sans-serif}
+body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(7,16,18,0.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,212,168,0.1)}
+.logo img{height:36px;width:auto;display:block}
+.nav-right{display:flex;align-items:center;gap:16px}
+.nav-email{font-size:13px;color:var(--muted)}
+.sign-out-btn{background:transparent;border:1px solid var(--teal-border);color:var(--teal);font-size:13px;font-weight:600;padding:8px 16px;border-radius:6px;cursor:pointer}
+.sign-out-btn:hover{background:var(--teal-dim)}
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
+.login-card{background:var(--bg2);border:1px solid var(--teal-border);border-radius:16px;padding:48px 40px;max-width:440px;width:100%;text-align:center}
+.login-card h1{font-family:var(--font-display);font-size:36px;font-weight:900;margin-bottom:8px}
+.login-card h1 em{color:var(--teal);font-style:normal}
+.login-card p{font-size:15px;color:var(--muted);margin-bottom:32px}
+.login-input{width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--white);font-family:var(--font-body);font-size:15px;padding:13px 16px;outline:none;margin-bottom:12px}
+.login-input:focus{border-color:var(--teal)}
+.login-input::placeholder{color:rgba(255,255,255,0.3)}
+.login-btn{width:100%;background:var(--teal);color:#071012;font-weight:700;font-size:16px;padding:14px;border-radius:8px;border:none;cursor:pointer}
+.login-btn:hover{opacity:0.88}
+.login-btn:disabled{opacity:0.5;cursor:not-allowed}
+.login-note{font-size:12px;color:var(--muted);margin-top:12px}
+.success-msg{background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:8px;padding:16px;color:var(--teal);font-size:14px;margin-top:16px;display:none}
+.portal-wrap{padding:100px 48px 60px;max-width:1000px;margin:0 auto;display:none}
+.portal-header{margin-bottom:40px}
+.portal-header .label{font-size:12px;font-weight:700;letter-spacing:0.12em;color:var(--teal);text-transform:uppercase;margin-bottom:8px}
+.portal-header h1{font-family:var(--font-display);font-size:42px;font-weight:900}
+.portal-header h1 em{color:var(--teal);font-style:normal}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:40px}
+.stat-card{background:var(--bg2);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:24px}
+.stat-card .stat-label{font-size:13px;color:var(--muted);margin-bottom:8px}
+.stat-card .stat-value{font-family:var(--font-display);font-size:40px;font-weight:900;color:var(--teal);line-height:1}
+.stat-card .stat-sub{font-size:12px;color:var(--muted);margin-top:4px}
+.stat-card.highlight{border-color:var(--teal-border);background:rgba(0,212,168,0.05)}
+.section-title{font-size:18px;font-weight:700;margin-bottom:16px}
+.section-wrap{background:var(--bg2);border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;margin-bottom:32px}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;padding:14px 20px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06)}
+td{padding:14px 20px;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.04)}
+tr:last-child td{border-bottom:none}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px}
+.badge-purchase{background:rgba(0,212,168,0.15);color:var(--teal)}
+.badge-usage{background:rgba(250,200,100,0.15);color:#fac864}
+.empty-state{text-align:center;padding:40px;color:var(--muted);font-size:14px}
+.delivery-row{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.delivery-row:last-child{border-bottom:none}
+.delivery-count{font-family:var(--font-display);font-size:28px;font-weight:900;color:var(--teal)}
+.delivery-meta{font-size:13px;color:var(--muted)}
+.delivery-date{font-size:13px;color:var(--muted)}
+.add-credits-card{background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--teal-border);border-radius:12px;padding:28px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;margin-bottom:32px}
+.add-credits-card h3{font-family:var(--font-display);font-size:22px;font-weight:800;margin-bottom:4px}
+.add-credits-card h3 em{color:var(--teal);font-style:normal}
+.add-credits-card p{font-size:14px;color:var(--muted)}
+.btn-teal{background:var(--teal);color:#071012;font-weight:700;font-size:14px;padding:12px 24px;border-radius:8px;text-decoration:none;white-space:nowrap}
+@media(max-width:768px){nav{padding:16px 24px}.portal-wrap{padding:80px 24px 40px}.stat-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo"><img src="signal-arc-logo.svg" alt="SignalARC"></a>
+  <div class="nav-right">
+    <span class="nav-email" id="nav-email"></span>
+    <button class="sign-out-btn" onclick="signOut()" style="display:none" id="sign-out-btn">Sign Out</button>
+  </div>
+</nav>
+<div class="login-wrap" id="login-state">
+  <div class="login-card">
+    <h1>Your <em>Account</em></h1>
+    <p>Enter your email to receive a magic link &mdash; no password needed.</p>
+    <input type="email" id="login-email" class="login-input" placeholder="you@company.com">
+    <button class="login-btn" id="login-btn" onclick="sendMagicLink()">Send Magic Link &rarr;</button>
+    <p class="login-note">We'll send a secure login link to your inbox.</p>
+    <div class="success-msg" id="login-success">&#10003; Magic link sent! Check your inbox.</div>
+  </div>
+</div>
+<div class="portal-wrap" id="portal-state">
+  <div class="portal-header">
+    <div class="label">Client Portal</div>
+    <h1>Your <em>Lead Credits</em></h1>
+  </div>
+  <div class="stat-grid">
+    <div class="stat-card highlight"><div class="stat-label">Available Credits</div><div class="stat-value" id="credit-balance">$0</div><div class="stat-sub">Ready to use</div></div>
+    <div class="stat-card"><div class="stat-label">Total Purchased</div><div class="stat-value" id="total-purchased">$0</div><div class="stat-sub">All time</div></div>
+    <div class="stat-card"><div class="stat-label">Total Used</div><div class="stat-value" id="total-used">$0</div><div class="stat-sub">All time</div></div>
+  </div>
+  <div class="add-credits-card">
+    <div><h3>Need More <em>Credits?</em></h3><p>Minimum $625 &middot; No expiry &middot; Use whenever you're ready</p></div>
+    <a href="/order.html#prepay" class="btn-teal">Add Credits &rarr;</a>
+  </div>
+  <div class="section-title">Transaction History</div>
+  <div class="section-wrap"><table><thead><tr><th>Date</th><th>Description</th><th>Type</th><th style="text-align:right">Amount</th></tr></thead><tbody id="transactions-body"><tr><td colspan="4" class="empty-state">No transactions yet.</td></tr></tbody></table></div>
+  <div class="section-title">Lead Deliveries</div>
+  <div class="section-wrap" id="deliveries-wrap"><div class="empty-state">No deliveries yet. Your first batch appears here after launch.</div></div>
+</div>
+<script src="signalarc-chat-widget.js"></script>
+<script>
+const {createClient}=supabase;
+const db=createClient('https://jvsflvwisxprelbwxupj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2c2Zsdndpc3hwcmVsYnd4dXBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNzM1MTksImV4cCI6MjA5MTc0OTUxOX0.0Vt0fN_dxFt-G57uBOoVhHOrhO6CtwVwK-j4jrx5VjU');
+async function sendMagicLink(){
+  const email=document.getElementById('login-email').value.trim();
+  if(!email){alert('Please enter your email.');return;}
+  const btn=document.getElementById('login-btn');
+  btn.disabled=true;btn.textContent='Sending...';
+  const{error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:'https://signalarc.io/account.html'}});
+  if(error){alert('Error: '+error.message);btn.disabled=false;btn.textContent='Send Magic Link →';}
+  else{document.getElementById('login-success').style.display='block';btn.textContent='Link Sent ✓';}
+}
+async function signOut(){await db.auth.signOut();location.reload();}
+async function loadPortal(email){
+  document.getElementById('login-state').style.display='none';
+  document.getElementById('portal-state').style.display='block';
+  document.getElementById('nav-email').textContent=email;
+  document.getElementById('sign-out-btn').style.display='block';
+  const{data:c}=await db.from('credit_accounts').select('*').eq('email',email).single();
+  if(c){
+    document.getElementById('credit-balance').textContent='$'+parseFloat(c.credit_balance).toLocaleString();
+    document.getElementById('total-purchased').textContent='$'+parseFloat(c.total_purchased).toLocaleString();
+    document.getElementById('total-used').textContent='$'+parseFloat(c.total_used).toLocaleString();
+  }
+  const{data:txns}=await db.from('transactions').select('*').eq('email',email).order('created_at',{ascending:false});
+  const tbody=document.getElementById('transactions-body');
+  if(txns&&txns.length>0){tbody.innerHTML=txns.map(t=>'<tr><td>'+new Date(t.created_at).toLocaleDateString()+'</td><td>'+(t.description||'&mdash;')+'</td><td><span class="badge badge-'+t.type+'">'+t.type+'</span></td><td style="text-align:right;color:'+(t.type==='usage'?'#fac864':'var(--teal)')+';">'+(t.type==='usage'?'-':'+')+' $'+parseFloat(t.amount).toLocaleString()+'</td></tr>').join('');}
+  const{data:dl}=await db.from('lead_deliveries').select('*').eq('email',email).order('delivery_date',{ascending:false});
+  const dw=document.getElementById('deliveries-wrap');
+  if(dl&&dl.length>0){dw.innerHTML=dl.map(d=>'<div class="delivery-row"><div><div class="delivery-count">'+d.leads_delivered+' Leads</div><div class="delivery-meta">'+(d.industry||'All industries')+(d.notes?' &middot; '+d.notes:'')+'</div></div><div class="delivery-date">'+new Date(d.delivery_date).toLocaleDateString()+'</div></div>').join('');}
+}
+(async()=>{
+  const{data:{session}}=await db.auth.getSession();
+  if(session?.user)await loadPortal(session.user.email);
+  db.auth.onAuthStateChange(async(event,session)=>{if(event==='SIGNED_IN'&&session?.user)await loadPortal(session.user.email);});
+})();
+document.getElementById('login-email').addEventListener('keydown',e=>{if(e.key==='Enter')sendMagicLink();});
+</script>
+</body>
+</html>
