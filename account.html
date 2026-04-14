@@ -61,6 +61,7 @@ tr:last-child td{border-bottom:none}
 .add-credits-card p{font-size:14px;color:var(--muted)}
 .btn-teal{background:var(--teal);color:#071012;font-weight:700;font-size:14px;padding:12px 24px;border-radius:8px;text-decoration:none;white-space:nowrap}
 @media(max-width:768px){nav{padding:16px 24px}.portal-wrap{padding:80px 24px 40px}.stat-grid{grid-template-columns:1fr}}
+.leads-table-wrap{background:var(--bg2);border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;margin-bottom:32px}
 </style>
 </head>
 <body>
@@ -129,6 +130,9 @@ async function loadPortal(email){
   const tbody=document.getElementById('transactions-body');
   if(txns&&txns.length>0){tbody.innerHTML=txns.map(t=>'<tr><td>'+new Date(t.created_at).toLocaleDateString()+'</td><td>'+(t.description||'&mdash;')+'</td><td><span class="badge badge-'+t.type+'">'+t.type+'</span></td><td style="text-align:right;color:'+(t.type==='usage'?'#fac864':'var(--teal)')+';">'+(t.type==='usage'?'-':'+')+' $'+parseFloat(t.amount).toLocaleString()+'</td></tr>').join('');}
   const{data:dl}=await db.from('lead_deliveries').select('*').eq('email',email).order('delivery_date',{ascending:false});
+  const{data:leads}=await db.from('leads').select('*').eq('client_email',email).order('created_at',{ascending:false});
+  const lw=document.getElementById('leads-wrap');
+  if(leads&&leads.length>0){lw.innerHTML='<table style="width:100%;border-collapse:collapse"><thead><tr style="border-bottom:1px solid rgba(255,255,255,0.06)"><th style="padding:12px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:left">Name</th><th style="padding:12px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:left">Email</th><th style="padding:12px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:left">Title</th><th style="padding:12px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:left">Company</th><th style="padding:12px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:left">Industry</th></tr></thead><tbody>'+leads.map(l=>'<tr style="border-bottom:1px solid rgba(255,255,255,0.04)"><td style="padding:12px 20px;font-size:14px">'+(l.lead_first_name||'')+' '+(l.lead_last_name||'')+'</td><td style="padding:12px 20px;font-size:14px;color:var(--teal)">'+(l.lead_email||'')+'</td><td style="padding:12px 20px;font-size:14px;color:var(--muted)">'+(l.lead_title||'-')+'</td><td style="padding:12px 20px;font-size:14px">'+(l.lead_company||'-')+'</td><td style="padding:12px 20px;font-size:14px;color:var(--muted)">'+(l.industry||'-')+'</td></tr>').join('')+'</tbody></table>';}
   const dw=document.getElementById('deliveries-wrap');
   if(dl&&dl.length>0){dw.innerHTML=dl.map(d=>'<div class="delivery-row"><div><div class="delivery-count">'+d.leads_delivered+' Leads</div><div class="delivery-meta">'+(d.industry||'All industries')+(d.notes?' &middot; '+d.notes:'')+'</div></div><div class="delivery-date">'+new Date(d.delivery_date).toLocaleDateString()+'</div></div>').join('');}
 }
