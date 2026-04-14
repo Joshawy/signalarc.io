@@ -22,12 +22,22 @@ exports.handler = async (event) => {
     const email = pi.metadata?.email;
     const amount = pi.amount / 100;
     const type = pi.metadata?.type || 'standard';
+    const description = pi.description || 'Lead order';
 
-    if (!email) return { statusCode: 200, body: 'No email' };
+    if (!email) return { statusCode: 200, body: 'No email in metadata' };
 
-    const { data: existing } = await supabase.from('credit_accounts').select('*').eq('email', email).single();
+    // Always upsert client record
+    await supabase.from('clients').upsert({ email }, { onConflict: 'email' });
+
+    // Get or create credit account
+    const { data: existing } = await supabase
+      .from('credit_accounts')
+      .select('*')
+      .eq('email', email)
+      .single();
 
     if (type === 'prepay_credits') {
+      // Add to credit balance
       if (existing) {
         await supabase.from('credit_accounts').update({
           credit_balance: parseFloat(existing.credit_balance) + amount,
@@ -35,12 +45,28 @@ exports.handler = async (event) => {
           updated_at: new Date().toISOString()
         }).eq('email', email);
       } else {
-        await supabase.from('credit_accounts').insert({ email, credit_balance: amount, total_purchased: amount, total_used: 0 });
+        await supabase.from('credit_accounts').insert({
+          email, credit_balance: amount, total_purchased: amount, total_used: 0
+        });
+      }
+    } else {
+      // Standard order - just create the account with $0 balance if it doesnt exist
+      if (!existing) {
+        await supabase.from('credit_accounts').insert({
+          email, credit_balance: 0, total_purchased: amount, total_used: amount
+        });
+      } else {
+        await supabase.from('credit_accounts').update({
+          total_purchased: parseFloat(existing.total_purchased) + amount,
+          updated_at: new Date().toISOString()
+        }).eq('email', email);
       }
     }
 
-    await supabase.from('transactions').insert({ email, type: 'purchase', amount, description: pi.description || 'Lead order', stripe_payment_id: pi.id });
-    await supabase.from('clients').upsert({ email }, { onConflict: 'email' });
+    // Always log transaction
+    await supabase.from('transactions').insert({
+      email, type: 'purchase', amount, description, stripe_payment_id: pi.id
+    });
   }
 
   return { statusCode: 200, body: JSON.stringify({ received: true }) };
