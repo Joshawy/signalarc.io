@@ -88,6 +88,8 @@ code{background:var(--bg3);padding:2px 8px;border-radius:4px;font-size:12px;colo
         <div class="field"><label>Client Email</label><input type="email" id="cred-email" class="input" placeholder="client@company.com"></div>
         <div class="field"><label>Amount ($)</label><input type="number" id="cred-amount" class="input" placeholder="625"></div>
         <div class="field"><label>Description</label><input type="text" id="cred-desc" class="input" placeholder="Prepay credit top-up"></div>
+        <div class="field"><label>Cost Per Lead ($)</label><input type="number" id="cred-cpl" class="input" placeholder="25" min="1" style="max-width:200px"></div>
+        <div class="field"><label>Bonus Leads</label><input type="number" id="cred-bonus" class="input" placeholder="0" min="0" style="max-width:200px"><p style="font-size:11px;color:var(--muted);margin-top:4px">Extra leads to gift the client (shown as bonus)</p></div>
         <button class="btn btn-sm" onclick="addCredits()">Add Credits</button>
         <div class="msg" id="cred-msg"></div>
         <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:20px 0">
@@ -168,7 +170,7 @@ async function loadData(){
   }
   if(deliveries)document.getElementById('stat-leads').textContent=deliveries.reduce((s,d)=>s+(d.leads_delivered||0),0).toLocaleString();
   const ct=document.getElementById('clients-table');
-  if(credits&&credits.length>0){ct.innerHTML='<table><thead><tr><th>Email</th><th>Available</th><th>Purchased</th><th>Used</th><th>Updated</th></tr></thead><tbody>'+credits.map(c=>'<tr><td>'+c.email+'</td><td style="color:var(--teal);font-weight:700">$'+parseFloat(c.credit_balance).toLocaleString()+'</td><td>$'+parseFloat(c.total_purchased).toLocaleString()+'</td><td>$'+parseFloat(c.total_used).toLocaleString()+'</td><td>'+new Date(c.updated_at).toLocaleDateString()+'</td></tr>').join('')+'</tbody></table>';}
+  if(credits&&credits.length>0){ct.innerHTML='<table><thead><tr><th>Email</th><th>Available</th><th>Purchased</th><th>Used</th><th>CPL</th><th>Bonus</th><th>Updated</th></tr></thead><tbody>'+credits.map(c=>'<tr><td>'+c.email+'</td><td style="color:var(--teal);font-weight:700">}
   else ct.innerHTML='<div class="empty">No clients yet.</div>';
   const tt=document.getElementById('txn-table');
   if(txns&&txns.length>0){tt.innerHTML='<table><thead><tr><th>Date</th><th>Email</th><th>Description</th><th>Type</th><th>Amount</th></tr></thead><tbody>'+txns.map(t=>'<tr><td>'+new Date(t.created_at).toLocaleDateString()+'</td><td>'+t.email+'</td><td>'+(t.description||'-')+'</td><td><span class="badge badge-'+(t.type==='purchase'?'green':'yellow')+'">'+t.type+'</span></td><td style="color:'+(t.type==='usage'?'var(--yellow)':'var(--teal)')+';">'+(t.type==='usage'?'-':'+')+' $'+parseFloat(t.amount).toLocaleString()+'</td></tr>').join('')+'</tbody></table>';}
@@ -203,9 +205,1802 @@ async function addCredits(){
   const account=existing&&existing[0];
   if(account){await sb('credit_accounts?email=eq.'+encodeURIComponent(email),'PATCH',{credit_balance:parseFloat(account.credit_balance)+amount,total_purchased:parseFloat(account.total_purchased)+amount,updated_at:new Date().toISOString()});}
   else{await sb('credit_accounts','POST',{email,credit_balance:amount,total_purchased:amount,total_used:0});}
+  const cpl=parseFloat(document.getElementById('cred-cpl').value)||25;
+  const bonus=parseInt(document.getElementById('cred-bonus').value)||0;
   await sb('transactions','POST',{email,type:'purchase',amount,description:desc});
   await sb('clients','POST',{email});
-  showMsg('cred-msg','$'+amount.toLocaleString()+' added to '+email);loadData();
+  if(cpl){await sb('credit_accounts?email=eq.'+encodeURIComponent(email),'PATCH',{cost_per_lead:cpl,bonus_leads:bonus,updated_at:new Date().toISOString()});}
+  showMsg('cred-msg','
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+
+  // Get client CPL to auto-deduct
+  const acct=await sb('credit_accounts?email=eq.'+encodeURIComponent(clientEmail)+'&select=*');
+  const clientAcct=acct&&acct[0];
+  const cpl=parseFloat(clientAcct?.cost_per_lead)||25;
+  const totalCost=leads.length*cpl;
+
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+
+  // Auto-deduct credits
+  if(clientAcct){
+    const newBalance=Math.max(0,parseFloat(clientAcct.credit_balance)-totalCost);
+    const newUsed=parseFloat(clientAcct.total_used)+totalCost;
+    await sb('credit_accounts?email=eq.'+encodeURIComponent(clientEmail),'PATCH',{credit_balance:newBalance,total_used:newUsed,updated_at:new Date().toISOString()});
+    await sb('lead_deliveries','POST',{email:clientEmail,leads_delivered:imported,notes:'CSV import - auto logged'});
+    await sb('transactions','POST',{email:clientEmail,type:'usage',amount:totalCost,description:imported+' leads delivered via CSV (@ loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+cpl+'/lead)'});
+  }
+
+  showMsg('csv-msg',imported+' leads imported. loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+totalCost.toLocaleString()+' deducted ('+imported+' x loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+cpl+').');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+parseFloat(c.credit_balance).toLocaleString()+'</td><td>}
+  else ct.innerHTML='<div class="empty">No clients yet.</div>';
+  const tt=document.getElementById('txn-table');
+  if(txns&&txns.length>0){tt.innerHTML='<table><thead><tr><th>Date</th><th>Email</th><th>Description</th><th>Type</th><th>Amount</th></tr></thead><tbody>'+txns.map(t=>'<tr><td>'+new Date(t.created_at).toLocaleDateString()+'</td><td>'+t.email+'</td><td>'+(t.description||'-')+'</td><td><span class="badge badge-'+(t.type==='purchase'?'green':'yellow')+'">'+t.type+'</span></td><td style="color:'+(t.type==='usage'?'var(--yellow)':'var(--teal)')+';">'+(t.type==='usage'?'-':'+')+' $'+parseFloat(t.amount).toLocaleString()+'</td></tr>').join('')+'</tbody></table>';}
+  else tt.innerHTML='<div class="empty">No transactions yet.</div>';
+  const dt=document.getElementById('del-table');
+  if(deliveries&&deliveries.length>0){dt.innerHTML='<table><thead><tr><th>Date</th><th>Email</th><th>Leads</th><th>Industry</th><th>Notes</th></tr></thead><tbody>'+deliveries.map(d=>'<tr><td>'+new Date(d.delivery_date).toLocaleDateString()+'</td><td>'+d.email+'</td><td style="color:var(--teal);font-weight:700">'+d.leads_delivered+'</td><td>'+(d.industry||'-')+'</td><td>'+(d.notes||'-')+'</td></tr>').join('')+'</tbody></table>';}
+  else dt.innerHTML='<div class="empty">No deliveries yet.</div>';
+}
+function showMsg(id,msg,type='success'){const el=document.getElementById(id);el.textContent=msg;el.className='msg '+type;el.style.display='block';setTimeout(()=>el.style.display='none',4000);}
+async function logDelivery(){
+  const email=document.getElementById('del-email').value.trim();
+  const count=parseInt(document.getElementById('del-count').value);
+  const cost=parseFloat(document.getElementById('del-cost').value);
+  const industry=document.getElementById('del-industry').value.trim();
+  const notes=document.getElementById('del-notes').value.trim();
+  if(!email||!count||!cost)return showMsg('del-msg','Fill in email, leads and cost.','error');
+  const totalCost=count*cost;
+  const existing=await sb('credit_accounts?email=eq.'+encodeURIComponent(email)+'&select=*');
+  const account=existing&&existing[0];
+  await sb('lead_deliveries','POST',{email,leads_delivered:count,industry:industry||null,notes:notes||null});
+  await sb('transactions','POST',{email,type:'usage',amount:totalCost,description:count+' leads ('+(industry||'general')+')'});
+  if(account){await sb('credit_accounts?email=eq.'+encodeURIComponent(email),'PATCH',{credit_balance:Math.max(0,parseFloat(account.credit_balance)-totalCost),total_used:parseFloat(account.total_used)+totalCost,updated_at:new Date().toISOString()});}
+  else{await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:totalCost});}
+  showMsg('del-msg',count+' leads logged. $'+totalCost.toLocaleString()+' deducted.');loadData();
+}
+async function addCredits(){
+  const email=document.getElementById('cred-email').value.trim();
+  const amount=parseFloat(document.getElementById('cred-amount').value);
+  const desc=document.getElementById('cred-desc').value.trim()||'Credit top-up';
+  if(!email||!amount)return showMsg('cred-msg','Fill in email and amount.','error');
+  const existing=await sb('credit_accounts?email=eq.'+encodeURIComponent(email)+'&select=*');
+  const account=existing&&existing[0];
+  if(account){await sb('credit_accounts?email=eq.'+encodeURIComponent(email),'PATCH',{credit_balance:parseFloat(account.credit_balance)+amount,total_purchased:parseFloat(account.total_purchased)+amount,updated_at:new Date().toISOString()});}
+  else{await sb('credit_accounts','POST',{email,credit_balance:amount,total_purchased:amount,total_used:0});}
+  const cpl=parseFloat(document.getElementById('cred-cpl').value)||25;
+  const bonus=parseInt(document.getElementById('cred-bonus').value)||0;
+  await sb('transactions','POST',{email,type:'purchase',amount,description:desc});
+  await sb('clients','POST',{email});
+  if(cpl){await sb('credit_accounts?email=eq.'+encodeURIComponent(email),'PATCH',{cost_per_lead:cpl,bonus_leads:bonus,updated_at:new Date().toISOString()});}
+  showMsg('cred-msg','
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+
+  // Get client CPL to auto-deduct
+  const acct=await sb('credit_accounts?email=eq.'+encodeURIComponent(clientEmail)+'&select=*');
+  const clientAcct=acct&&acct[0];
+  const cpl=parseFloat(clientAcct?.cost_per_lead)||25;
+  const totalCost=leads.length*cpl;
+
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+
+  // Auto-deduct credits
+  if(clientAcct){
+    const newBalance=Math.max(0,parseFloat(clientAcct.credit_balance)-totalCost);
+    const newUsed=parseFloat(clientAcct.total_used)+totalCost;
+    await sb('credit_accounts?email=eq.'+encodeURIComponent(clientEmail),'PATCH',{credit_balance:newBalance,total_used:newUsed,updated_at:new Date().toISOString()});
+    await sb('lead_deliveries','POST',{email:clientEmail,leads_delivered:imported,notes:'CSV import - auto logged'});
+    await sb('transactions','POST',{email:clientEmail,type:'usage',amount:totalCost,description:imported+' leads delivered via CSV (@ loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+cpl+'/lead)'});
+  }
+
+  showMsg('csv-msg',imported+' leads imported. loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+totalCost.toLocaleString()+' deducted ('+imported+' x loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+cpl+').');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+parseFloat(c.total_purchased).toLocaleString()+'</td><td>}
+  else ct.innerHTML='<div class="empty">No clients yet.</div>';
+  const tt=document.getElementById('txn-table');
+  if(txns&&txns.length>0){tt.innerHTML='<table><thead><tr><th>Date</th><th>Email</th><th>Description</th><th>Type</th><th>Amount</th></tr></thead><tbody>'+txns.map(t=>'<tr><td>'+new Date(t.created_at).toLocaleDateString()+'</td><td>'+t.email+'</td><td>'+(t.description||'-')+'</td><td><span class="badge badge-'+(t.type==='purchase'?'green':'yellow')+'">'+t.type+'</span></td><td style="color:'+(t.type==='usage'?'var(--yellow)':'var(--teal)')+';">'+(t.type==='usage'?'-':'+')+' $'+parseFloat(t.amount).toLocaleString()+'</td></tr>').join('')+'</tbody></table>';}
+  else tt.innerHTML='<div class="empty">No transactions yet.</div>';
+  const dt=document.getElementById('del-table');
+  if(deliveries&&deliveries.length>0){dt.innerHTML='<table><thead><tr><th>Date</th><th>Email</th><th>Leads</th><th>Industry</th><th>Notes</th></tr></thead><tbody>'+deliveries.map(d=>'<tr><td>'+new Date(d.delivery_date).toLocaleDateString()+'</td><td>'+d.email+'</td><td style="color:var(--teal);font-weight:700">'+d.leads_delivered+'</td><td>'+(d.industry||'-')+'</td><td>'+(d.notes||'-')+'</td></tr>').join('')+'</tbody></table>';}
+  else dt.innerHTML='<div class="empty">No deliveries yet.</div>';
+}
+function showMsg(id,msg,type='success'){const el=document.getElementById(id);el.textContent=msg;el.className='msg '+type;el.style.display='block';setTimeout(()=>el.style.display='none',4000);}
+async function logDelivery(){
+  const email=document.getElementById('del-email').value.trim();
+  const count=parseInt(document.getElementById('del-count').value);
+  const cost=parseFloat(document.getElementById('del-cost').value);
+  const industry=document.getElementById('del-industry').value.trim();
+  const notes=document.getElementById('del-notes').value.trim();
+  if(!email||!count||!cost)return showMsg('del-msg','Fill in email, leads and cost.','error');
+  const totalCost=count*cost;
+  const existing=await sb('credit_accounts?email=eq.'+encodeURIComponent(email)+'&select=*');
+  const account=existing&&existing[0];
+  await sb('lead_deliveries','POST',{email,leads_delivered:count,industry:industry||null,notes:notes||null});
+  await sb('transactions','POST',{email,type:'usage',amount:totalCost,description:count+' leads ('+(industry||'general')+')'});
+  if(account){await sb('credit_accounts?email=eq.'+encodeURIComponent(email),'PATCH',{credit_balance:Math.max(0,parseFloat(account.credit_balance)-totalCost),total_used:parseFloat(account.total_used)+totalCost,updated_at:new Date().toISOString()});}
+  else{await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:totalCost});}
+  showMsg('del-msg',count+' leads logged. $'+totalCost.toLocaleString()+' deducted.');loadData();
+}
+async function addCredits(){
+  const email=document.getElementById('cred-email').value.trim();
+  const amount=parseFloat(document.getElementById('cred-amount').value);
+  const desc=document.getElementById('cred-desc').value.trim()||'Credit top-up';
+  if(!email||!amount)return showMsg('cred-msg','Fill in email and amount.','error');
+  const existing=await sb('credit_accounts?email=eq.'+encodeURIComponent(email)+'&select=*');
+  const account=existing&&existing[0];
+  if(account){await sb('credit_accounts?email=eq.'+encodeURIComponent(email),'PATCH',{credit_balance:parseFloat(account.credit_balance)+amount,total_purchased:parseFloat(account.total_purchased)+amount,updated_at:new Date().toISOString()});}
+  else{await sb('credit_accounts','POST',{email,credit_balance:amount,total_purchased:amount,total_used:0});}
+  const cpl=parseFloat(document.getElementById('cred-cpl').value)||25;
+  const bonus=parseInt(document.getElementById('cred-bonus').value)||0;
+  await sb('transactions','POST',{email,type:'purchase',amount,description:desc});
+  await sb('clients','POST',{email});
+  if(cpl){await sb('credit_accounts?email=eq.'+encodeURIComponent(email),'PATCH',{cost_per_lead:cpl,bonus_leads:bonus,updated_at:new Date().toISOString()});}
+  showMsg('cred-msg','
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+
+  // Get client CPL to auto-deduct
+  const acct=await sb('credit_accounts?email=eq.'+encodeURIComponent(clientEmail)+'&select=*');
+  const clientAcct=acct&&acct[0];
+  const cpl=parseFloat(clientAcct?.cost_per_lead)||25;
+  const totalCost=leads.length*cpl;
+
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+
+  // Auto-deduct credits
+  if(clientAcct){
+    const newBalance=Math.max(0,parseFloat(clientAcct.credit_balance)-totalCost);
+    const newUsed=parseFloat(clientAcct.total_used)+totalCost;
+    await sb('credit_accounts?email=eq.'+encodeURIComponent(clientEmail),'PATCH',{credit_balance:newBalance,total_used:newUsed,updated_at:new Date().toISOString()});
+    await sb('lead_deliveries','POST',{email:clientEmail,leads_delivered:imported,notes:'CSV import - auto logged'});
+    await sb('transactions','POST',{email:clientEmail,type:'usage',amount:totalCost,description:imported+' leads delivered via CSV (@ loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+cpl+'/lead)'});
+  }
+
+  showMsg('csv-msg',imported+' leads imported. loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+totalCost.toLocaleString()+' deducted ('+imported+' x loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+cpl+').');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+parseFloat(c.total_used).toLocaleString()+'</td><td>}
+  else ct.innerHTML='<div class="empty">No clients yet.</div>';
+  const tt=document.getElementById('txn-table');
+  if(txns&&txns.length>0){tt.innerHTML='<table><thead><tr><th>Date</th><th>Email</th><th>Description</th><th>Type</th><th>Amount</th></tr></thead><tbody>'+txns.map(t=>'<tr><td>'+new Date(t.created_at).toLocaleDateString()+'</td><td>'+t.email+'</td><td>'+(t.description||'-')+'</td><td><span class="badge badge-'+(t.type==='purchase'?'green':'yellow')+'">'+t.type+'</span></td><td style="color:'+(t.type==='usage'?'var(--yellow)':'var(--teal)')+';">'+(t.type==='usage'?'-':'+')+' $'+parseFloat(t.amount).toLocaleString()+'</td></tr>').join('')+'</tbody></table>';}
+  else tt.innerHTML='<div class="empty">No transactions yet.</div>';
+  const dt=document.getElementById('del-table');
+  if(deliveries&&deliveries.length>0){dt.innerHTML='<table><thead><tr><th>Date</th><th>Email</th><th>Leads</th><th>Industry</th><th>Notes</th></tr></thead><tbody>'+deliveries.map(d=>'<tr><td>'+new Date(d.delivery_date).toLocaleDateString()+'</td><td>'+d.email+'</td><td style="color:var(--teal);font-weight:700">'+d.leads_delivered+'</td><td>'+(d.industry||'-')+'</td><td>'+(d.notes||'-')+'</td></tr>').join('')+'</tbody></table>';}
+  else dt.innerHTML='<div class="empty">No deliveries yet.</div>';
+}
+function showMsg(id,msg,type='success'){const el=document.getElementById(id);el.textContent=msg;el.className='msg '+type;el.style.display='block';setTimeout(()=>el.style.display='none',4000);}
+async function logDelivery(){
+  const email=document.getElementById('del-email').value.trim();
+  const count=parseInt(document.getElementById('del-count').value);
+  const cost=parseFloat(document.getElementById('del-cost').value);
+  const industry=document.getElementById('del-industry').value.trim();
+  const notes=document.getElementById('del-notes').value.trim();
+  if(!email||!count||!cost)return showMsg('del-msg','Fill in email, leads and cost.','error');
+  const totalCost=count*cost;
+  const existing=await sb('credit_accounts?email=eq.'+encodeURIComponent(email)+'&select=*');
+  const account=existing&&existing[0];
+  await sb('lead_deliveries','POST',{email,leads_delivered:count,industry:industry||null,notes:notes||null});
+  await sb('transactions','POST',{email,type:'usage',amount:totalCost,description:count+' leads ('+(industry||'general')+')'});
+  if(account){await sb('credit_accounts?email=eq.'+encodeURIComponent(email),'PATCH',{credit_balance:Math.max(0,parseFloat(account.credit_balance)-totalCost),total_used:parseFloat(account.total_used)+totalCost,updated_at:new Date().toISOString()});}
+  else{await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:totalCost});}
+  showMsg('del-msg',count+' leads logged. $'+totalCost.toLocaleString()+' deducted.');loadData();
+}
+async function addCredits(){
+  const email=document.getElementById('cred-email').value.trim();
+  const amount=parseFloat(document.getElementById('cred-amount').value);
+  const desc=document.getElementById('cred-desc').value.trim()||'Credit top-up';
+  if(!email||!amount)return showMsg('cred-msg','Fill in email and amount.','error');
+  const existing=await sb('credit_accounts?email=eq.'+encodeURIComponent(email)+'&select=*');
+  const account=existing&&existing[0];
+  if(account){await sb('credit_accounts?email=eq.'+encodeURIComponent(email),'PATCH',{credit_balance:parseFloat(account.credit_balance)+amount,total_purchased:parseFloat(account.total_purchased)+amount,updated_at:new Date().toISOString()});}
+  else{await sb('credit_accounts','POST',{email,credit_balance:amount,total_purchased:amount,total_used:0});}
+  const cpl=parseFloat(document.getElementById('cred-cpl').value)||25;
+  const bonus=parseInt(document.getElementById('cred-bonus').value)||0;
+  await sb('transactions','POST',{email,type:'purchase',amount,description:desc});
+  await sb('clients','POST',{email});
+  if(cpl){await sb('credit_accounts?email=eq.'+encodeURIComponent(email),'PATCH',{cost_per_lead:cpl,bonus_leads:bonus,updated_at:new Date().toISOString()});}
+  showMsg('cred-msg','
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+
+  // Get client CPL to auto-deduct
+  const acct=await sb('credit_accounts?email=eq.'+encodeURIComponent(clientEmail)+'&select=*');
+  const clientAcct=acct&&acct[0];
+  const cpl=parseFloat(clientAcct?.cost_per_lead)||25;
+  const totalCost=leads.length*cpl;
+
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+
+  // Auto-deduct credits
+  if(clientAcct){
+    const newBalance=Math.max(0,parseFloat(clientAcct.credit_balance)-totalCost);
+    const newUsed=parseFloat(clientAcct.total_used)+totalCost;
+    await sb('credit_accounts?email=eq.'+encodeURIComponent(clientEmail),'PATCH',{credit_balance:newBalance,total_used:newUsed,updated_at:new Date().toISOString()});
+    await sb('lead_deliveries','POST',{email:clientEmail,leads_delivered:imported,notes:'CSV import - auto logged'});
+    await sb('transactions','POST',{email:clientEmail,type:'usage',amount:totalCost,description:imported+' leads delivered via CSV (@ loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+cpl+'/lead)'});
+  }
+
+  showMsg('csv-msg',imported+' leads imported. loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+totalCost.toLocaleString()+' deducted ('+imported+' x loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+cpl+').');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+(c.cost_per_lead||25)+'</td><td style="color:#fac864">'+(c.bonus_leads||0)+'</td><td>'+new Date(c.updated_at).toLocaleDateString()+'</td></tr>').join('')+'</tbody></table>';}
+  else ct.innerHTML='<div class="empty">No clients yet.</div>';
+  const tt=document.getElementById('txn-table');
+  if(txns&&txns.length>0){tt.innerHTML='<table><thead><tr><th>Date</th><th>Email</th><th>Description</th><th>Type</th><th>Amount</th></tr></thead><tbody>'+txns.map(t=>'<tr><td>'+new Date(t.created_at).toLocaleDateString()+'</td><td>'+t.email+'</td><td>'+(t.description||'-')+'</td><td><span class="badge badge-'+(t.type==='purchase'?'green':'yellow')+'">'+t.type+'</span></td><td style="color:'+(t.type==='usage'?'var(--yellow)':'var(--teal)')+';">'+(t.type==='usage'?'-':'+')+' $'+parseFloat(t.amount).toLocaleString()+'</td></tr>').join('')+'</tbody></table>';}
+  else tt.innerHTML='<div class="empty">No transactions yet.</div>';
+  const dt=document.getElementById('del-table');
+  if(deliveries&&deliveries.length>0){dt.innerHTML='<table><thead><tr><th>Date</th><th>Email</th><th>Leads</th><th>Industry</th><th>Notes</th></tr></thead><tbody>'+deliveries.map(d=>'<tr><td>'+new Date(d.delivery_date).toLocaleDateString()+'</td><td>'+d.email+'</td><td style="color:var(--teal);font-weight:700">'+d.leads_delivered+'</td><td>'+(d.industry||'-')+'</td><td>'+(d.notes||'-')+'</td></tr>').join('')+'</tbody></table>';}
+  else dt.innerHTML='<div class="empty">No deliveries yet.</div>';
+}
+function showMsg(id,msg,type='success'){const el=document.getElementById(id);el.textContent=msg;el.className='msg '+type;el.style.display='block';setTimeout(()=>el.style.display='none',4000);}
+async function logDelivery(){
+  const email=document.getElementById('del-email').value.trim();
+  const count=parseInt(document.getElementById('del-count').value);
+  const cost=parseFloat(document.getElementById('del-cost').value);
+  const industry=document.getElementById('del-industry').value.trim();
+  const notes=document.getElementById('del-notes').value.trim();
+  if(!email||!count||!cost)return showMsg('del-msg','Fill in email, leads and cost.','error');
+  const totalCost=count*cost;
+  const existing=await sb('credit_accounts?email=eq.'+encodeURIComponent(email)+'&select=*');
+  const account=existing&&existing[0];
+  await sb('lead_deliveries','POST',{email,leads_delivered:count,industry:industry||null,notes:notes||null});
+  await sb('transactions','POST',{email,type:'usage',amount:totalCost,description:count+' leads ('+(industry||'general')+')'});
+  if(account){await sb('credit_accounts?email=eq.'+encodeURIComponent(email),'PATCH',{credit_balance:Math.max(0,parseFloat(account.credit_balance)-totalCost),total_used:parseFloat(account.total_used)+totalCost,updated_at:new Date().toISOString()});}
+  else{await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:totalCost});}
+  showMsg('del-msg',count+' leads logged. $'+totalCost.toLocaleString()+' deducted.');loadData();
+}
+async function addCredits(){
+  const email=document.getElementById('cred-email').value.trim();
+  const amount=parseFloat(document.getElementById('cred-amount').value);
+  const desc=document.getElementById('cred-desc').value.trim()||'Credit top-up';
+  if(!email||!amount)return showMsg('cred-msg','Fill in email and amount.','error');
+  const existing=await sb('credit_accounts?email=eq.'+encodeURIComponent(email)+'&select=*');
+  const account=existing&&existing[0];
+  if(account){await sb('credit_accounts?email=eq.'+encodeURIComponent(email),'PATCH',{credit_balance:parseFloat(account.credit_balance)+amount,total_purchased:parseFloat(account.total_purchased)+amount,updated_at:new Date().toISOString()});}
+  else{await sb('credit_accounts','POST',{email,credit_balance:amount,total_purchased:amount,total_used:0});}
+  const cpl=parseFloat(document.getElementById('cred-cpl').value)||25;
+  const bonus=parseInt(document.getElementById('cred-bonus').value)||0;
+  await sb('transactions','POST',{email,type:'purchase',amount,description:desc});
+  await sb('clients','POST',{email});
+  if(cpl){await sb('credit_accounts?email=eq.'+encodeURIComponent(email),'PATCH',{cost_per_lead:cpl,bonus_leads:bonus,updated_at:new Date().toISOString()});}
+  showMsg('cred-msg','
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+
+  // Get client CPL to auto-deduct
+  const acct=await sb('credit_accounts?email=eq.'+encodeURIComponent(clientEmail)+'&select=*');
+  const clientAcct=acct&&acct[0];
+  const cpl=parseFloat(clientAcct?.cost_per_lead)||25;
+  const totalCost=leads.length*cpl;
+
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+
+  // Auto-deduct credits
+  if(clientAcct){
+    const newBalance=Math.max(0,parseFloat(clientAcct.credit_balance)-totalCost);
+    const newUsed=parseFloat(clientAcct.total_used)+totalCost;
+    await sb('credit_accounts?email=eq.'+encodeURIComponent(clientEmail),'PATCH',{credit_balance:newBalance,total_used:newUsed,updated_at:new Date().toISOString()});
+    await sb('lead_deliveries','POST',{email:clientEmail,leads_delivered:imported,notes:'CSV import - auto logged'});
+    await sb('transactions','POST',{email:clientEmail,type:'usage',amount:totalCost,description:imported+' leads delivered via CSV (@ loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+cpl+'/lead)'});
+  }
+
+  showMsg('csv-msg',imported+' leads imported. loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+totalCost.toLocaleString()+' deducted ('+imported+' x loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
+}
+async function createClient(){
+  const email=document.getElementById('new-email').value.trim();
+  const company=document.getElementById('new-company').value.trim();
+  if(!email)return showMsg('new-msg','Email required.','error');
+  await sb('clients','POST',{email,company:company||null});
+  await sb('credit_accounts','POST',{email,credit_balance:0,total_purchased:0,total_used:0});
+  showMsg('new-msg','Account created for '+email);loadData();
+}
+async function importCSV(){
+  const file=document.getElementById('csv-file').files[0];
+  const clientEmail=document.getElementById('csv-client-email').value.trim();
+  if(!file)return showMsg('csv-msg','Please select a CSV file.','error');
+  if(!clientEmail)return showMsg('csv-msg','Please select or enter a client email first.','error');
+  const text=await file.text();
+  const lines=text.trim().split('\n');
+  const headers=lines[0].toLowerCase().split(',').map(h=>h.trim().replace(/"/g,''));
+  const leads=lines.slice(1).map(row=>{
+    const vals=row.split(',').map(v=>v.trim().replace(/"/g,''));
+    const obj={};headers.forEach((h,i)=>obj[h]=vals[i]||'');
+    return {
+      client_email:clientEmail,
+      lead_first_name:obj.lead_first_name||obj.first_name||obj.firstname||obj['first name']||'',
+      lead_last_name:obj.lead_last_name||obj.last_name||obj.lastname||obj['last name']||'',
+      lead_email:obj.lead_email||obj.email||obj['email address']||'',
+      lead_title:obj.lead_title||obj.title||obj.job_title||obj['job title']||'',
+      lead_company:obj.lead_company||obj.company||obj.organization||'',
+      lead_phone:obj.lead_phone||obj.phone||obj['phone number']||'',
+      industry:obj.industry||'',
+      content_piece:obj.content_piece||obj.content||'',
+      delivery_batch:obj.delivery_batch||obj.batch||''
+    };
+  }).filter(l=>l.lead_email||l.lead_first_name);
+  if(!leads.length)return showMsg('csv-msg','No valid leads found.','error');
+  const btn=document.getElementById('csv-import-btn');
+  btn.disabled=true;btn.textContent='Importing...';
+  let imported=0;
+  for(let i=0;i<leads.length;i+=50){await sb('leads','POST',leads.slice(i,i+50));imported+=Math.min(50,leads.length-i);}
+  showMsg('csv-msg',imported+' leads imported for '+clientEmail+'!');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+cpl+').');
+  btn.disabled=false;btn.textContent='Import All Leads';loadData();loadData();
+}
+document.getElementById('csv-file').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=(e)=>{
+    const allLines=e.target.result.trim().split('\n');
+    document.getElementById('csv-preview').style.display='block';
+    document.getElementById('csv-preview').innerHTML='<strong style="color:var(--white)">Preview ('+(allLines.length-1)+' rows):</strong><br>'+allLines.slice(0,5).map(l=>l.substring(0,120)).join('<br>');
+    document.getElementById('csv-import-btn').style.display='inline-block';
+  };
+  reader.readAsText(file);
+});
+</script>
+</body>
+</html>+amount.toLocaleString()+' added to '+email+(bonus?' + '+bonus+' bonus leads':''));loadData();
 }
 async function createClient(){
   const email=document.getElementById('new-email').value.trim();
