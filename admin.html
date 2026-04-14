@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SignalARC Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700;800&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#071012;--bg2:#0d1c20;--bg3:#112228;--teal:#00d4a8;--teal-dim:rgba(0,212,168,0.12);--teal-border:rgba(0,212,168,0.25);--white:#f0f8f6;--muted:#7a9e98;--red:#ff5a5a;--yellow:#fac864;--font-display:'Barlow Condensed',sans-serif;--font-body:'Barlow',sans-serif}
+body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-size:15px;line-height:1.6;min-height:100vh}
+nav{background:var(--bg2);border-bottom:1px solid var(--teal-border);padding:16px 40px;display:flex;align-items:center;justify-content:space-between}
+nav h1{font-family:var(--font-display);font-size:22px;font-weight:900;color:var(--teal)}
+nav span{font-size:13px;color:var(--muted)}
+.wrap{max-width:1100px;margin:0 auto;padding:40px}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center}
+.login-card{background:var(--bg2);border:1px solid var(--teal-border);border-radius:16px;padding:48px 40px;max-width:400px;width:100%;text-align:center}
+.login-card h2{font-family:var(--font-display);font-size:32px;font-weight:900;margin-bottom:8px}
+.login-card p{color:var(--muted);font-size:14px;margin-bottom:28px}
+.input{width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--white);font-family:var(--font-body);font-size:15px;padding:12px 16px;outline:none;margin-bottom:12px}
+.input:focus{border-color:var(--teal)}
+.input::placeholder{color:rgba(255,255,255,0.3)}
+.btn{background:var(--teal);color:#071012;font-weight:700;font-size:15px;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;width:100%}
+.btn:hover{opacity:0.88}
+.btn-sm{width:auto;padding:8px 18px;font-size:13px}
+.btn-red{background:var(--red)}
+.btn-outline{background:transparent;border:1px solid var(--teal-border);color:var(--teal);font-weight:600}
+
+/* GRID */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px}
+.card{background:var(--bg2);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:24px}
+.card h3{font-size:16px;font-weight:700;margin-bottom:20px;color:var(--white)}
+.card h3 span{font-size:12px;font-weight:600;color:var(--teal);text-transform:uppercase;letter-spacing:0.08em;display:block;margin-bottom:4px}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{margin-bottom:14px}
+.field label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px}
+select.input{cursor:pointer}
+.msg{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:600;margin-top:12px;display:none}
+.msg.success{background:rgba(0,212,168,0.15);color:var(--teal);border:1px solid var(--teal-border)}
+.msg.error{background:rgba(255,90,90,0.15);color:var(--red);border:1px solid rgba(255,90,90,0.3)}
+
+/* TABLE */
+.table-wrap{background:var(--bg2);border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;margin-bottom:32px}
+.table-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,0.06)}
+.table-header h3{font-size:16px;font-weight:700}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;padding:12px 20px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06)}
+td{padding:12px 20px;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.04)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,0.02)}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px}
+.badge-green{background:rgba(0,212,168,0.15);color:var(--teal)}
+.badge-yellow{background:rgba(250,200,100,0.15);color:var(--yellow)}
+.empty{text-align:center;padding:32px;color:var(--muted);font-size:14px}
+.loading{text-align:center;padding:32px;color:var(--muted)}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.stat-box{background:var(--bg2);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:20px}
+.stat-box .label{font-size:12px;color:var(--muted);margin-bottom:4px}
+.stat-box .value{font-family:var(--font-display);font-size:32px;font-weight:900;color:var(--teal);line-height:1}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen" class="login-wrap">
+  <div class="login-card">
+    <h2>Admin Access</h2>
+    <p>SignalARC internal dashboard</p>
+    <input type="password" id="pwd-input" class="input" placeholder="Enter admin password">
+    <button class="btn" onclick="checkPassword()">Enter</button>
+    <div class="msg error" id="pwd-error">Incorrect password</div>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none">
+  <nav>
+    <h1>&#9889; SignalARC Admin</h1>
+    <span id="last-refresh"></span>
+  </nav>
+
+  <div class="wrap">
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-box"><div class="label">Total Clients</div><div class="value" id="stat-clients">—</div></div>
+      <div class="stat-box"><div class="label">Total Credits Sold</div><div class="value" id="stat-sold">—</div></div>
+      <div class="stat-box"><div class="label">Credits Used</div><div class="value" id="stat-used">—</div></div>
+      <div class="stat-box"><div class="label">Leads Delivered</div><div class="value" id="stat-leads">—</div></div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="grid-2">
+      <!-- LOG DELIVERY -->
+      <div class="card">
+        <h3><span>Action</span>Log Lead Delivery</h3>
+        <div class="field"><label>Client Email</label><input type="email" id="del-email" class="input" placeholder="client@company.com"></div>
+        <div class="form-row">
+          <div class="field"><label>Leads Delivered</label><input type="number" id="del-count" class="input" placeholder="25" min="1"></div>
+          <div class="field"><label>Cost Per Lead ($)</label><input type="number" id="del-cost" class="input" placeholder="25" min="1"></div>
+        </div>
+        <div class="field"><label>Industry</label><input type="text" id="del-industry" class="input" placeholder="Financial Services"></div>
+        <div class="field"><label>Notes (optional)</label><input type="text" id="del-notes" class="input" placeholder="Week 1 delivery"></div>
+        <button class="btn btn-sm" onclick="logDelivery()">Log Delivery & Deduct Credits</button>
+        <div class="msg" id="del-msg"></div>
+      </div>
+
+      <!-- ADD CREDITS -->
+      <div class="card">
+        <h3><span>Action</span>Add Credits to Account</h3>
+        <div class="field"><label>Client Email</label><input type="email" id="cred-email" class="input" placeholder="client@company.com"></div>
+        <div class="field"><label>Amount ($)</label><input type="number" id="cred-amount" class="input" placeholder="625" min="1"></div>
+        <div class="field"><label>Description</label><input type="text" id="cred-desc" class="input" placeholder="Prepay credit top-up"></div>
+        <button class="btn btn-sm" onclick="addCredits()">Add Credits</button>
+        <div class="msg" id="cred-msg"></div>
+
+        <hr style="border:none;border-top:1px solid rgba(255,255,255,0.06);margin:20px 0">
+
+        <h3 style="margin-bottom:16px"><span>Action</span>Create Client Account</h3>
+        <div class="field"><label>Email</label><input type="email" id="new-email" class="input" placeholder="newclient@company.com"></div>
+        <div class="field"><label>Company (optional)</label><input type="text" id="new-company" class="input" placeholder="Acme Corp"></div>
+        <button class="btn btn-sm btn-outline" onclick="createClient()">Create Account</button>
+        <div class="msg" id="new-msg"></div>
+      </div>
+    </div>
+
+    <!-- CLIENTS TABLE -->
+    <div class="table-wrap">
+      <div class="table-header">
+        <h3>All Clients</h3>
+        <button class="btn btn-sm btn-outline" onclick="loadData()">↻ Refresh</button>
+      </div>
+      <div id="clients-table"><div class="loading">Loading...</div></div>
+    </div>
+
+    <!-- RECENT TRANSACTIONS -->
+    <div class="table-wrap">
+      <div class="table-header"><h3>Recent Transactions</h3></div>
+      <div id="txn-table"><div class="loading">Loading...</div></div>
+    </div>
+
+    <!-- RECENT DELIVERIES -->
+    <div class="table-wrap">
+      <div class="table-header"><h3>Lead Deliveries</h3></div>
+      <div id="del-table"><div class="loading">Loading...</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://jvsflvwisxprelbwxupj.supabase.co';
+const SERVICE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2c2Zsdndpc3hwcmVsYnd4dXBqIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NjE3MzUxOSwiZXhwIjoyMDkxNzQ5NTE5fQ.yXxzQuFoWsFl8UiGLlCIOzxKPMK4s7yO7w3BrAaA5LY';
+const ADMIN_PASSWORD = 'signalarc2024';
+
+function checkPassword() {
+  const pwd = document.getElementById('pwd-input').value;
+  if (pwd === ADMIN_PASSWORD) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadData();
+  } else {
+    const err = document.getElementById('pwd-error');
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 2000);
+  }
+}
+document.getElementById('pwd-input').addEventListener('keydown', e => { if (e.key === 'Enter') checkPassword(); });
+
+async function sb(path, method='GET', body=null) {
+  const opts = { method, headers: { 'apikey': SERVICE_KEY, 'Authorization': 'Bearer ' + SERVICE_KEY, 'Content-Type': 'application/json', 'Prefer': method === 'POST' ? 'return=representation' : '' } };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(SUPABASE_URL + '/rest/v1/' + path, opts);
+  return r.ok ? r.json() : null;
+}
+
+async function loadData() {
+  document.getElementById('last-refresh').textContent = 'Updated: ' + new Date().toLocaleTimeString();
+
+  const [credits, txns, deliveries] = await Promise.all([
+    sb('credit_accounts?select=*&order=updated_at.desc'),
+    sb('transactions?select=*&order=created_at.desc&limit=20'),
+    sb('lead_deliveries?select=*&order=delivery_date.desc&limit=20')
+  ]);
+
+  // Stats
+  if (credits) {
+    document.getElementById('stat-clients').textContent = credits.length;
+    document.getElementById('stat-sold').textContent = '$' + credits.reduce((s,c) => s + parseFloat(c.total_purchased||0), 0).toLocaleString();
+    document.getElementById('stat-used').textContent = '$' + credits.reduce((s,c) => s + parseFloat(c.total_used||0), 0).toLocaleString();
+  }
+  if (deliveries) {
+    document.getElementById('stat-leads').textContent = deliveries.reduce((s,d) => s + (d.leads_delivered||0), 0).toLocaleString();
+  }
+
+  // Clients table
+  const ct = document.getElementById('clients-table');
+  if (credits && credits.length > 0) {
+    ct.innerHTML = '<table><thead><tr><th>Email</th><th>Available Credits</th><th>Total Purchased</th><th>Total Used</th><th>Last Updated</th></tr></thead><tbody>' +
+      credits.map(c => '<tr><td>' + c.email + '</td><td style="color:var(--teal);font-weight:700">$' + parseFloat(c.credit_balance).toLocaleString() + '</td><td>$' + parseFloat(c.total_purchased).toLocaleString() + '</td><td>$' + parseFloat(c.total_used).toLocaleString() + '</td><td>' + new Date(c.updated_at).toLocaleDateString() + '</td></tr>').join('') +
+      '</tbody></table>';
+  } else { ct.innerHTML = '<div class="empty">No clients yet.</div>'; }
+
+  // Transactions
+  const tt = document.getElementById('txn-table');
+  if (txns && txns.length > 0) {
+    tt.innerHTML = '<table><thead><tr><th>Date</th><th>Email</th><th>Description</th><th>Type</th><th>Amount</th></tr></thead><tbody>' +
+      txns.map(t => '<tr><td>' + new Date(t.created_at).toLocaleDateString() + '</td><td>' + t.email + '</td><td>' + (t.description||'—') + '</td><td><span class="badge badge-' + (t.type==='purchase'?'green':'yellow') + '">' + t.type + '</span></td><td style="color:' + (t.type==='usage'?'var(--yellow)':'var(--teal)') + '">' + (t.type==='usage'?'-':'+') + '$' + parseFloat(t.amount).toLocaleString() + '</td></tr>').join('') +
+      '</tbody></table>';
+  } else { tt.innerHTML = '<div class="empty">No transactions yet.</div>'; }
+
+  // Deliveries
+  const dt = document.getElementById('del-table');
+  if (deliveries && deliveries.length > 0) {
+    dt.innerHTML = '<table><thead><tr><th>Date</th><th>Email</th><th>Leads</th><th>Industry</th><th>Notes</th></tr></thead><tbody>' +
+      deliveries.map(d => '<tr><td>' + new Date(d.delivery_date).toLocaleDateString() + '</td><td>' + d.email + '</td><td style="color:var(--teal);font-weight:700">' + d.leads_delivered + '</td><td>' + (d.industry||'—') + '</td><td>' + (d.notes||'—') + '</td></tr>').join('') +
+      '</tbody></table>';
+  } else { dt.innerHTML = '<div class="empty">No deliveries yet.</div>'; }
+}
+
+function showMsg(id, msg, type='success') {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.className = 'msg ' + type; el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 4000);
+}
+
+async function logDelivery() {
+  const email = document.getElementById('del-email').value.trim();
+  const count = parseInt(document.getElementById('del-count').value);
+  const cost = parseFloat(document.getElementById('del-cost').value);
+  const industry = document.getElementById('del-industry').value.trim();
+  const notes = document.getElementById('del-notes').value.trim();
+  if (!email || !count || !cost) return showMsg('del-msg', 'Fill in email, leads and cost.', 'error');
+
+  const totalCost = count * cost;
+
+  // Get current balance
+  const existing = await sb('credit_accounts?email=eq.' + encodeURIComponent(email) + '&select=*');
+  const account = existing && existing[0];
+
+  // Log delivery
+  await sb('lead_deliveries', 'POST', { email, leads_delivered: count, industry: industry||null, notes: notes||null });
+
+  // Log transaction
+  await sb('transactions', 'POST', { email, type: 'usage', amount: totalCost, description: count + ' leads delivered (' + (industry||'general') + ')' });
+
+  // Update balance
+  if (account) {
+    const newBalance = Math.max(0, parseFloat(account.credit_balance) - totalCost);
+    const newUsed = parseFloat(account.total_used) + totalCost;
+    await sb('credit_accounts?email=eq.' + encodeURIComponent(email), 'PATCH', { credit_balance: newBalance, total_used: newUsed, updated_at: new Date().toISOString() });
+  } else {
+    await sb('credit_accounts', 'POST', { email, credit_balance: 0, total_purchased: 0, total_used: totalCost });
+  }
+
+  showMsg('del-msg', count + ' leads logged. $' + totalCost.toLocaleString() + ' deducted.');
+  loadData();
+}
+
+async function addCredits() {
+  const email = document.getElementById('cred-email').value.trim();
+  const amount = parseFloat(document.getElementById('cred-amount').value);
+  const desc = document.getElementById('cred-desc').value.trim() || 'Credit top-up';
+  if (!email || !amount) return showMsg('cred-msg', 'Fill in email and amount.', 'error');
+
+  const existing = await sb('credit_accounts?email=eq.' + encodeURIComponent(email) + '&select=*');
+  const account = existing && existing[0];
+
+  if (account) {
+    await sb('credit_accounts?email=eq.' + encodeURIComponent(email), 'PATCH', {
+      credit_balance: parseFloat(account.credit_balance) + amount,
+      total_purchased: parseFloat(account.total_purchased) + amount,
+      updated_at: new Date().toISOString()
+    });
+  } else {
+    await sb('credit_accounts', 'POST', { email, credit_balance: amount, total_purchased: amount, total_used: 0 });
+  }
+
+  await sb('transactions', 'POST', { email, type: 'purchase', amount, description: desc });
+  await sb('clients', 'POST', { email });
+
+  showMsg('cred-msg', '$' + amount.toLocaleString() + ' added to ' + email);
+  loadData();
+}
+
+async function createClient() {
+  const email = document.getElementById('new-email').value.trim();
+  const company = document.getElementById('new-company').value.trim();
+  if (!email) return showMsg('new-msg', 'Email required.', 'error');
+
+  await sb('clients', 'POST', { email, company: company||null });
+  await sb('credit_accounts', 'POST', { email, credit_balance: 0, total_purchased: 0, total_used: 0 });
+
+  showMsg('new-msg', 'Account created for ' + email);
+  loadData();
+}
+</script>
+</body>
+</html>
