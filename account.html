@@ -9,13 +9,12 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#071012;--bg2:#0d1c20;--bg3:#112228;--teal:#00d4a8;--teal-dim:rgba(0,212,168,0.12);--teal-border:rgba(0,212,168,0.25);--white:#f0f8f6;--muted:#7a9e98;--font-display:'Barlow Condensed',sans-serif;--font-body:'Barlow',sans-serif}
-body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+body{background:var(--bg);color:var(--white);font-family:var(--font-body);font-size:16px;line-height:1.6;min-height:100vh}
 nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:18px 48px;background:rgba(7,16,18,0.9);backdrop-filter:blur(12px);border-bottom:1px solid rgba(0,212,168,0.1)}
 .logo img{height:36px;width:auto;display:block}
 .nav-right{display:flex;align-items:center;gap:16px}
 .nav-email{font-size:13px;color:var(--muted)}
 .sign-out-btn{background:transparent;border:1px solid var(--teal-border);color:var(--teal);font-size:13px;font-weight:600;padding:8px 16px;border-radius:6px;cursor:pointer}
-.sign-out-btn:hover{background:var(--teal-dim)}
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px}
 .login-card{background:var(--bg2);border:1px solid var(--teal-border);border-radius:16px;padding:48px 40px;max-width:440px;width:100%;text-align:center}
 .login-card h1{font-family:var(--font-display);font-size:36px;font-weight:900;margin-bottom:8px}
@@ -25,7 +24,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .login-input:focus{border-color:var(--teal)}
 .login-input::placeholder{color:rgba(255,255,255,0.3)}
 .login-btn{width:100%;background:var(--teal);color:#071012;font-weight:700;font-size:16px;padding:14px;border-radius:8px;border:none;cursor:pointer}
-.login-btn:hover{opacity:0.88}
 .login-btn:disabled{opacity:0.5;cursor:not-allowed}
 .login-note{font-size:12px;color:var(--muted);margin-top:12px}
 .success-msg{background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:8px;padding:16px;color:var(--teal);font-size:14px;margin-top:16px;display:none}
@@ -60,8 +58,6 @@ tr:last-child td{border-bottom:none}
 .add-credits-card h3 em{color:var(--teal);font-style:normal}
 .add-credits-card p{font-size:14px;color:var(--muted)}
 .btn-teal{background:var(--teal);color:#071012;font-weight:700;font-size:14px;padding:12px 24px;border-radius:8px;text-decoration:none;white-space:nowrap}
-@media(max-width:768px){nav{padding:16px 24px}.portal-wrap{padding:80px 24px 40px}.stat-grid{grid-template-columns:1fr}}
-.leads-table-wrap{background:var(--bg2);border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;margin-bottom:32px}
 </style>
 </head>
 <body>
@@ -72,6 +68,7 @@ tr:last-child td{border-bottom:none}
     <button class="sign-out-btn" onclick="signOut()" style="display:none" id="sign-out-btn">Sign Out</button>
   </div>
 </nav>
+
 <div class="login-wrap" id="login-state">
   <div class="login-card">
     <h1>Your <em>Account</em></h1>
@@ -82,6 +79,7 @@ tr:last-child td{border-bottom:none}
     <div class="success-msg" id="login-success">&#10003; Magic link sent! Check your inbox.</div>
   </div>
 </div>
+
 <div class="portal-wrap" id="portal-state">
   <div class="portal-header">
     <div class="label">Client Portal</div>
@@ -99,59 +97,91 @@ tr:last-child td{border-bottom:none}
   <div class="section-title">Transaction History</div>
   <div class="section-wrap"><table><thead><tr><th>Date</th><th>Description</th><th>Type</th><th style="text-align:right">Amount</th></tr></thead><tbody id="transactions-body"><tr><td colspan="4" class="empty-state">No transactions yet.</td></tr></tbody></table></div>
   <div class="section-title">Lead Deliveries</div>
-  <div class="section-wrap" id="deliveries-wrap"><div class="empty-state">No deliveries yet. Your first batch appears here after launch.</div></div>
+  <div class="section-wrap" id="deliveries-wrap"><div class="empty-state">No deliveries yet.</div></div>
+  <div class="section-title">Your Leads</div>
+  <div class="section-wrap" id="leads-wrap"><div class="empty-state">No leads yet.</div></div>
 </div>
+
 <script src="signalarc-chat-widget.js"></script>
 <script>
-const {createClient}=supabase;
-const db=createClient('https://jvsflvwisxprelbwxupj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2c2Zsdndpc3hwcmVsYnd4dXBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNzM1MTksImV4cCI6MjA5MTc0OTUxOX0.0Vt0fN_dxFt-G57uBOoVhHOrhO6CtwVwK-j4jrx5VjU');
-async function sendMagicLink(){
-  const email=document.getElementById('login-email').value.trim();
-  if(!email){alert('Please enter your email.');return;}
-  const btn=document.getElementById('login-btn');
-  btn.disabled=true;btn.textContent='Sending...';
-  const{error}=await db.auth.signInWithOtp({email,options:{emailRedirectTo:'https://signalarc.io/account.html'}});
-  if(error){alert('Error: '+error.message);btn.disabled=false;btn.textContent='Send Magic Link →';}
-  else{document.getElementById('login-success').style.display='block';btn.textContent='Link Sent ✓';}
-}
-async function signOut(){await db.auth.signOut();location.reload();}
-async function loadPortal(email){
-  document.getElementById('login-state').style.display='none';
-  document.getElementById('portal-state').style.display='block';
-  document.getElementById('nav-email').textContent=email;
-  document.getElementById('sign-out-btn').style.display='block';
-  const{data:c}=await db.from('credit_accounts').select('*').eq('email',email).single();
-  if(c){
-    document.getElementById('credit-balance').textContent='$'+parseFloat(c.credit_balance).toLocaleString();
-    document.getElementById('total-purchased').textContent='$'+parseFloat(c.total_purchased).toLocaleString();
-    document.getElementById('total-used').textContent='$'+parseFloat(c.total_used).toLocaleString();
+const {createClient} = supabase;
+const db = createClient('https://jvsflvwisxprelbwxupj.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2c2Zsdndpc3hwcmVsYnd4dXBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNzM1MTksImV4cCI6MjA5MTc0OTUxOX0.0Vt0fN_dxFt-G57uBOoVhHOrhO6CtwVwK-j4jrx5VjU');
+
+async function sendMagicLink() {
+  const email = document.getElementById('login-email').value.trim();
+  if (!email) { alert('Please enter your email.'); return; }
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  const {error} = await db.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: 'https://signalarc.io/account.html' }
+  });
+  if (error) {
+    alert('Error: ' + error.message);
+    btn.disabled = false; btn.textContent = 'Send Magic Link →';
+  } else {
+    document.getElementById('login-success').style.display = 'block';
+    btn.textContent = 'Link Sent ✓';
   }
-  const{data:txns}=await db.from('transactions').select('*').eq('email',email).order('created_at',{ascending:false});
-  const tbody=document.getElementById('transactions-body');
-  if(txns&&txns.length>0){tbody.innerHTML=txns.map(t=>'<tr><td>'+new Date(t.created_at).toLocaleDateString()+'</td><td>'+(t.description||'&mdash;')+'</td><td><span class="badge badge-'+t.type+'">'+t.type+'</span></td><td style="text-align:right;color:'+(t.type==='usage'?'#fac864':'var(--teal)')+';">'+(t.type==='usage'?'-':'+')+' $'+parseFloat(t.amount).toLocaleString()+'</td></tr>').join('');}
-  const{data:dl}=await db.from('lead_deliveries').select('*').eq('email',email).order('delivery_date',{ascending:false});
-  const{data:leads}=await db.from('leads').select('*').eq('client_email',email).order('created_at',{ascending:false});
-  const lw=document.getElementById('leads-wrap');
-  if(leads&&leads.length>0){lw.innerHTML='<table style="width:100%;border-collapse:collapse"><thead><tr style="border-bottom:1px solid rgba(255,255,255,0.06)"><th style="padding:12px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:left">Name</th><th style="padding:12px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:left">Email</th><th style="padding:12px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:left">Title</th><th style="padding:12px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:left">Company</th><th style="padding:12px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:left">Industry</th></tr></thead><tbody>'+leads.map(l=>'<tr style="border-bottom:1px solid rgba(255,255,255,0.04)"><td style="padding:12px 20px;font-size:14px">'+(l.lead_first_name||'')+' '+(l.lead_last_name||'')+'</td><td style="padding:12px 20px;font-size:14px;color:var(--teal)">'+(l.lead_email||'')+'</td><td style="padding:12px 20px;font-size:14px;color:var(--muted)">'+(l.lead_title||'-')+'</td><td style="padding:12px 20px;font-size:14px">'+(l.lead_company||'-')+'</td><td style="padding:12px 20px;font-size:14px;color:var(--muted)">'+(l.industry||'-')+'</td></tr>').join('')+'</tbody></table>';}
-  const dw=document.getElementById('deliveries-wrap');
-  if(dl&&dl.length>0){dw.innerHTML=dl.map(d=>'<div class="delivery-row"><div><div class="delivery-count">'+d.leads_delivered+' Leads</div><div class="delivery-meta">'+(d.industry||'All industries')+(d.notes?' &middot; '+d.notes:'')+'</div></div><div class="delivery-date">'+new Date(d.delivery_date).toLocaleDateString()+'</div></div>').join('');}
-  // Load leads
-  const{data:leads}=await db.from('leads').select('*').eq('client_email',email).order('created_at',{ascending:false});
-  const lw=document.getElementById('leads-wrap');
-  if(lw){
-    if(leads&&leads.length>0){
-      lw.innerHTML='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th style="padding:12px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06)">Name</th><th style="padding:12px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06)">Email</th><th style="padding:12px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06)">Title</th><th style="padding:12px 20px;font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06)">Company</th></tr></thead><tbody>'+
-      leads.map(l=>'<tr><td style="padding:12px 20px;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.04)">'+(l.lead_first_name||'')+' '+(l.lead_last_name||'')+'</td><td style="padding:12px 20px;font-size:14px;color:var(--teal);border-bottom:1px solid rgba(255,255,255,0.04)">'+(l.lead_email||'-')+'</td><td style="padding:12px 20px;font-size:14px;color:var(--muted);border-bottom:1px solid rgba(255,255,255,0.04)">'+(l.lead_title||'-')+'</td><td style="padding:12px 20px;font-size:14px;border-bottom:1px solid rgba(255,255,255,0.04)">'+(l.lead_company||'-')+'</td></tr>').join('')+
+}
+
+async function signOut() {
+  await db.auth.signOut();
+  location.reload();
+}
+
+async function loadPortal(email) {
+  document.getElementById('login-state').style.display = 'none';
+  document.getElementById('portal-state').style.display = 'block';
+  document.getElementById('nav-email').textContent = email;
+  document.getElementById('sign-out-btn').style.display = 'block';
+
+  const [credRes, txnRes, dlRes, leadsRes] = await Promise.all([
+    db.from('credit_accounts').select('*').eq('email', email).single(),
+    db.from('transactions').select('*').eq('email', email).order('created_at', {ascending: false}),
+    db.from('lead_deliveries').select('*').eq('email', email).order('delivery_date', {ascending: false}),
+    db.from('leads').select('*').eq('client_email', email).order('created_at', {ascending: false})
+  ]);
+
+  const c = credRes.data;
+  if (c) {
+    document.getElementById('credit-balance').textContent = '$' + parseFloat(c.credit_balance).toLocaleString();
+    document.getElementById('total-purchased').textContent = '$' + parseFloat(c.total_purchased).toLocaleString();
+    document.getElementById('total-used').textContent = '$' + parseFloat(c.total_used).toLocaleString();
+  }
+
+  const txns = txnRes.data;
+  const tbody = document.getElementById('transactions-body');
+  if (txns && txns.length > 0) {
+    tbody.innerHTML = txns.map(t => '<tr><td>' + new Date(t.created_at).toLocaleDateString() + '</td><td>' + (t.description||'&mdash;') + '</td><td><span class="badge badge-' + t.type + '">' + t.type + '</span></td><td style="text-align:right;color:' + (t.type==='usage'?'#fac864':'var(--teal)') + ';">' + (t.type==='usage'?'-':'+') + ' $' + parseFloat(t.amount).toLocaleString() + '</td></tr>').join('');
+  }
+
+  const dl = dlRes.data;
+  const dw = document.getElementById('deliveries-wrap');
+  if (dl && dl.length > 0) {
+    dw.innerHTML = dl.map(d => '<div class="delivery-row"><div><div class="delivery-count">' + d.leads_delivered + ' Leads</div><div class="delivery-meta">' + (d.industry||'All industries') + (d.notes?' &middot; '+d.notes:'') + '</div></div><div class="delivery-date">' + new Date(d.delivery_date).toLocaleDateString() + '</div></div>').join('');
+  }
+
+  const leads = leadsRes.data;
+  const lw = document.getElementById('leads-wrap');
+  if (leads && leads.length > 0) {
+    lw.innerHTML = '<div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>Email</th><th>Title</th><th>Company</th></tr></thead><tbody>' +
+      leads.map(l => '<tr><td>' + (l.lead_first_name||'') + ' ' + (l.lead_last_name||'') + '</td><td style="color:var(--teal)">' + (l.lead_email||'-') + '</td><td style="color:var(--muted)">' + (l.lead_title||'-') + '</td><td>' + (l.lead_company||'-') + '</td></tr>').join('') +
       '</tbody></table></div>';
-    }
   }
 }
-(async()=>{
-  const{data:{session}}=await db.auth.getSession();
-  if(session?.user)await loadPortal(session.user.email);
-  db.auth.onAuthStateChange(async(event,session)=>{if(event==='SIGNED_IN'&&session?.user)await loadPortal(session.user.email);});
+
+(async () => {
+  const {data: {session}} = await db.auth.getSession();
+  if (session?.user) await loadPortal(session.user.email);
+  db.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) await loadPortal(session.user.email);
+  });
 })();
-document.getElementById('login-email').addEventListener('keydown',e=>{if(e.key==='Enter')sendMagicLink();});
+
+document.getElementById('login-email').addEventListener('keydown', e => {
+  if (e.key === 'Enter') sendMagicLink();
+});
 </script>
 </body>
 </html>
