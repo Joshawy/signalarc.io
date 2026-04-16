@@ -32,8 +32,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .portal-header .label{font-size:12px;font-weight:700;letter-spacing:0.12em;color:var(--teal);text-transform:uppercase;margin-bottom:8px}
 .portal-header h1{font-family:var(--font-display);font-size:42px;font-weight:900}
 .portal-header h1 em{color:var(--teal);font-style:normal}
-
-/* STAT GRID — 3 cols top row, 3 cols bottom row */
+/* FIX 8: Loading skeleton */
+.loading-overlay{text-align:center;padding:60px;color:var(--muted);font-size:14px;display:none}
+.pulse{display:inline-block;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.4}50%{opacity:1}}
+/* FIX 9: No account banner */
+.no-account-banner{background:rgba(250,200,100,0.08);border:1px solid rgba(250,200,100,0.25);border-radius:12px;padding:20px 24px;margin-bottom:24px;display:none}
+.no-account-banner p{font-size:14px;color:var(--yellow)}
 .stat-row{display:grid;gap:14px;margin-bottom:14px}
 .stat-row-1{grid-template-columns:repeat(3,1fr)}
 .stat-row-2{grid-template-columns:repeat(3,1fr)}
@@ -46,14 +51,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .stat-card.warn .stat-value{color:var(--yellow)}
 .stat-card.bonus{border-color:rgba(250,200,100,0.3);background:rgba(250,200,100,0.05)}
 .stat-card.bonus .stat-value{color:var(--yellow)}
-
-/* BONUS BANNER */
 .bonus-banner{background:linear-gradient(135deg,rgba(250,200,100,0.1),rgba(250,200,100,0.04));border:1px solid rgba(250,200,100,0.3);border-radius:12px;padding:18px 24px;display:flex;align-items:center;gap:16px;margin-bottom:28px}
 .bonus-banner .bonus-icon{font-size:28px;line-height:1;flex-shrink:0}
 .bonus-banner .bonus-title{font-family:var(--font-display);font-size:18px;font-weight:800;color:var(--yellow);margin-bottom:2px}
 .bonus-banner .bonus-sub{font-size:13px;color:var(--muted)}
-
-.section-title{font-size:18px;font-weight:700;margin-bottom:16px;margin-top:32px}
+.section-title{font-size:18px;font-weight:700;margin-bottom:16px;margin-top:32px;display:flex;align-items:center;justify-content:space-between}
 .section-wrap{background:var(--bg2);border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;margin-bottom:8px}
 table{width:100%;border-collapse:collapse}
 th{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;padding:14px 20px;text-align:left;border-bottom:1px solid rgba(255,255,255,0.06)}
@@ -72,6 +74,8 @@ tr:last-child td{border-bottom:none}
 .add-credits-card h3 em{color:var(--teal);font-style:normal}
 .add-credits-card p{font-size:13px;color:var(--muted)}
 .btn-teal{background:var(--teal);color:#071012;font-weight:700;font-size:14px;padding:11px 24px;border-radius:8px;text-decoration:none;white-space:nowrap}
+/* FIX 10: CSV download button */
+.btn-export{background:transparent;border:1px solid var(--teal-border);color:var(--teal);font-size:12px;font-weight:600;padding:6px 14px;border-radius:6px;cursor:pointer;text-decoration:none}
 @media(max-width:768px){.stat-row-1,.stat-row-2{grid-template-columns:1fr 1fr}.portal-wrap{padding:80px 24px 40px}nav{padding:16px 24px}}
 </style>
 </head>
@@ -101,89 +105,106 @@ tr:last-child td{border-bottom:none}
     <h1>Your <em>Lead Dashboard</em></h1>
   </div>
 
-  <!-- ROW 1: Credits -->
-  <div class="stat-row stat-row-1">
-    <div class="stat-card highlight">
-      <div class="stat-label">Available Credits</div>
-      <div class="stat-value" id="credit-balance">$0</div>
-      <div class="stat-sub">Ready to use</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Total Purchased</div>
-      <div class="stat-value" id="total-purchased">$0</div>
-      <div class="stat-sub">All time</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">Credits Used</div>
-      <div class="stat-value" id="total-used">$0</div>
-      <div class="stat-sub">All time</div>
-    </div>
+  <!-- FIX 8: Loading state -->
+  <div class="loading-overlay" id="loading-overlay" style="display:block">
+    <span class="pulse">Loading your account&hellip;</span>
   </div>
 
-  <!-- ROW 2: Leads -->
-  <div class="stat-row stat-row-2" style="margin-bottom:24px">
-    <div class="stat-card">
-      <div class="stat-label">Leads in Your List</div>
-      <div class="stat-value" id="total-leads">0</div>
-      <div class="stat-sub">Total delivered to date</div>
+  <div id="portal-content" style="display:none">
+    <!-- FIX 9: No account error -->
+    <div class="no-account-banner" id="no-account-banner">
+      <p>&#9888; We couldn&rsquo;t find an account for this email. If you just signed up, your account may not be set up yet. <a href="mailto:hello@signalarc.io" style="color:var(--yellow)">Contact us</a> and we&rsquo;ll get you sorted.</p>
     </div>
-    <div class="stat-card warn">
-      <div class="stat-label">Leads Left to Deliver</div>
-      <div class="stat-value" id="leads-remaining">0</div>
-      <div class="stat-sub" id="leads-remaining-sub">Based on your CPL</div>
+
+    <!-- ROW 1: Credits -->
+    <div class="stat-row stat-row-1">
+      <div class="stat-card highlight">
+        <div class="stat-label">Available Credits</div>
+        <div class="stat-value" id="credit-balance">$0</div>
+        <div class="stat-sub">Ready to use</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Purchased</div>
+        <div class="stat-value" id="total-purchased">$0</div>
+        <div class="stat-sub">All time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Credits Used</div>
+        <div class="stat-value" id="total-used">$0</div>
+        <div class="stat-sub">All time</div>
+      </div>
     </div>
-    <div class="stat-card bonus" id="bonus-stat-card" style="display:none">
-      <div class="stat-label">Bonus Leads Received &#127873;</div>
-      <div class="stat-value" id="bonus-leads-count">0</div>
-      <div class="stat-sub">A gift from SignalARC</div>
+
+    <!-- ROW 2: Leads -->
+    <div class="stat-row stat-row-2" style="margin-bottom:24px">
+      <div class="stat-card">
+        <div class="stat-label">Leads in Your List</div>
+        <div class="stat-value" id="total-leads">0</div>
+        <div class="stat-sub">Total delivered to date</div>
+      </div>
+      <div class="stat-card warn">
+        <div class="stat-label">Leads Left to Deliver</div>
+        <div class="stat-value" id="leads-remaining">0</div>
+        <div class="stat-sub" id="leads-remaining-sub">Based on your CPL</div>
+      </div>
+      <div class="stat-card bonus" id="bonus-stat-card" style="display:none">
+        <div class="stat-label">Bonus Leads Received &#127873;</div>
+        <div class="stat-value" id="bonus-leads-count">0</div>
+        <div class="stat-sub">A gift from SignalARC</div>
+      </div>
+      <div class="stat-card" id="no-bonus-card">
+        <div class="stat-label">Cost Per Lead</div>
+        <div class="stat-value" id="cpl-display">$25</div>
+        <div class="stat-sub">Your agreed rate</div>
+      </div>
     </div>
-    <div class="stat-card" id="no-bonus-card">
-      <div class="stat-label">Cost Per Lead</div>
-      <div class="stat-value" id="cpl-display">$25</div>
-      <div class="stat-sub">Your agreed rate</div>
+
+    <!-- BONUS BANNER -->
+    <div class="bonus-banner" id="bonus-banner" style="display:none">
+      <div class="bonus-icon">&#127873;</div>
+      <div>
+        <div class="bonus-title" id="bonus-title">Bonus Leads from SignalARC!</div>
+        <div class="bonus-sub" id="bonus-sub">You received extra leads on us &mdash; a gift from our team.</div>
+      </div>
     </div>
+
+    <!-- ADD CREDITS -->
+    <div class="add-credits-card">
+      <div>
+        <h3>Need More <em>Credits?</em></h3>
+        <p>Minimum $625 &middot; No expiry &middot; Use whenever you're ready</p>
+      </div>
+      <a href="/order.html#prepay" class="btn-teal">Add Credits &rarr;</a>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div class="section-title">Transaction History</div>
+    <div class="section-wrap">
+      <table><thead><tr><th>Date</th><th>Description</th><th>Type</th><th style="text-align:right">Amount</th></tr></thead>
+      <tbody id="transactions-body"><tr><td colspan="4" class="empty-state">No transactions yet.</td></tr></tbody>
+      </table>
+    </div>
+
+    <!-- DELIVERIES -->
+    <div class="section-title">Lead Deliveries</div>
+    <div class="section-wrap" id="deliveries-wrap"><div class="empty-state">No deliveries yet.</div></div>
+
+    <!-- LEADS -->
+    <!-- FIX 10: Export button in section title -->
+    <div class="section-title">
+      Your Leads
+      <button class="btn-export" id="export-btn" onclick="exportLeadsCSV()" style="display:none">&#8595; Download CSV</button>
+    </div>
+    <div class="section-wrap" id="leads-wrap"><div class="empty-state">No leads yet.</div></div>
   </div>
-
-  <!-- BONUS BANNER -->
-  <div class="bonus-banner" id="bonus-banner" style="display:none">
-    <div class="bonus-icon">&#127873;</div>
-    <div>
-      <div class="bonus-title" id="bonus-title">Bonus Leads from SignalARC!</div>
-      <div class="bonus-sub" id="bonus-sub">You received extra leads on us &mdash; a gift from our team.</div>
-    </div>
-  </div>
-
-  <!-- ADD CREDITS -->
-  <div class="add-credits-card">
-    <div>
-      <h3>Need More <em>Credits?</em></h3>
-      <p>Minimum $625 &middot; No expiry &middot; Use whenever you're ready</p>
-    </div>
-    <a href="/order.html#prepay" class="btn-teal">Add Credits &rarr;</a>
-  </div>
-
-  <!-- TRANSACTIONS -->
-  <div class="section-title">Transaction History</div>
-  <div class="section-wrap">
-    <table><thead><tr><th>Date</th><th>Description</th><th>Type</th><th style="text-align:right">Amount</th></tr></thead>
-    <tbody id="transactions-body"><tr><td colspan="4" class="empty-state">No transactions yet.</td></tr></tbody>
-    </table>
-  </div>
-
-  <!-- DELIVERIES -->
-  <div class="section-title">Lead Deliveries</div>
-  <div class="section-wrap" id="deliveries-wrap"><div class="empty-state">No deliveries yet.</div></div>
-
-  <!-- LEADS -->
-  <div class="section-title">Your Leads</div>
-  <div class="section-wrap" id="leads-wrap"><div class="empty-state">No leads yet.</div></div>
-
 </div>
 
 <script src="signalarc-chat-widget.js"></script>
 <script>
 const {createClient} = supabase;
 const db = createClient('https://jvsflvwisxprelbwxupj.supabase.co', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2c2Zsdndpc3hwcmVsYnd4dXBqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYxNzM1MTksImV4cCI6MjA5MTc0OTUxOX0.0Vt0fN_dxFt-G57uBOoVhHOrhO6CtwVwK-j4jrx5VjU');
+
+let _allLeads = [];
 
 async function sendMagicLink() {
   const email = document.getElementById('login-email').value.trim();
@@ -205,11 +226,31 @@ async function sendMagicLink() {
 
 async function signOut() { await db.auth.signOut(); location.reload(); }
 
+// FIX 10: Export leads as CSV
+function exportLeadsCSV() {
+  if (!_allLeads.length) return;
+  const headers = ['First Name','Last Name','Email','Title','Company'];
+  const rows = _allLeads.map(l => [
+    l.lead_first_name || '', l.lead_last_name || '',
+    l.lead_email || '', l.lead_title || '', l.lead_company || ''
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'signalarc-leads.csv';
+  a.click();
+}
+
 async function loadPortal(email) {
   document.getElementById('login-state').style.display = 'none';
   document.getElementById('portal-state').style.display = 'block';
   document.getElementById('nav-email').textContent = email;
   document.getElementById('sign-out-btn').style.display = 'block';
+
+  // FIX 8: Show loading, hide content
+  document.getElementById('loading-overlay').style.display = 'block';
+  document.getElementById('portal-content').style.display = 'none';
 
   const [credRes, txnRes, dlRes, leadsRes] = await Promise.all([
     db.from('credit_accounts').select('*').eq('email', email).single(),
@@ -218,28 +259,32 @@ async function loadPortal(email) {
     db.from('leads').select('id, lead_first_name, lead_last_name, lead_email, lead_title, lead_company').eq('client_email', email).order('created_at', { ascending: false })
   ]);
 
+  // FIX 8: Hide loading, show content
+  document.getElementById('loading-overlay').style.display = 'none';
+  document.getElementById('portal-content').style.display = 'block';
+
   const c = credRes.data;
-  if (c) {
+
+  // FIX 9: Show banner if no account found
+  if (!c) {
+    document.getElementById('no-account-banner').style.display = 'block';
+  } else {
+    document.getElementById('no-account-banner').style.display = 'none';
     const balance = parseFloat(c.credit_balance) || 0;
     const purchased = parseFloat(c.total_purchased) || 0;
     const used = parseFloat(c.total_used) || 0;
     const cpl = parseFloat(c.cost_per_lead) || 25;
     const bonus = parseInt(c.bonus_leads) || 0;
 
-    // Credits
     document.getElementById('credit-balance').textContent = '$' + balance.toLocaleString();
     document.getElementById('total-purchased').textContent = '$' + purchased.toLocaleString();
     document.getElementById('total-used').textContent = '$' + used.toLocaleString();
-
-    // CPL
     document.getElementById('cpl-display').textContent = '$' + cpl.toLocaleString();
 
-    // Leads remaining = credits left divided by CPL
     const leadsLeft = Math.floor(balance / cpl);
     document.getElementById('leads-remaining').textContent = leadsLeft.toLocaleString();
     document.getElementById('leads-remaining-sub').textContent = '$' + balance.toLocaleString() + ' ÷ $' + cpl + '/lead';
 
-    // Bonus leads
     if (bonus > 0) {
       document.getElementById('bonus-stat-card').style.display = 'block';
       document.getElementById('no-bonus-card').style.display = 'none';
@@ -250,11 +295,10 @@ async function loadPortal(email) {
     }
   }
 
-  // Total leads count
   const leads = leadsRes.data;
-  document.getElementById('total-leads').textContent = (leads?.length || 0).toLocaleString();
+  _allLeads = leads || [];
+  document.getElementById('total-leads').textContent = (_allLeads.length).toLocaleString();
 
-  // Transactions
   const txns = txnRes.data;
   const tbody = document.getElementById('transactions-body');
   if (txns && txns.length > 0) {
@@ -263,11 +307,10 @@ async function loadPortal(email) {
       '<td>' + (t.description || '&mdash;') + '</td>' +
       '<td><span class="badge-' + t.type + '">' + t.type + '</span></td>' +
       '<td style="text-align:right;color:' + (t.type === 'usage' ? '#fac864' : 'var(--teal)') + ';">' +
-      (t.type === 'usage' ? '-' : '+') + ' $' + parseFloat(t.amount).toLocaleString() + '</td></tr>'
+      (t.type === 'usage' ? '-' : '+') + ' $' + parseFloat(t.amount||0).toLocaleString() + '</td></tr>'
     ).join('');
   }
 
-  // Deliveries
   const dl = dlRes.data;
   const dw = document.getElementById('deliveries-wrap');
   if (dl && dl.length > 0) {
@@ -280,12 +323,13 @@ async function loadPortal(email) {
     ).join('');
   }
 
-  // Leads table
   const lw = document.getElementById('leads-wrap');
-  if (leads && leads.length > 0) {
+  if (_allLeads.length > 0) {
+    // FIX 10: Show export button
+    document.getElementById('export-btn').style.display = 'inline-block';
     lw.innerHTML = '<div style="overflow-x:auto"><table>' +
       '<thead><tr><th>Name</th><th>Email</th><th>Title</th><th>Company</th></tr></thead><tbody>' +
-      leads.map(l =>
+      _allLeads.map(l =>
         '<tr><td>' + ((l.lead_first_name || '') + ' ' + (l.lead_last_name || '')).trim() + '</td>' +
         '<td style="color:var(--teal)">' + (l.lead_email || '-') + '</td>' +
         '<td style="color:var(--muted)">' + (l.lead_title || '-') + '</td>' +
