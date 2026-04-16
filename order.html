@@ -129,6 +129,7 @@
   <div class="toggle-wrap">
     <button class="toggle-btn active" onclick="switchTab('standard')">Standard &mdash; $25/Lead</button>
     <button class="toggle-btn" onclick="switchTab('custom')">Custom Targeting &mdash; Get a Quote</button>
+    <button class="toggle-btn" onclick="switchTab('abm')">TAL / ABM &mdash; Get a Quote</button>
   </div>
 
   <!-- STANDARD FORM -->
@@ -294,6 +295,77 @@
     </div>
   </div>
 
+  <!-- TAL / ABM FORM -->
+  <div id="tab-abm" style="display:none;">
+    <div class="form-card">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:var(--teal-dim);border:1px solid var(--teal-border);color:var(--teal);font-size:11px;font-weight:700;letter-spacing:0.08em;padding:4px 12px;border-radius:100px;text-transform:uppercase;margin-bottom:14px;">Account-Based Marketing</div>
+      <div class="form-section-title">TAL / ABM Lead Order</div>
+      <div class="form-section-sub">Provide your target account list and we'll find verified decision-makers at those exact companies &middot; Custom pricing based on account list size</div>
+
+      <div class="form-row">
+        <div class="field"><label>Your Name *</label><input type="text" id="abm-name" placeholder="Jane Smith"></div>
+        <div class="field"><label>Company *</label><input type="text" id="abm-company" placeholder="Acme Corp"></div>
+      </div>
+      <div class="field"><label>Work Email *</label><input type="email" id="abm-email" placeholder="jane@acmecorp.com"></div>
+      <div class="field"><label>Lead Delivery Email *</label><input type="email" id="abm-delivery" placeholder="leads@acmecorp.com"></div>
+
+      <hr class="divider">
+      <div class="form-section-title" style="font-size:18px;margin-bottom:6px;">Your Target Account List</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px;">Paste your account names below or share a link to a spreadsheet. We'll match verified contacts at each account.</p>
+
+      <div class="field">
+        <label>Target Account Names * <span style="color:var(--muted);font-weight:400;">(one per line or comma-separated)</span></label>
+        <textarea id="abm-accounts" style="height:130px;" placeholder="Acme Corp&#10;Widget Industries&#10;GlobalTech Inc&#10;..."></textarea>
+      </div>
+      <div class="field">
+        <label>Or share a spreadsheet link <span style="color:var(--muted);font-weight:400;">(Google Sheets, CSV, Excel)</span></label>
+        <input type="url" id="abm-list-url" placeholder="https://docs.google.com/spreadsheets/...">
+      </div>
+      <div class="field">
+        <label>Target Job Titles at These Accounts *</label>
+        <input type="text" id="abm-titles" placeholder="e.g. CFO, VP of Finance, Controller">
+      </div>
+      <div class="field">
+        <label>Contacts Per Account</label>
+        <select id="abm-contacts-per">
+          <option value="" disabled selected>How many contacts per account?</option>
+          <option>1 contact per account</option>
+          <option>2–3 contacts per account</option>
+          <option>4–5 contacts per account</option>
+          <option>As many as possible</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Content Asset URL * <span style="color:var(--muted);font-weight:400;">(Google Drive, Dropbox, or direct link)</span></label>
+        <input type="url" id="abm-asset" placeholder="https://drive.google.com/...">
+      </div>
+
+      <hr class="divider">
+
+      <div style="background:var(--bg3);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:18px 20px;margin-bottom:20px;">
+        <p style="font-size:13px;font-weight:700;color:var(--teal);margin-bottom:6px;">&#9432; How TAL/ABM Pricing Works</p>
+        <p style="font-size:13px;color:var(--muted);line-height:1.6;">Pricing is based on your account list size and contacts-per-account target. We'll review your list and send a custom quote within 24 hours — no payment until you approve.</p>
+      </div>
+
+      <div class="field"><label>Additional Notes <span style="color:var(--muted);font-weight:400;">(optional)</span></label><textarea id="abm-notes" placeholder="Timeline, priority accounts, exclusions, etc."></textarea></div>
+
+      <div class="tos-wrap" style="background:rgba(0,212,168,0.05);border:1px solid var(--teal-border);">
+        <input type="checkbox" id="abm-firsttime">
+        <div class="tos-text"><strong style="color:var(--teal);">First-time buyer?</strong> Check this box to claim your 25 free bonus leads. Added to your first order.</div>
+      </div>
+      <div class="tos-wrap">
+        <input type="checkbox" id="abm-tos">
+        <div class="tos-text">I agree to the <a href="/tos.html" target="_blank">Terms of Service</a> and understand I'll receive a custom pricing sheet within 24 hours before any payment is required.</div>
+      </div>
+      <button class="submit-btn" onclick="handleABMOrder()">Submit TAL for Quote &rarr;</button>
+      <p class="form-note">No payment required yet &middot; Custom pricing within 24 hours &middot; No obligation</p>
+      <div class="success-msg" id="abm-success">
+        <h3>&#10003; TAL Received!</h3>
+        <p>We'll review your target account list and send custom pricing to your email within 24 hours.</p>
+      </div>
+    </div>
+  </div>
+
   <!-- PREPAY CREDITS -->
   <div class="prepay-section" id="prepay">
     <h2>Prepay <em>Lead Credits.</em></h2>
@@ -406,8 +478,10 @@ function selectBilling(type) {
 function switchTab(tab) {
   document.getElementById('tab-standard').style.display = tab === 'standard' ? 'block' : 'none';
   document.getElementById('tab-custom').style.display = tab === 'custom' ? 'block' : 'none';
+  document.getElementById('tab-abm').style.display = tab === 'abm' ? 'block' : 'none';
+  const tabs = ['standard', 'custom', 'abm'];
   document.querySelectorAll('.toggle-btn').forEach((btn, i) => {
-    btn.classList.toggle('active', (tab === 'standard' && i === 0) || (tab === 'custom' && i === 1));
+    btn.classList.toggle('active', tabs[i] === tab);
   });
 }
 
@@ -525,7 +599,46 @@ async function handleCustomOrder() {
   document.getElementById('cust-success').style.display = 'block';
 }
 
-// FIX 2: PREPAY — real Stripe charge, not Formspree
+// ABM / TAL ORDER — Formspree quote request
+async function handleABMOrder() {
+  if (!document.getElementById('abm-tos').checked) { alert('Please agree to the Terms of Service.'); return; }
+  const email = document.getElementById('abm-email').value.trim();
+  const accounts = document.getElementById('abm-accounts').value.trim();
+  const listUrl = document.getElementById('abm-list-url').value.trim();
+  if (!email) { alert('Work email is required.'); return; }
+  if (!accounts && !listUrl) { alert('Please provide your target account list or a spreadsheet link.'); return; }
+
+  const btn = document.querySelector('#tab-abm .submit-btn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+
+  try {
+    await fetch('https://formspree.io/f/xojneaal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        type: 'TAL / ABM Quote Request',
+        name: document.getElementById('abm-name').value,
+        company: document.getElementById('abm-company').value,
+        email,
+        delivery_email: document.getElementById('abm-delivery').value,
+        target_accounts: accounts,
+        account_list_url: listUrl,
+        target_titles: document.getElementById('abm-titles').value,
+        contacts_per_account: document.getElementById('abm-contacts-per').value,
+        content_asset: document.getElementById('abm-asset').value,
+        first_time_bonus: document.getElementById('abm-firsttime').checked ? 'YES - add 25 free leads' : 'no',
+        notes: document.getElementById('abm-notes').value
+      })
+    });
+    document.getElementById('abm-success').style.display = 'block';
+    btn.textContent = 'Quote Request Sent ✓';
+  } catch (err) {
+    alert('Something went wrong. Please try again or email us directly.');
+    btn.disabled = false;
+    btn.textContent = 'Submit TAL for Quote →';
+  }
+}
+
 async function handlePrepay() {
   if (!stripeReady) { alert('Payment system failed to load. Please refresh the page.'); return; }
   if (!document.getElementById('prepay-tos').checked) { alert('Please agree to the Terms of Service.'); return; }
