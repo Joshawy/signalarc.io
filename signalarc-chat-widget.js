@@ -130,7 +130,9 @@
       ],
       replies: [
         { text: "💰 Pricing", next: "pricing" },
+        { text: "✨ Why SignalARC?", next: "why_us" },
         { text: "⚙️ How it works", next: "how_it_works" },
+        { text: "📊 Does it work?", next: "does_it_work" },
         { text: "🎯 Industries", next: "industries" },
         { text: "🛒 Start an order", next: "order", primary: true },
         { text: "👋 Talk to a human", next: "human_name" }
@@ -148,7 +150,7 @@
     },
     how_it_works: {
       messages: [
-        "**Three simple steps:**\n\n**1. Share your content** — whitepaper, guide, or case study (no content? we'll help make one)\n\n**2. We distribute it** — to decision-makers in your exact ICP, filtered by title, industry, and geo\n\n**3. Leads land in your inbox** — weekly, verified, ready for your CRM"
+        "**Three simple steps:**\n\n**1. Share your content** — whitepaper, guide, or case study (no content? we'll help make one)\n\n**2. We distribute it** — to decision-makers in your exact ICP, filtered by title, industry, and geo\n\n**3. Leads land in your inbox** — verified, ready for your CRM. Typically **~1 lead per week** until your order is fulfilled, though velocity depends on ICP narrowness and content quality."
       ],
       replies: [
         { text: "💰 See pricing", next: "pricing" },
@@ -165,6 +167,28 @@
         { text: "💰 See pricing", next: "pricing" },
         { text: "🛒 Start an order", action: "open_order", primary: true },
         { text: "💬 My industry isn't listed", next: "human_name" },
+        { text: "← Back", next: "start" }
+      ]
+    },
+    why_us: {
+      messages: [
+        "**Why SignalARC:**\n\n✓ **Transparent pricing** — $25/lead, published. No \"contact sales for a quote\" games.\n✓ **Self-serve orders** — buy leads in 2 minutes via Stripe, no demo calls required.\n✓ **Client portal** — see your credit balance, leads list, and delivery history in real time.\n✓ **25 free bonus leads** for first-time buyers. Low risk to try.\n✓ **100% verified leads** — real names, real work emails, real companies. No junk lists."
+      ],
+      replies: [
+        { text: "📊 But does it work?", next: "does_it_work" },
+        { text: "🛒 Start an order", action: "open_order", primary: true },
+        { text: "💰 See pricing", next: "pricing" },
+        { text: "← Back", next: "start" }
+      ]
+    },
+    does_it_work: {
+      messages: [
+        "**Fair question.** Here's the honest answer:\n\n• Content syndication leads convert to SQLs at **15–25%** when paired with a proper email nurture — roughly **2.4x** the rate of cold outbound (source: our [2026 Benchmark Report](/benchmark-report.html))\n\n• Every lead is **verified** before delivery — real work email, title match, company match. Bounces get replaced free.\n\n• Your first 25 leads are **free** after kickoff. So you can actually measure the channel before spending a dollar.\n\n• Full playbook on how to make leads convert: [The 2026 B2B Lead Gen Playbook](/b2b-lead-gen-playbook.html)"
+      ],
+      replies: [
+        { text: "🧮 Try the ROI calculator", action: "open_calculator" },
+        { text: "🛒 Start an order", action: "open_order", primary: true },
+        { text: "💬 Talk to someone", next: "human_name" },
         { text: "← Back", next: "start" }
       ]
     },
@@ -364,6 +388,7 @@
   async function handleAction(action) {
     if (action === 'open_order') window.location.href = '/order.html';
     else if (action === 'open_blog') window.location.href = '/blog/';
+    else if (action === 'open_calculator') window.location.href = '/roi-calculator.html';
     else if (action === 'submit_lead') await submitLead();
   }
 
