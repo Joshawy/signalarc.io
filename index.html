@@ -42,6 +42,12 @@
     border-bottom: 1px solid rgba(0,212,168,0.1);
   }
   .logo img { height: 36px; width: auto; display: block; }
+  nav a.nav-link {
+    color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 600;
+    margin-right: 20px; transition: color 0.2s;
+  }
+  nav a.nav-link:hover { color: var(--white); }
+  @media (max-width: 600px) { nav a.nav-link { display: none; } }
   nav a.cta-nav {
     background: var(--teal); color: #071012; font-weight: 700; font-size: 14px;
     padding: 10px 22px; border-radius: 6px; text-decoration: none;
@@ -331,6 +337,7 @@
 <!-- NAV -->
 <nav>
   <a href="#" class="logo"><img src="signal-arc-logo.svg" alt="SignalARC"></a>
+  <a href="/what-is-content-syndication.html" class="nav-link">What is content syndication?</a>
   <a href="#contact" class="cta-nav">Get Leads Now →</a>
 </nav>
 
