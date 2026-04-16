@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>B2B Content Syndication ROI Calculator | SignalARC</title>
+<meta name="description" content="Calculate how many B2B leads you need, what they'll cost, and your projected ROI from content syndication. Free interactive tool — no signup to try.">
+<link rel="canonical" href="https://signalarc.io/roi-calculator.html">
+
+<meta property="og:title" content="B2B Content Syndication ROI Calculator | SignalARC">
+<meta property="og:description" content="See exactly how many leads you need, what you'll invest, and your projected ROI. Free tool.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://signalarc.io/roi-calculator.html">
+<meta name="twitter:card" content="summary_large_image">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "B2B Content Syndication ROI Calculator",
+  "description": "Free interactive calculator for estimating leads needed, investment, and ROI from a B2B content syndication program.",
+  "url": "https://signalarc.io/roi-calculator.html",
+  "applicationCategory": "BusinessApplication",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "publisher": { "@type": "Organization", "name": "SignalARC", "url": "https://signalarc.io" }
+}
+</script>
+
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #071012; --bg2: #0d1c20; --bg3: #112228;
+    --teal: #00d4a8; --teal-dim: rgba(0,212,168,0.12); --teal-border: rgba(0,212,168,0.25);
+    --white: #f0f8f6; --muted: #7a9e98;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--bg); color: var(--white); font-family: var(--font-body); font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between; padding: 18px 48px; background: rgba(7,16,18,0.9); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(0,212,168,0.1); }
+  .logo img { height: 36px; width: auto; display: block; }
+  nav a.nav-link { color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 600; margin-right: 20px; transition: color 0.2s; }
+  nav a.nav-link:hover { color: var(--white); }
+  @media (max-width: 600px) { nav a.nav-link { display: none; } }
+  nav a.cta-nav { background: var(--teal); color: #071012; font-weight: 700; font-size: 14px; padding: 10px 22px; border-radius: 6px; text-decoration: none; transition: opacity 0.2s; }
+  nav a.cta-nav:hover { opacity: 0.85; }
+
+  .hero {
+    padding: 140px 48px 40px;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -200px; left: 50%; transform: translateX(-50%);
+    width: 800px; height: 800px;
+    background: radial-gradient(circle, rgba(0,212,168,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--teal-dim); border: 1px solid var(--teal-border);
+    color: var(--teal); font-size: 13px; font-weight: 600; letter-spacing: 0.05em;
+    padding: 6px 14px; border-radius: 100px; margin-bottom: 24px;
+  }
+  .hero-badge::before { content: '●'; font-size: 8px; }
+  .hero h1 {
+    font-family: var(--font-display); font-weight: 900; line-height: 1.02;
+    font-size: clamp(44px, 6vw, 72px); letter-spacing: -1px;
+    margin-bottom: 16px; max-width: 900px; margin-left: auto; margin-right: auto;
+  }
+  .hero h1 em { color: var(--teal); font-style: normal; }
+  .hero p.lede { font-size: 18px; color: var(--muted); max-width: 620px; margin: 0 auto 12px; line-height: 1.6; }
+
+  .calc {
+    max-width: 1100px; margin: 40px auto 0;
+    padding: 0 48px 100px;
+    display: grid; grid-template-columns: 1fr 1.1fr;
+    gap: 24px;
+  }
+  .calc-inputs, .calc-outputs {
+    background: var(--bg2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px; padding: 32px;
+  }
+  .calc-outputs {
+    border: 1px solid var(--teal-border);
+    background: linear-gradient(180deg, var(--bg2) 0%, var(--bg3) 100%);
+    position: sticky; top: 100px; height: fit-content;
+  }
+  .panel-title {
+    font-family: var(--font-display);
+    font-size: 24px; font-weight: 900;
+    margin-bottom: 4px;
+  }
+  .panel-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; }
+
+  .field { margin-bottom: 22px; }
+  .field label {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-size: 13px; font-weight: 700; color: var(--white);
+    margin-bottom: 8px; letter-spacing: 0.02em;
+  }
+  .field label .hint { font-size: 11px; color: var(--muted); font-weight: 400; letter-spacing: 0; }
+  .input-wrap {
+    position: relative; display: flex; align-items: center;
+    background: var(--bg3);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .input-wrap:focus-within { border-color: var(--teal); }
+  .input-wrap .prefix, .input-wrap .suffix {
+    padding: 0 12px; color: var(--muted); font-weight: 600; font-size: 14px;
+    background: rgba(0,0,0,0.15);
+    user-select: none; line-height: 44px;
+  }
+  .input-wrap input[type="number"], .input-wrap select {
+    flex: 1; background: transparent; border: none;
+    color: var(--white); font-family: inherit; font-size: 15px;
+    padding: 12px 14px; outline: none; width: 100%;
+    -moz-appearance: textfield;
+  }
+  .input-wrap input::-webkit-outer-spin-button,
+  .input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  select.full { padding: 12px 14px; width: 100%; border: none; background: transparent; color: var(--white); font-family: inherit; font-size: 15px; outline: none; }
+
+  .slider-wrap {
+    display: flex; align-items: center; gap: 16px;
+    background: var(--bg3);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 12px 14px;
+  }
+  .slider-wrap input[type="range"] {
+    flex: 1; -webkit-appearance: none; appearance: none; height: 4px;
+    background: rgba(0,212,168,0.2); border-radius: 2px; outline: none; cursor: pointer;
+  }
+  .slider-wrap input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+    background: var(--teal); border-radius: 50%; cursor: pointer;
+    box-shadow: 0 0 0 4px rgba(0,212,168,0.2);
+  }
+  .slider-wrap input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px; background: var(--teal);
+    border-radius: 50%; border: none; cursor: pointer;
+  }
+  .slider-val {
+    font-weight: 700; color: var(--teal); font-size: 15px;
+    min-width: 60px; text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .result-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+    margin-bottom: 20px;
+  }
+  .result-card {
+    background: rgba(0,212,168,0.04);
+    border: 1px solid rgba(0,212,168,0.15);
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .result-card.wide { grid-column: 1 / -1; }
+  .result-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--muted); text-transform: uppercase; margin-bottom: 6px;
+  }
+  .result-value {
+    font-family: var(--font-display);
+    font-weight: 900; color: var(--teal);
+    font-size: 32px; line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+  .result-value.big { font-size: 44px; }
+  .result-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .cpl-note {
+    background: var(--bg3);
+    border-radius: 10px; padding: 14px 16px;
+    font-size: 13px; color: var(--muted);
+    line-height: 1.55;
+    margin-bottom: 20px;
+  }
+  .cpl-note strong { color: var(--white); }
+
+  .cta-row { display: flex; gap: 10px; }
+  .btn-primary { flex: 1; background: var(--teal); color: #071012; font-weight: 700; font-size: 15px; padding: 13px 20px; border-radius: 8px; text-decoration: none; text-align: center; transition: opacity 0.2s, transform 0.15s; border: none; cursor: pointer; font-family: inherit; }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-secondary { flex: 1; border: 1px solid var(--teal-border); color: var(--white); font-weight: 600; padding: 13px 20px; border-radius: 8px; text-decoration: none; text-align: center; transition: background 0.2s; background: transparent; cursor: pointer; font-family: inherit; font-size: 15px; }
+  .btn-secondary:hover { background: var(--teal-dim); }
+
+  /* Email capture modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(7,16,18,0.8); backdrop-filter: blur(6px);
+    display: none; align-items: center; justify-content: center; z-index: 10000;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--teal-border);
+    border-radius: 14px; padding: 32px; max-width: 460px; width: 100%;
+    position: relative;
+  }
+  .modal-close {
+    position: absolute; top: 14px; right: 14px;
+    background: none; border: none; color: var(--muted);
+    font-size: 22px; cursor: pointer; line-height: 1;
+  }
+  .modal-close:hover { color: var(--white); }
+  .modal h3 { font-family: var(--font-display); font-size: 28px; font-weight: 900; margin-bottom: 8px; line-height: 1.1; }
+  .modal h3 em { color: var(--teal); font-style: normal; }
+  .modal p.modal-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+  .modal input {
+    width: 100%; background: var(--bg3);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; color: var(--white);
+    font-family: inherit; font-size: 15px;
+    padding: 12px 14px; outline: none; margin-bottom: 12px;
+    transition: border-color 0.15s;
+  }
+  .modal input:focus { border-color: var(--teal); }
+  .modal input::placeholder { color: rgba(255,255,255,0.3); }
+  .modal .btn-primary { width: 100%; padding: 14px; font-size: 16px; margin-top: 8px; }
+  .modal .form-note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 12px; }
+  .modal-success { text-align: center; padding: 20px 0; }
+  .modal-success .check { width: 60px; height: 60px; border-radius: 50%; background: var(--teal-dim); border: 2px solid var(--teal); display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; color: var(--teal); font-size: 32px; font-weight: 900; }
+
+  /* Methodology */
+  .methodology {
+    max-width: 780px; margin: 60px auto 0;
+    padding: 0 48px 80px;
+  }
+  .methodology h2 {
+    font-family: var(--font-display); font-size: 32px; font-weight: 900;
+    margin-bottom: 14px; line-height: 1.1;
+  }
+  .methodology h2 em { color: var(--teal); font-style: normal; }
+  .methodology p { color: #b8cfc9; font-size: 15px; line-height: 1.75; margin-bottom: 14px; }
+  .methodology ul { margin-left: 20px; color: #b8cfc9; }
+  .methodology li { margin-bottom: 8px; font-size: 15px; line-height: 1.7; }
+  .methodology strong { color: var(--white); }
+
+  footer { padding: 40px 48px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; }
+  footer .logo img { height: 28px; width: auto; }
+  footer p { font-size: 13px; color: var(--muted); }
+
+  @media (max-width: 900px) {
+    nav { padding: 16px 20px; }
+    .hero { padding: 110px 20px 30px; }
+    .calc { grid-template-columns: 1fr; padding: 0 20px 60px; gap: 16px; }
+    .calc-outputs { position: static; }
+    .methodology { padding: 0 20px 60px; }
+    footer { flex-direction: column; gap: 10px; padding: 30px 20px; text-align: center; }
+    .result-value { font-size: 28px; }
+    .result-value.big { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo"><img src="signal-arc-logo.svg" alt="SignalARC"></a>
+  <div>
+    <a href="/what-is-content-syndication.html" class="nav-link">What is syndication?</a>
+    <a href="/order.html" class="cta-nav">Get Leads Now →</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-badge">Free · No signup required to try</div>
+  <h1>B2B Content Syndication <em>ROI Calculator.</em></h1>
+  <p class="lede">Plug in your numbers. See exactly how many leads you need, what you'll invest, and the ROI you can expect — before you spend a dollar.</p>
+</section>
+
+<section class="calc">
+  <div class="calc-inputs">
+    <h2 class="panel-title">Your numbers</h2>
+    <p class="panel-sub">Tweak the inputs — results update in real time.</p>
+
+    <div class="field">
+      <label>Industry</label>
+      <div class="input-wrap">
+        <select class="full" id="industry">
+          <option value="finance">Financial Services &amp; Insurance</option>
+          <option value="healthcare">Healthcare &amp; Medical Devices</option>
+          <option value="manufacturing">Manufacturing &amp; Industrial</option>
+          <option value="logistics">Logistics &amp; Supply Chain</option>
+          <option value="hr">HR &amp; Workforce Management</option>
+          <option value="realestate">Commercial Real Estate</option>
+          <option value="other">Other B2B</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Average Contract Value (ACV) <span class="hint">first-year revenue per new customer</span></label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="number" id="acv" value="25000" min="500" step="500">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>MQL → Closed-Won Rate <span class="hint">industry avg: 2–5%</span></label>
+      <div class="slider-wrap">
+        <input type="range" id="conversionRate" min="1" max="15" value="3" step="0.5">
+        <span class="slider-val" id="conversionRateVal">3%</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Revenue Goal <span class="hint">new revenue you want this campaign to drive</span></label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="number" id="revenueGoal" value="500000" min="10000" step="10000">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Timeline <span class="hint">how long you want the pipeline to ramp</span></label>
+      <div class="slider-wrap">
+        <input type="range" id="timeline" min="1" max="12" value="6" step="1">
+        <span class="slider-val" id="timelineVal">6 months</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="calc-outputs">
+    <h2 class="panel-title">Your projection</h2>
+    <p class="panel-sub">Based on SignalARC's $25/lead pricing.</p>
+
+    <div class="cpl-note">
+      <strong>Assumed CPL:</strong> $25/lead (SignalARC base rate). Volume packs and subscription save another 10%.
+    </div>
+
+    <div class="result-grid">
+      <div class="result-card wide">
+        <div class="result-label">Leads Needed</div>
+        <div class="result-value big" id="leadsNeeded">—</div>
+        <div class="result-sub" id="leadsSub">—</div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-label">Total Investment</div>
+        <div class="result-value" id="investment">—</div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-label">Customer Acquisition Cost</div>
+        <div class="result-value" id="cac">—</div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-label">Closed Deals</div>
+        <div class="result-value" id="closedDeals">—</div>
+      </div>
+
+      <div class="result-card">
+        <div class="result-label">Projected ROI</div>
+        <div class="result-value" id="roi">—</div>
+      </div>
+
+      <div class="result-card wide">
+        <div class="result-label">Monthly Lead Volume</div>
+        <div class="result-value" id="leadsPerMonth">—</div>
+        <div class="result-sub">Leads delivered steadily every month over your timeline.</div>
+      </div>
+    </div>
+
+    <div class="cta-row">
+      <button class="btn-primary" id="emailResults">📧 Email me these results</button>
+      <a href="/order.html" class="btn-secondary">Start an order →</a>
+    </div>
+  </div>
+</section>
+
+<section class="methodology">
+  <h2>How we <em>calculate</em></h2>
+  <p>Every number updates live as you change inputs. The math is straightforward and matches standard B2B demand-gen planning:</p>
+  <ul>
+    <li><strong>Closed deals needed</strong> = Revenue goal ÷ Average contract value</li>
+    <li><strong>Leads needed</strong> = Closed deals ÷ (MQL-to-close rate ÷ 100)</li>
+    <li><strong>Total investment</strong> = Leads needed × $25 CPL</li>
+    <li><strong>CAC</strong> = Total investment ÷ Closed deals</li>
+    <li><strong>ROI</strong> = (Revenue goal − Investment) ÷ Investment × 100</li>
+    <li><strong>Monthly lead volume</strong> = Leads needed ÷ Timeline in months</li>
+  </ul>
+  <p><strong>Key assumption:</strong> SignalARC's base rate of $25/lead for the 25-lead minimum tier. Larger prepay packs and subscriptions reduce effective CPL by up to 10%. Conversion rates reflect 2024–2025 benchmarks for content-sourced MQLs with a proper email nurture program in place.</p>
+  <p><strong>What this calculator doesn't account for:</strong> Ad spend, sales team cost, CRM/marketing automation licenses, or content creation costs. It's a pipeline-level view of lead economics only.</p>
+</section>
+
+<footer>
+  <a href="/" class="logo"><img src="signal-arc-logo.svg" alt="SignalARC"></a>
+  <p>© 2026 SignalArc. All rights reserved.</p>
+</footer>
+
+<!-- Email capture modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <button class="modal-close" id="modalClose">✕</button>
+    <div id="modalForm">
+      <h3>Get your <em>detailed breakdown</em></h3>
+      <p class="modal-sub">We'll email you these projections plus industry-specific benchmarks and a sample 6-month campaign plan within one business day.</p>
+      <input type="text" id="leadName" placeholder="Your name" autocomplete="name">
+      <input type="email" id="leadEmail" placeholder="Work email" autocomplete="email">
+      <input type="text" id="leadCompany" placeholder="Company" autocomplete="organization">
+      <button class="btn-primary" id="leadSubmit">Send me the report →</button>
+      <p class="form-note">No spam. No cold lists. Just the report.</p>
+    </div>
+    <div id="modalSuccess" style="display:none;">
+      <div class="modal-success">
+        <div class="check">✓</div>
+        <h3 style="text-align:center;">You're <em>in</em>.</h3>
+        <p style="text-align:center;color:var(--muted);font-size:14px;margin-top:8px;">We'll send your detailed breakdown within one business day.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const CPL = 25; // SignalARC base rate
+
+  const $ = (id) => document.getElementById(id);
+  const fmt = {
+    money: (n) => '$' + Math.round(n).toLocaleString(),
+    moneyShort: (n) => {
+      if (n >= 1000000) return '$' + (n/1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+      if (n >= 1000) return '$' + (n/1000).toFixed(0) + 'K';
+      return '$' + Math.round(n);
+    },
+    num: (n) => Math.round(n).toLocaleString(),
+    pct: (n) => Math.round(n) + '%'
+  };
+
+  function calc() {
+    const acv = +$('acv').value || 0;
+    const convRate = +$('conversionRate').value / 100;
+    const goal = +$('revenueGoal').value || 0;
+    const months = +$('timeline').value;
+
+    // Update slider labels
+    $('conversionRateVal').textContent = $('conversionRate').value + '%';
+    $('timelineVal').textContent = months + (months === 1 ? ' month' : ' months');
+
+    if (acv < 1 || convRate < 0.001 || goal < 1 || months < 1) return;
+
+    const deals = goal / acv;
+    const leads = deals / convRate;
+    const investment = leads * CPL;
+    const cac = investment / deals;
+    const roi = ((goal - investment) / investment) * 100;
+    const leadsPerMonth = leads / months;
+
+    $('leadsNeeded').textContent = fmt.num(leads);
+    $('leadsSub').textContent = 'to close ' + fmt.num(deals) + ' deal' + (deals === 1 ? '' : 's') + ' at your ' + ($('conversionRate').value) + '% conversion rate';
+    $('investment').textContent = fmt.moneyShort(investment);
+    $('cac').textContent = fmt.moneyShort(cac);
+    $('closedDeals').textContent = fmt.num(deals);
+    $('roi').textContent = roi > 0 ? fmt.pct(roi) : '—';
+    $('leadsPerMonth').textContent = fmt.num(leadsPerMonth) + ' / mo';
+  }
+
+  ['acv', 'conversionRate', 'revenueGoal', 'timeline', 'industry'].forEach(id => {
+    $(id).addEventListener('input', calc);
+  });
+  calc();
+
+  // Modal
+  const modal = $('modal');
+  $('emailResults').addEventListener('click', () => modal.classList.add('show'));
+  $('modalClose').addEventListener('click', () => modal.classList.remove('show'));
+  modal.addEventListener('click', (e) => { if (e.target === modal) modal.classList.remove('show'); });
+
+  $('leadSubmit').addEventListener('click', async () => {
+    const name = $('leadName').value.trim();
+    const email = $('leadEmail').value.trim();
+    const company = $('leadCompany').value.trim();
+    if (!name || !email || !company) { alert('Please fill in all fields'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert('Please enter a valid email'); return; }
+
+    const btn = $('leadSubmit');
+    btn.disabled = true; btn.textContent = 'Sending...';
+
+    const snapshot = {
+      industry: $('industry').options[$('industry').selectedIndex].text,
+      acv: $('acv').value,
+      conversionRate: $('conversionRate').value + '%',
+      revenueGoal: $('revenueGoal').value,
+      timeline: $('timeline').value + ' months',
+      leadsNeeded: $('leadsNeeded').textContent,
+      investment: $('investment').textContent,
+      cac: $('cac').textContent,
+      roi: $('roi').textContent,
+      closedDeals: $('closedDeals').textContent
+    };
+
+    try {
+      await fetch('https://formspree.io/f/xojneaal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({
+          name, email, company,
+          source: 'roi-calculator',
+          _subject: 'ROI Calculator lead: ' + name + ' (' + company + ')',
+          calculator_snapshot: snapshot
+        })
+      });
+      $('modalForm').style.display = 'none';
+      $('modalSuccess').style.display = 'block';
+    } catch (e) {
+      alert('Something went wrong. Please email hello@signalarc.io directly.');
+      btn.disabled = false; btn.textContent = 'Send me the report →';
+    }
+  });
+})();
+</script>
+
+<script src="signalarc-chat-widget.js"></script>
+</body>
+</html>
