@@ -49,6 +49,7 @@ tr:last-child td{border-bottom:none}
 .stat-box .value{font-family:var(--font-display);font-size:32px;font-weight:900;color:var(--teal);line-height:1}
 code{background:var(--bg3);padding:2px 8px;border-radius:4px;font-size:12px;color:var(--teal)}
 hr.divider{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:20px 0}
+.cpl-hint{font-size:11px;color:var(--teal);margin:-10px 0 10px;display:none}
 </style>
 </head>
 <body>
@@ -62,7 +63,7 @@ hr.divider{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:20px 0
   </div>
 </div>
 <div id="dashboard" style="display:none">
-  <nav><h1>&#9889; SignalARC Admin</h1><span id="last-refresh"></span></nav>
+  <nav><h1>&#9889; SignalARC Admin</h1><span id="last-refresh" style="font-size:12px;color:var(--muted)"></span></nav>
   <div class="wrap">
     <div class="stats-row">
       <div class="stat-box"><div class="label">Total Clients</div><div class="value" id="stat-clients">-</div></div>
@@ -73,10 +74,14 @@ hr.divider{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:20px 0
     <div class="grid-2">
       <div class="card">
         <h3><span>Action</span>Log Lead Delivery</h3>
-        <div class="field"><label>Client Email</label><input type="email" id="del-email" class="input" placeholder="client@company.com"></div>
+        <div class="field">
+          <label>Client Email</label>
+          <input type="email" id="del-email" class="input" placeholder="client@company.com" oninput="prefillCPL(this.value)">
+          <div class="cpl-hint" id="cpl-hint"></div>
+        </div>
         <div class="form-row">
-          <div class="field"><label>Leads Delivered</label><input type="number" id="del-count" class="input" placeholder="25"></div>
-          <div class="field"><label>Cost Per Lead ($)</label><input type="number" id="del-cost" class="input" placeholder="25"></div>
+          <div class="field"><label>Leads Delivered</label><input type="number" id="del-count" class="input" placeholder="25" min="1"></div>
+          <div class="field"><label>Cost Per Lead ($)</label><input type="number" id="del-cost" class="input" placeholder="25" min="1"></div>
         </div>
         <div class="field"><label>Industry</label><input type="text" id="del-industry" class="input" placeholder="Financial Services"></div>
         <div class="field"><label>Notes</label><input type="text" id="del-notes" class="input" placeholder="Week 1 delivery"></div>
@@ -86,13 +91,13 @@ hr.divider{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:20px 0
       <div class="card">
         <h3><span>Action</span>Add Credits to Account</h3>
         <div class="field"><label>Client Email</label><input type="email" id="cred-email" class="input" placeholder="client@company.com"></div>
-        <div class="field"><label>Amount ($)</label><input type="number" id="cred-amount" class="input" placeholder="625"></div>
+        <div class="field"><label>Amount ($)</label><input type="number" id="cred-amount" class="input" placeholder="625" min="1"></div>
         <div class="field"><label>Description</label><input type="text" id="cred-desc" class="input" placeholder="Prepay credit top-up"></div>
         <div class="form-row">
-          <div class="field"><label>Cost Per Lead ($)</label><input type="number" id="cred-cpl" class="input" placeholder="25"></div>
-          <div class="field"><label>Bonus Leads &#127873;</label><input type="number" id="cred-bonus" class="input" placeholder="0"></div>
+          <div class="field"><label>Cost Per Lead ($)</label><input type="number" id="cred-cpl" class="input" placeholder="25" min="1"></div>
+          <div class="field"><label>Bonus Leads &#127873;</label><input type="number" id="cred-bonus" class="input" placeholder="Leave blank to keep existing" min="0"></div>
         </div>
-        <p style="font-size:11px;color:var(--muted);margin:-8px 0 14px">Bonus leads show as a gift in the client portal</p>
+        <p style="font-size:11px;color:var(--muted);margin:-8px 0 14px">Leave Bonus Leads blank to keep existing value</p>
         <button class="btn btn-sm" onclick="addCredits()">Add Credits</button>
         <div class="msg" id="cred-msg"></div>
         <hr class="divider">
@@ -107,7 +112,7 @@ hr.divider{border:none;border-top:1px solid rgba(255,255,255,0.06);margin:20px 0
       <div class="table-header"><h3>&#8679; Import Leads from CSV</h3></div>
       <div style="padding:24px">
         <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Accepted columns: <code>first_name, last_name, email, title, company, phone, industry, content_piece, delivery_batch</code></p>
-        <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Credits auto-deducted based on client's CPL &times; number of leads imported.</p>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Credits auto-deducted based on client's CPL &times; number of leads imported. Duplicate emails are skipped automatically.</p>
         <div class="field">
           <label>Select Client</label>
           <select id="csv-client-select" class="input" style="max-width:400px" onchange="document.getElementById('csv-client-email').value=this.value">
@@ -162,12 +167,36 @@ async function sb(path, method='GET', body=null) {
   return r.ok ? r.json() : null;
 }
 
+// FIX 4: Auto-fill CPL from stored account when admin types email
+let _cplCache = {};
+async function prefillCPL(email) {
+  if (!email || !email.includes('@')) return;
+  if (_cplCache[email]) {
+    document.getElementById('del-cost').value = _cplCache[email];
+    const hint = document.getElementById('cpl-hint');
+    hint.textContent = 'Auto-filled from account: $' + _cplCache[email] + '/lead';
+    hint.style.display = 'block';
+    return;
+  }
+  const res = await sb('credit_accounts?email=eq.' + encodeURIComponent(email) + '&select=cost_per_lead');
+  if (res && res[0] && res[0].cost_per_lead) {
+    const cpl = res[0].cost_per_lead;
+    _cplCache[email] = cpl;
+    document.getElementById('del-cost').value = cpl;
+    const hint = document.getElementById('cpl-hint');
+    hint.textContent = 'Auto-filled from account: $' + cpl + '/lead';
+    hint.style.display = 'block';
+  }
+}
+
 async function loadData() {
   document.getElementById('last-refresh').textContent = 'Updated: ' + new Date().toLocaleTimeString();
-  const [credits, txns, deliveries] = await Promise.all([
+  // FIX 3: Fetch ALL deliveries for accurate total (no limit)
+  const [credits, txns, deliveries, allDeliveries] = await Promise.all([
     sb('credit_accounts?select=*&order=updated_at.desc'),
     sb('transactions?select=*&order=created_at.desc&limit=20'),
-    sb('lead_deliveries?select=*&order=delivery_date.desc&limit=20')
+    sb('lead_deliveries?select=*&order=delivery_date.desc&limit=20'),
+    sb('lead_deliveries?select=leads_delivered')
   ]);
 
   if (credits) {
@@ -176,20 +205,23 @@ async function loadData() {
     document.getElementById('stat-used').textContent = '$' + credits.reduce((s, c) => s + parseFloat(c.total_used || 0), 0).toLocaleString();
     const sel = document.getElementById('csv-client-select');
     sel.innerHTML = '<option value="">-- Select existing client --</option>' + credits.map(c => '<option value="' + c.email + '">' + c.email + '</option>').join('');
+    // Rebuild CPL cache
+    credits.forEach(c => { if (c.cost_per_lead) _cplCache[c.email] = c.cost_per_lead; });
   }
-  if (deliveries) document.getElementById('stat-leads').textContent = deliveries.reduce((s, d) => s + (d.leads_delivered || 0), 0).toLocaleString();
+  // FIX 3: Use allDeliveries for accurate total count
+  if (allDeliveries) document.getElementById('stat-leads').textContent = allDeliveries.reduce((s, d) => s + (d.leads_delivered || 0), 0).toLocaleString();
 
   const ct = document.getElementById('clients-table');
   if (credits && credits.length > 0) {
     ct.innerHTML = '<table><thead><tr><th>Email</th><th>Available</th><th>Purchased</th><th>Used</th><th>CPL</th><th>Bonus &#127873;</th><th>Updated</th></tr></thead><tbody>' +
-      credits.map(c => '<tr><td>' + c.email + '</td><td style="color:var(--teal);font-weight:700">$' + parseFloat(c.credit_balance).toLocaleString() + '</td><td>$' + parseFloat(c.total_purchased).toLocaleString() + '</td><td>$' + parseFloat(c.total_used).toLocaleString() + '</td><td>$' + (c.cost_per_lead || 25) + '</td><td style="color:var(--yellow)">' + (c.bonus_leads || 0) + '</td><td>' + new Date(c.updated_at).toLocaleDateString() + '</td></tr>').join('') +
+      credits.map(c => '<tr><td>' + c.email + '</td><td style="color:var(--teal);font-weight:700">$' + parseFloat(c.credit_balance||0).toLocaleString() + '</td><td>$' + parseFloat(c.total_purchased||0).toLocaleString() + '</td><td>$' + parseFloat(c.total_used||0).toLocaleString() + '</td><td>$' + (c.cost_per_lead || 25) + '</td><td style="color:var(--yellow)">' + (c.bonus_leads || 0) + '</td><td>' + new Date(c.updated_at).toLocaleDateString() + '</td></tr>').join('') +
       '</tbody></table>';
   } else ct.innerHTML = '<div class="empty">No clients yet.</div>';
 
   const tt = document.getElementById('txn-table');
   if (txns && txns.length > 0) {
     tt.innerHTML = '<table><thead><tr><th>Date</th><th>Email</th><th>Description</th><th>Type</th><th>Amount</th></tr></thead><tbody>' +
-      txns.map(t => '<tr><td>' + new Date(t.created_at).toLocaleDateString() + '</td><td>' + t.email + '</td><td>' + (t.description || '-') + '</td><td><span class="badge-' + (t.type === 'purchase' ? 'green' : 'yellow') + '">' + t.type + '</span></td><td style="color:' + (t.type === 'usage' ? 'var(--yellow)' : 'var(--teal)') + ';">' + (t.type === 'usage' ? '-' : '+') + ' $' + parseFloat(t.amount).toLocaleString() + '</td></tr>').join('') +
+      txns.map(t => '<tr><td>' + new Date(t.created_at).toLocaleDateString() + '</td><td>' + t.email + '</td><td>' + (t.description || '-') + '</td><td><span class="badge-' + (t.type === 'purchase' ? 'green' : 'yellow') + '">' + t.type + '</span></td><td style="color:' + (t.type === 'usage' ? 'var(--yellow)' : 'var(--teal)') + ';">' + (t.type === 'usage' ? '-' : '+') + ' $' + parseFloat(t.amount||0).toLocaleString() + '</td></tr>').join('') +
       '</tbody></table>';
   } else tt.innerHTML = '<div class="empty">No transactions yet.</div>';
 
@@ -207,6 +239,8 @@ function showMsg(id, msg, type='success') {
   setTimeout(() => el.style.display = 'none', 5000);
 }
 
+function clearFields(...ids) { ids.forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; }); }
+
 async function logDelivery() {
   const email = document.getElementById('del-email').value.trim();
   const count = parseInt(document.getElementById('del-count').value);
@@ -215,9 +249,15 @@ async function logDelivery() {
   const notes = document.getElementById('del-notes').value.trim();
   if (!email || !count || !cost) return showMsg('del-msg', 'Fill in email, leads and cost.', 'error');
   const totalCost = count * cost;
+
+  // FIX 6: Confirmation step
+  if (!confirm('Log ' + count + ' leads for ' + email + ' and deduct $' + totalCost.toLocaleString() + '?')) return;
+
   const existing = await sb('credit_accounts?email=eq.' + encodeURIComponent(email) + '&select=*');
   const account = existing && existing[0];
-  await sb('lead_deliveries', 'POST', { email, leads_delivered: count, industry: industry || null, notes: notes || null });
+  const today = new Date().toISOString().split('T')[0]; // FIX 1: delivery_date
+
+  await sb('lead_deliveries', 'POST', { email, leads_delivered: count, delivery_date: today, industry: industry || null, notes: notes || null });
   await sb('transactions', 'POST', { email, type: 'usage', amount: totalCost, description: count + ' leads (' + (industry || 'general') + ')' });
   if (account) {
     await sb('credit_accounts?email=eq.' + encodeURIComponent(email), 'PATCH', { credit_balance: Math.max(0, parseFloat(account.credit_balance) - totalCost), total_used: parseFloat(account.total_used) + totalCost, updated_at: new Date().toISOString() });
@@ -225,6 +265,9 @@ async function logDelivery() {
     await sb('credit_accounts', 'POST', { email, credit_balance: 0, total_purchased: 0, total_used: totalCost });
   }
   showMsg('del-msg', count + ' leads logged. $' + totalCost.toLocaleString() + ' deducted.');
+  // FIX 5: Clear form after submit
+  clearFields('del-email', 'del-count', 'del-cost', 'del-industry', 'del-notes');
+  document.getElementById('cpl-hint').style.display = 'none';
   loadData();
 }
 
@@ -233,18 +276,24 @@ async function addCredits() {
   const amount = parseFloat(document.getElementById('cred-amount').value);
   const desc = document.getElementById('cred-desc').value.trim() || 'Credit top-up';
   const cpl = parseFloat(document.getElementById('cred-cpl').value) || 25;
-  const bonus = parseInt(document.getElementById('cred-bonus').value) || 0;
+  const bonusField = document.getElementById('cred-bonus').value.trim();
   if (!email || !amount) return showMsg('cred-msg', 'Fill in email and amount.', 'error');
   const existing = await sb('credit_accounts?email=eq.' + encodeURIComponent(email) + '&select=*');
   const account = existing && existing[0];
+
+  // FIX 2: Only update bonus_leads if admin explicitly entered a value
+  const bonusPatch = bonusField !== '' ? { bonus_leads: parseInt(bonusField) } : {};
+
   if (account) {
-    await sb('credit_accounts?email=eq.' + encodeURIComponent(email), 'PATCH', { credit_balance: parseFloat(account.credit_balance) + amount, total_purchased: parseFloat(account.total_purchased) + amount, cost_per_lead: cpl, bonus_leads: bonus, updated_at: new Date().toISOString() });
+    await sb('credit_accounts?email=eq.' + encodeURIComponent(email), 'PATCH', { credit_balance: parseFloat(account.credit_balance) + amount, total_purchased: parseFloat(account.total_purchased) + amount, cost_per_lead: cpl, updated_at: new Date().toISOString(), ...bonusPatch });
   } else {
-    await sb('credit_accounts', 'POST', { email, credit_balance: amount, total_purchased: amount, total_used: 0, cost_per_lead: cpl, bonus_leads: bonus });
+    await sb('credit_accounts', 'POST', { email, credit_balance: amount, total_purchased: amount, total_used: 0, cost_per_lead: cpl, bonus_leads: parseInt(bonusField) || 0 });
   }
   await sb('transactions', 'POST', { email, type: 'purchase', amount, description: desc });
   await sb('clients', 'POST', { email });
-  showMsg('cred-msg', '$' + amount.toLocaleString() + ' added to ' + email + (bonus ? ' + ' + bonus + ' bonus leads' : ''));
+  showMsg('cred-msg', '$' + amount.toLocaleString() + ' added to ' + email + (bonusField ? ' + ' + bonusField + ' bonus leads' : ''));
+  // FIX 5: Clear form after submit
+  clearFields('cred-email', 'cred-amount', 'cred-desc', 'cred-cpl', 'cred-bonus');
   loadData();
 }
 
@@ -255,6 +304,7 @@ async function createClient() {
   await sb('clients', 'POST', { email, company: company || null });
   await sb('credit_accounts', 'POST', { email, credit_balance: 0, total_purchased: 0, total_used: 0, cost_per_lead: 25, bonus_leads: 0 });
   showMsg('new-msg', 'Account created for ' + email);
+  clearFields('new-email', 'new-company');
   loadData();
 }
 
@@ -290,25 +340,40 @@ async function importCSV() {
   const btn = document.getElementById('csv-import-btn');
   btn.disabled = true; btn.textContent = 'Importing...';
 
+  // FIX 7: Fetch existing lead emails to deduplicate
+  const existingRes = await sb('leads?client_email=eq.' + encodeURIComponent(clientEmail) + '&select=lead_email');
+  const existingEmails = new Set((existingRes || []).map(l => l.lead_email).filter(Boolean));
+  const newLeads = leads.filter(l => !l.lead_email || !existingEmails.has(l.lead_email));
+  const skipped = leads.length - newLeads.length;
+
+  if (!newLeads.length) {
+    showMsg('csv-msg', 'All ' + leads.length + ' leads already exist for this client. Nothing imported.', 'error');
+    btn.disabled = false; btn.textContent = 'Import All Leads';
+    return;
+  }
+
   const acct = await sb('credit_accounts?email=eq.' + encodeURIComponent(clientEmail) + '&select=*');
   const clientAcct = acct && acct[0];
   const cpl = parseFloat(clientAcct?.cost_per_lead) || 25;
-  const totalCost = leads.length * cpl;
+  const totalCost = newLeads.length * cpl;
+  const today = new Date().toISOString().split('T')[0]; // FIX 1: delivery_date in CSV import too
 
   let imported = 0;
-  for (let i = 0; i < leads.length; i += 50) {
-    await sb('leads', 'POST', leads.slice(i, i + 50));
-    imported += Math.min(50, leads.length - i);
+  for (let i = 0; i < newLeads.length; i += 50) {
+    await sb('leads', 'POST', newLeads.slice(i, i + 50));
+    imported += Math.min(50, newLeads.length - i);
   }
 
   if (clientAcct) {
     const newBal = Math.max(0, parseFloat(clientAcct.credit_balance) - totalCost);
     await sb('credit_accounts?email=eq.' + encodeURIComponent(clientEmail), 'PATCH', { credit_balance: newBal, total_used: parseFloat(clientAcct.total_used) + totalCost, updated_at: new Date().toISOString() });
-    await sb('lead_deliveries', 'POST', { email: clientEmail, leads_delivered: imported, notes: 'CSV import' });
+    await sb('lead_deliveries', 'POST', { email: clientEmail, leads_delivered: imported, delivery_date: today, notes: 'CSV import' });
     await sb('transactions', 'POST', { email: clientEmail, type: 'usage', amount: totalCost, description: imported + ' leads via CSV (@ $' + cpl + '/lead)' });
   }
 
-  showMsg('csv-msg', imported + ' leads imported. $' + totalCost.toLocaleString() + ' deducted (' + imported + ' x $' + cpl + ').');
+  let msg = imported + ' leads imported. $' + totalCost.toLocaleString() + ' deducted (' + imported + ' x $' + cpl + ').';
+  if (skipped > 0) msg += ' ' + skipped + ' duplicate(s) skipped.';
+  showMsg('csv-msg', msg);
   btn.disabled = false; btn.textContent = 'Import All Leads';
   loadData();
 }
