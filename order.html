@@ -354,18 +354,20 @@ const STRIPE_KEY = 'pk_live_51TM7hEFPU3UHJ3UKIpSaNmt6G5DuWOLyC8xJnmFupFSTikoPK5S
 let stripe, cardElement, cardElementPrepay, stripeReady = false;
 try {
   stripe = Stripe(STRIPE_KEY);
-  const elements = stripe.elements();
   const cardStyle = {
     style: {
       base: { color: '#f0f8f6', fontFamily: "'Barlow', sans-serif", fontSize: '15px', '::placeholder': { color: 'rgba(255,255,255,0.25)' }, backgroundColor: 'transparent' },
       invalid: { color: '#ff6b6b' }
     }
   };
-  cardElement = elements.create('card', cardStyle);
+  // FIX: Each card element needs its own elements() instance
+  const elements1 = stripe.elements();
+  cardElement = elements1.create('card', cardStyle);
   cardElement.mount('#card-element');
   cardElement.on('change', e => { document.getElementById('card-errors').textContent = e.error ? e.error.message : ''; });
 
-  cardElementPrepay = elements.create('card', cardStyle);
+  const elements2 = stripe.elements();
+  cardElementPrepay = elements2.create('card', cardStyle);
   cardElementPrepay.mount('#card-element-prepay');
   cardElementPrepay.on('change', e => { document.getElementById('card-errors-prepay').textContent = e.error ? e.error.message : ''; });
 
