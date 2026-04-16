@@ -14,4 +14,10 @@
   <url><loc>https://www.signalarc.io/blog/content-syndication-roi.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.signalarc.io/blog/content-syndication-lead-quality.html</loc><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://www.signalarc.io/blog/25-free-leads.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url>
+    <loc>https://signalarc.io/what-is-content-syndication.html</loc>
+    <lastmod>2026-04-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
 </urlset>
