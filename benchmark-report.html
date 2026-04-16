@@ -483,13 +483,14 @@
         <option>Commercial Real Estate</option>
         <option>Other B2B</option>
       </select>
-      <button id="brSubmit">📧 Email me the full PDF</button>
-      <p class="form-note">No spam, no cold lists — just the report.</p>
+      <button id="brSubmit">📥 Get the report (instant download)</button>
+      <p class="form-note">Instant PDF download. No spam, no cold lists.</p>
     </div>
     <div class="capture-success" id="captureSuccess">
       <div class="check-circle">✓</div>
       <h3 style="font-family:var(--font-display);font-size:28px;font-weight:900;margin-bottom:8px;">You're <em style="color:var(--teal);font-style:normal;">in</em>.</h3>
-      <p style="color:var(--muted);font-size:14px;">Check your inbox within one business day for the full PDF and your industry-specific deep-dive.</p>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:18px;">The PDF should download automatically. If it didn't, grab it here:</p>
+      <a href="/signalarc-benchmark-report-2026.pdf" download target="_blank" style="display:inline-block;background:var(--teal);color:#071012;font-weight:700;font-size:15px;padding:12px 24px;border-radius:8px;text-decoration:none;">📥 Download the PDF</a>
     </div>
   </div>
 </section>
@@ -542,9 +543,18 @@
       });
       form.style.display = 'none';
       success.classList.add('show');
+      // Auto-trigger download
+      setTimeout(() => {
+        const a = document.createElement('a');
+        a.href = '/signalarc-benchmark-report-2026.pdf';
+        a.download = 'signalarc-benchmark-report-2026.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }, 400);
     } catch (e) {
       alert('Something went wrong. Please email hello@signalarc.io directly.');
-      submit.disabled = false; submit.textContent = '📧 Email me the full PDF';
+      submit.disabled = false; submit.textContent = '📥 Get the report (instant download)';
     }
   });
 })();
