@@ -556,11 +556,12 @@
          Keep this block's wrapper classes intact so spacing stays right. -->
     <div class="sp-card placeholder">
       <div class="sp-badge">Founding Cohort · Open Now</div>
-      <h3 class="sp-title">Be one of our <em>first five</em> published success stories.</h3>
-      <p class="sp-body">We launched in April 2026. Our first five clients become the case studies every future client reads before buying. Finish your assessment, implement the plan, and your story goes right here.</p>
+      <h3 class="sp-title">Founding clients pay <em>$250</em> — then it's back to $999.</h3>
+      <p class="sp-body">We launched in April 2026. Our first five clients pay a founding price of $250 (75% off) in exchange for being the published case studies every future client reads before buying. Once five spots are claimed, pricing returns to $999.</p>
       <ul class="sp-perks">
+        <li><strong>$250</strong> one-time — normally $999</li>
         <li>Featured case study on this page</li>
-        <li>Founding-client pricing locked in for life</li>
+        <li>Founding-client pricing locked in for any future service</li>
         <li>Direct Loom line to Joshua, no tier gates</li>
       </ul>
     </div>
@@ -583,8 +584,8 @@
 
     <div class="sp-stat-col">
       <div class="sp-big-stat">
-        <div class="sp-big-num">5</div>
-        <div class="sp-big-label">Founding spots remaining</div>
+        <div class="sp-big-num">$250</div>
+        <div class="sp-big-label">Founding-client price · 5 spots remaining</div>
       </div>
       <a href="/#book" class="btn-primary sp-cta">Claim My Spot →</a>
     </div>
@@ -793,9 +794,24 @@
   <h2>Your Next 45 Minutes Could Save You <em>10 Hours a Week.</em></h2>
   <p>Reserve your AI Assessment now. Secure payment via Stripe — we'll email a booking link within one business day.</p>
   <div class="form-wrap">
-    <h3>Book Your AI Assessment</h3>
-    <p class="form-sub">$999 · 48-hour turnaround · 100% money-back if we don't find 5+ hours of weekly savings.</p>
+    <h3>Claim Your Founding Spot</h3>
+    <p class="form-sub">
+      <strong style="color: var(--teal);">$250</strong> founding-client price <s style="opacity:0.55;">$999</s> &nbsp;·&nbsp; 5 spots remaining &nbsp;·&nbsp; 48-hour turnaround &nbsp;·&nbsp; money-back guarantee
+    </p>
+    <!--
+      ========================================================================
+      WHEN YOUR 5 FOUNDING SPOTS ARE FILLED:
+        1. Change the hidden input "variant" value from "founding" to "regular"
+        2. Change the submit button text from "Claim Founding Spot — $250 →"
+           to "Pay $999 & Book →"
+        3. Update the <p class="form-sub"> above back to the regular price copy
+        4. Update the <h3> title back to "Book Your AI Assessment"
+        5. Optional: remove / comment out the social-proof founding section
+      The Netlify function already handles both variants.
+      ========================================================================
+    -->
     <form id="assessment-form" novalidate>
+      <input type="hidden" id="a-variant" name="variant" value="founding">
       <div class="form-row">
         <div class="field">
           <label>Your Name *</label>
@@ -830,9 +846,9 @@
         <textarea name="biggest_pain" id="a-biggest-pain" placeholder="e.g. Manually writing proposals, chasing leads, data entry, client onboarding..."></textarea>
       </div>
       <div id="a-error" style="display:none; background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.3); color:#ff6b6b; font-size:13px; padding:10px 14px; border-radius:8px; margin-bottom:12px;"></div>
-      <button type="submit" class="submit-btn" id="a-submit-btn">Pay $999 &amp; Book →</button>
+      <button type="submit" class="submit-btn" id="a-submit-btn">Claim Founding Spot — $250 →</button>
     </form>
-    <p class="form-note">🔒 Secure payment via Stripe. Money-back guarantee. No subscription.</p>
+    <p class="form-note">🔒 Secure payment via Stripe (USD). Money-back guarantee. No subscription.</p>
   </div>
 </section>
 
@@ -861,7 +877,8 @@
         email:        document.getElementById('a-email').value.trim(),
         business_type:document.getElementById('a-business-type').value.trim(),
         team_size:    document.getElementById('a-team-size').value,
-        biggest_pain: document.getElementById('a-biggest-pain').value.trim()
+        biggest_pain: document.getElementById('a-biggest-pain').value.trim(),
+        variant:      document.getElementById('a-variant').value
       };
 
       if (!data.name || !data.company || !data.email || !data.business_type) {
@@ -888,7 +905,9 @@
       } catch (err) {
         showError(err.message || 'Something went wrong. Please try again or email joshua@signalarc.io.');
         btn.disabled = false;
-        btn.textContent = 'Pay $999 & Book →';
+        btn.textContent = data.variant === 'founding'
+          ? 'Claim Founding Spot — $250 →'
+          : 'Pay $999 & Book →';
       }
     });
   })();

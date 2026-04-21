@@ -36,8 +36,8 @@ exports.handler = async (event) => {
       .eq('email', email)
       .single();
 
-    if (type === 'ai_assessment') {
-      // AI Assessment — don't touch credit_accounts. Just log the purchase.
+    if (type === 'ai_assessment' || type === 'ai_assessment_founding') {
+      // AI Assessment (regular or founding) — don't touch credit_accounts. Just log the purchase.
       // Client row already upserted above; transaction logged below.
     } else if (type === 'prepay_credits') {
       // Add to credit balance

@@ -1,5 +1,22 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
+// Pricing variants for the AI Assessment.
+// Whitelist here — the client can't pass arbitrary amounts.
+const VARIANTS = {
+  founding: {
+    amount_cents: 25000,         // $250 founding-cohort price (first 5 clients)
+    display_price: '$250',
+    label: 'SignalARC AI Tools Assessment — Founding Cohort',
+    metadata_type: 'ai_assessment_founding'
+  },
+  regular: {
+    amount_cents: 99900,         // $999 standard price
+    display_price: '$999',
+    label: 'SignalARC AI Tools Assessment',
+    metadata_type: 'ai_assessment'
+  }
+};
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
@@ -7,7 +24,7 @@ exports.handler = async (event) => {
 
   try {
     const body = JSON.parse(event.body || '{}');
-    const { name, email, company, business_type, team_size, biggest_pain } = body;
+    const { name, email, company, business_type, team_size, biggest_pain, variant } = body;
 
     if (!email || !name) {
       return { statusCode: 400, body: JSON.stringify({ error: 'Name and email are required.' }) };
@@ -16,14 +33,17 @@ exports.handler = async (event) => {
       return { statusCode: 400, body: JSON.stringify({ error: 'Please enter a valid email address.' }) };
     }
 
+    const tier = VARIANTS[variant] || VARIANTS.regular;
     const siteUrl = process.env.URL || 'https://signalarc.io';
 
     // Stripe metadata values max 500 chars; truncate long fields
     const clip = (s, n) => (s || '').toString().slice(0, n);
 
     const metadata = {
-      type: 'ai_assessment',
-      product: 'SignalARC AI Tools Assessment',
+      type: tier.metadata_type,
+      variant: variant || 'regular',
+      product: tier.label,
+      display_price: tier.display_price,
       name: clip(name, 100),
       email: clip(email, 100),
       company: clip(company, 100),
@@ -39,17 +59,17 @@ exports.handler = async (event) => {
         price_data: {
           currency: 'usd',
           product_data: {
-            name: 'SignalARC AI Tools Assessment',
+            name: tier.label,
             description: '45-min workflow audit + 10–15 page custom AI Action Plan + prompt library + 30-day Loom support. Delivered within 48 hours of the call. 100% money-back guarantee if we don\'t identify 5+ hrs/week of savings.'
           },
-          unit_amount: 99900 // $999.00 in cents
+          unit_amount: tier.amount_cents
         },
         quantity: 1
       }],
       customer_email: email,
       metadata,
       payment_intent_data: {
-        description: `SignalARC AI Assessment — ${name} (${company || email})`,
+        description: `${tier.label} — ${name} (${company || email})`,
         metadata, // mirrors onto the PaymentIntent so the existing webhook sees it
         receipt_email: email
       },
