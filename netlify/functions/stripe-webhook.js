@@ -6,6 +6,35 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_KEY
 );
 
+async function sendAssessmentConfirmation(email, name, orderId) {
+  const firstName = (name || 'there').split(' ')[0];
+  await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      from: 'Josh at Signal Arc <josh@signalarc.io>',
+      to: email,
+      subject: "You're booked — here's everything you need",
+      html: `
+        <div style="font-family: sans-serif; max-width: 560px; margin: 0 auto; color: #1a1a1a; line-height: 1.6;">
+          <p>Hey ${firstName},</p>
+          <p>You're all set. Your AI Assessment is confirmed and we're ready to go.</p>
+          <p><strong>Here's how it works:</strong></p>
+          <p><strong>1.</strong> Call Andrew at <strong>+1(978)510-6633</strong> — he'll walk you through a 20–25 minute discovery call. No pitch, just questions.</p>
+          <p><strong>2.</strong> Within 48 hours of your call, Josh will have your custom report in your inbox. It'll show you exactly where AI can give you time back — with tools, costs, and a 4-day action plan.</p>
+          <p><strong>3.</strong> Once you've had some time to review the report and Josh's walkthrough, book a quick call to discuss next steps and any questions you have.</p>
+          <p style="color: #888; font-size: 13px;">Your assessment number: ${orderId}</p>
+          <p>If you have any issues, reply to this email and Josh will sort it out.</p>
+          <p>Talk soon,<br><strong>Josh</strong><br>Signal Arc<br><a href="https://signalarc.io">signalarc.io</a></p>
+        </div>
+      `
+    })
+  });
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, body: 'Method Not Allowed' };
 
@@ -26,10 +55,8 @@ exports.handler = async (event) => {
 
     if (!email) return { statusCode: 200, body: 'No email in metadata' };
 
-    // Always upsert client record
     await supabase.from('clients').upsert({ email }, { onConflict: 'email' });
 
-    // Get or create credit account
     const { data: existing } = await supabase
       .from('credit_accounts')
       .select('*')
@@ -37,10 +64,8 @@ exports.handler = async (event) => {
       .single();
 
     if (type === 'ai_assessment' || type === 'ai_assessment_founding') {
-      // AI Assessment (regular or founding) — don't touch credit_accounts. Just log the purchase.
-      // Client row already upserted above; transaction logged below.
+      await sendAssessmentConfirmation(email, pi.metadata?.name, pi.id);
     } else if (type === 'prepay_credits') {
-      // Add to credit balance
       if (existing) {
         await supabase.from('credit_accounts').update({
           credit_balance: parseFloat(existing.credit_balance) + amount,
@@ -53,7 +78,6 @@ exports.handler = async (event) => {
         });
       }
     } else {
-      // Standard order - just create the account with $0 balance if it doesnt exist
       if (!existing) {
         await supabase.from('credit_accounts').insert({
           email, credit_balance: 0, total_purchased: amount, total_used: amount
@@ -66,7 +90,6 @@ exports.handler = async (event) => {
       }
     }
 
-    // Always log transaction
     await supabase.from('transactions').insert({
       email, type: 'purchase', amount, description, stripe_payment_id: pi.id
     });
