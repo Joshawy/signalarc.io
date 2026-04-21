@@ -133,6 +133,7 @@
         { text: "⚙️ How it works", next: "how_it_works" },
         { text: "📋 What's included", next: "included" },
         { text: "🎯 Is this right for me?", next: "right_for_me" },
+        { text: "🧠 Try the free 2-min quiz", action: "open_quiz" },
         { text: "📅 Book the Assessment", next: "book", primary: true },
         { text: "💬 I need B2B leads instead", next: "syndication" },
         { text: "👋 Talk to a human", next: "human_name" }
@@ -390,6 +391,7 @@
 
   async function handleAction(action) {
     if (action === 'open_book') window.location.href = '/#book';
+    else if (action === 'open_quiz') window.location.href = '/quiz.html';
     else if (action === 'open_syndication') window.location.href = '/content-syndication.html';
     else if (action === 'open_order') window.location.href = '/order.html';
     else if (action === 'open_blog') window.location.href = '/blog/';

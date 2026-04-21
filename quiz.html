@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free 2-Min AI Readiness Quiz | SignalARC</title>
+<meta name="description" content="Find your biggest time leak and get 3 specific AI quick wins tailored to your business. Free, takes 2 minutes, no email required to start.">
+<link rel="canonical" href="https://signalarc.io/quiz.html">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #071012;
+    --bg2: #0d1c20;
+    --bg3: #112228;
+    --teal: #00d4a8;
+    --teal-dim: rgba(0,212,168,0.12);
+    --teal-border: rgba(0,212,168,0.3);
+    --white: #f0f8f6;
+    --muted: #7a9e98;
+    --danger: #ff6b6b;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--white);
+    font-family: var(--font-body); font-size: 16px;
+    line-height: 1.6; -webkit-font-smoothing: antialiased;
+    min-height: 100vh; overflow-x: hidden;
+  }
+  body::before {
+    content: ''; position: fixed; top: -200px; right: -150px;
+    width: 700px; height: 700px;
+    background: radial-gradient(circle, rgba(0,212,168,0.08) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+  body::after {
+    content: ''; position: fixed; bottom: -200px; left: -150px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,212,168,0.05) 0%, transparent 70%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: relative; z-index: 10;
+    padding: 22px 48px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid rgba(0,212,168,0.1);
+  }
+  .logo img { height: 32px; width: auto; display: block; }
+  .nav-right a {
+    color: var(--muted); font-size: 14px; font-weight: 600; text-decoration: none;
+    transition: color 0.2s;
+  }
+  .nav-right a:hover { color: var(--white); }
+
+  /* WRAP */
+  .quiz-wrap {
+    position: relative; z-index: 1;
+    max-width: 700px; margin: 0 auto;
+    padding: 40px 24px 80px;
+    min-height: calc(100vh - 120px);
+    display: flex; flex-direction: column;
+  }
+
+  /* PROGRESS */
+  .progress-wrap {
+    margin-bottom: 48px;
+  }
+  .progress-meta {
+    display: flex; justify-content: space-between;
+    font-size: 12px; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--muted); text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .progress-meta .step-count { color: var(--teal); }
+  .progress-bar {
+    height: 4px; background: var(--bg2);
+    border-radius: 100px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--teal) 0%, #00f5c3 100%);
+    width: 0%;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 100px;
+  }
+
+  /* CARDS */
+  .quiz-card {
+    display: none;
+    animation: fadeUp 0.4s ease both;
+  }
+  .quiz-card.active { display: block; }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* INTRO CARD */
+  .intro-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--teal-dim); border: 1px solid var(--teal-border);
+    color: var(--teal); font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+    padding: 5px 14px; border-radius: 100px; margin-bottom: 28px;
+    text-transform: uppercase;
+  }
+  .intro-badge::before { content: '✦'; }
+  .quiz-card h1 {
+    font-family: var(--font-display);
+    font-size: clamp(44px, 6vw, 72px);
+    font-weight: 900; line-height: 0.95;
+    letter-spacing: -0.5px;
+    margin-bottom: 20px;
+  }
+  .quiz-card h1 em { color: var(--teal); font-style: normal; }
+  .lede {
+    font-size: 18px; color: var(--muted);
+    max-width: 540px; margin-bottom: 40px;
+    line-height: 1.6;
+  }
+  .intro-checklist { list-style: none; margin-bottom: 40px; }
+  .intro-checklist li {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 10px 0; font-size: 15px;
+  }
+  .intro-checklist li::before {
+    content: '✓'; color: var(--teal); font-weight: 800;
+    flex-shrink: 0; margin-top: 2px;
+  }
+
+  /* QUESTION STYLING */
+  .q-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.15em;
+    color: var(--teal); text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .q-title {
+    font-family: var(--font-display);
+    font-size: clamp(32px, 4.5vw, 48px);
+    font-weight: 900; line-height: 1.05;
+    letter-spacing: -0.3px;
+    margin-bottom: 10px;
+  }
+  .q-help {
+    font-size: 15px; color: var(--muted);
+    margin-bottom: 32px;
+  }
+
+  /* OPTION BUTTONS */
+  .options { display: grid; gap: 12px; }
+  .opt {
+    background: var(--bg2);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 18px 22px;
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 16px; font-weight: 600;
+    text-align: left; cursor: pointer;
+    display: flex; align-items: center; gap: 14px;
+    transition: all 0.15s ease;
+    position: relative;
+  }
+  .opt:hover {
+    border-color: var(--teal-border);
+    background: var(--bg3);
+    transform: translateY(-1px);
+  }
+  .opt.selected {
+    border-color: var(--teal);
+    background: var(--teal-dim);
+  }
+  .opt.selected::after {
+    content: '✓';
+    position: absolute; right: 20px;
+    color: var(--teal); font-weight: 800; font-size: 18px;
+  }
+  .opt-key {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    font-family: var(--font-display);
+  }
+  .opt:hover .opt-key { border-color: var(--teal-border); color: var(--teal); }
+  .opt.selected .opt-key {
+    background: var(--teal); border-color: var(--teal); color: var(--bg);
+  }
+
+  /* INPUTS */
+  .field { margin-bottom: 18px; }
+  .field label {
+    display: block; font-size: 13px; font-weight: 600;
+    color: var(--muted); margin-bottom: 8px;
+  }
+  .field input {
+    width: 100%; background: var(--bg2);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; color: var(--white);
+    font-family: var(--font-body); font-size: 16px;
+    padding: 14px 16px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus { border-color: var(--teal); }
+  .field input::placeholder { color: rgba(255,255,255,0.3); }
+  .field .err { color: var(--danger); font-size: 13px; margin-top: 6px; display: none; }
+  .field .err.show { display: block; }
+
+  /* NAV BUTTONS */
+  .actions {
+    display: flex; gap: 12px; align-items: center;
+    margin-top: 32px; flex-wrap: wrap;
+  }
+  .btn {
+    font-family: var(--font-body); font-weight: 700; font-size: 16px;
+    padding: 14px 28px; border-radius: 8px; cursor: pointer;
+    border: none; transition: opacity 0.2s, transform 0.15s;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary { background: var(--teal); color: var(--bg); }
+  .btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn-ghost {
+    background: transparent; color: var(--muted);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  .btn-ghost:hover { color: var(--white); border-color: rgba(255,255,255,0.25); }
+  .kbd-hint { font-size: 12px; color: var(--muted); margin-left: auto; }
+  .kbd-hint kbd {
+    font-family: var(--font-display);
+    background: var(--bg2);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px; padding: 2px 6px;
+    font-size: 10px; font-weight: 700;
+  }
+
+  /* RESULTS */
+  .result-hero {
+    background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
+    border: 1px solid var(--teal-border);
+    border-radius: 16px;
+    padding: 36px 32px;
+    margin-bottom: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-hero::before {
+    content: '';
+    position: absolute; top: -100px; right: -50px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(0,212,168,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .result-archetype-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.15em;
+    color: var(--teal); text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .result-archetype-name {
+    font-family: var(--font-display);
+    font-size: clamp(34px, 4.5vw, 52px);
+    font-weight: 900; line-height: 1;
+    letter-spacing: -0.3px;
+    margin-bottom: 14px;
+    position: relative; z-index: 1;
+  }
+  .result-archetype-name em { color: var(--teal); font-style: normal; }
+  .result-diagnosis { font-size: 16px; line-height: 1.65; color: var(--white); position: relative; z-index: 1; }
+  .result-stat-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+    background: rgba(0,212,168,0.15);
+    border: 1px solid var(--teal-border);
+    border-radius: 12px; overflow: hidden;
+    margin: 24px 0 32px;
+  }
+  .result-stat {
+    background: var(--bg2); padding: 20px 18px; text-align: center;
+  }
+  .result-stat .stat-num {
+    font-family: var(--font-display);
+    font-size: 36px; font-weight: 900;
+    color: var(--teal); line-height: 1;
+  }
+  .result-stat .stat-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+    color: var(--muted); margin-top: 6px; text-transform: uppercase;
+  }
+
+  .result-section-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--teal); text-transform: uppercase; margin-bottom: 12px;
+  }
+  .result-section-title {
+    font-family: var(--font-display);
+    font-size: 30px; font-weight: 900; line-height: 1.05;
+    margin-bottom: 24px;
+  }
+  .win-list { display: grid; gap: 14px; margin-bottom: 40px; }
+  .win {
+    background: var(--bg2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-left: 3px solid var(--teal);
+    border-radius: 10px;
+    padding: 20px 22px;
+  }
+  .win-num {
+    font-family: var(--font-display);
+    font-size: 12px; font-weight: 800;
+    color: var(--teal); letter-spacing: 0.1em;
+    margin-bottom: 6px;
+  }
+  .win-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .win-body { font-size: 14.5px; color: var(--muted); line-height: 1.6; }
+  .win-body strong { color: var(--white); font-weight: 700; }
+
+  .result-cta {
+    background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
+    border: 1px solid var(--teal-border);
+    border-radius: 16px;
+    padding: 32px 28px; text-align: center;
+  }
+  .result-cta h3 {
+    font-family: var(--font-display);
+    font-size: 30px; font-weight: 900; line-height: 1.05;
+    margin-bottom: 12px;
+  }
+  .result-cta h3 em { color: var(--teal); font-style: normal; }
+  .result-cta p { font-size: 15px; color: var(--muted); max-width: 460px; margin: 0 auto 22px; }
+
+  .result-extra {
+    font-size: 13px; color: var(--muted); text-align: center;
+    margin-top: 32px; padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .result-extra strong { color: var(--teal); font-weight: 700; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    nav { padding: 18px 20px; }
+    .quiz-wrap { padding: 24px 20px 60px; }
+    .progress-wrap { margin-bottom: 32px; }
+    .opt { padding: 16px 18px; font-size: 15px; }
+    .opt-key { display: none; }
+    .result-stat-row { grid-template-columns: 1fr; }
+    .result-hero, .result-cta { padding: 24px 20px; }
+    .kbd-hint { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo"><img src="signal-arc-logo.svg" alt="SignalARC"></a>
+  <div class="nav-right">
+    <a href="/">← Back to site</a>
+  </div>
+</nav>
+
+<div class="quiz-wrap">
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progress-wrap" style="display:none;">
+    <div class="progress-meta">
+      <span>AI Readiness Quiz</span>
+      <span class="step-count"><span id="cur-step">1</span> / <span id="total-steps">6</span></span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="quiz-stage">
+
+    <!-- INTRO -->
+    <div class="quiz-card active" data-card="intro">
+      <span class="intro-badge">2-Minute Quiz · No Sign-Up</span>
+      <h1>Find Your Biggest <em>AI Opportunity.</em></h1>
+      <p class="lede">Six quick questions. At the end you'll get a personalized diagnosis of where AI can return the most hours to your week — and three specific tools you can start using today.</p>
+      <ul class="intro-checklist">
+        <li>Honest diagnosis — no "AI will change everything" hype</li>
+        <li>Three specific tool recommendations for your business</li>
+        <li>Free — no payment, no 30-min demo call, nothing to install</li>
+      </ul>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="start()">Start the Quiz →</button>
+        <span class="kbd-hint">Press <kbd>Enter</kbd> to begin</span>
+      </div>
+    </div>
+
+    <!-- Q1: ROLE -->
+    <div class="quiz-card" data-card="q1" data-q="role">
+      <div class="q-label">Question 1 of 6</div>
+      <h2 class="q-title">Which <em>best describes you?</em></h2>
+      <p class="q-help">We tailor the recommendations to your level of autonomy.</p>
+      <div class="options" id="q1-opts">
+        <button class="opt" data-value="Solo founder or consultant"><span class="opt-key">1</span>Solo founder or consultant</button>
+        <button class="opt" data-value="Small business owner (team of 2–10)"><span class="opt-key">2</span>Small business owner (team of 2–10)</button>
+        <button class="opt" data-value="Marketing or ops at a company (10–100)"><span class="opt-key">3</span>Marketing or ops at a company (10–100)</button>
+        <button class="opt" data-value="Something else"><span class="opt-key">4</span>Something else</button>
+      </div>
+    </div>
+
+    <!-- Q2: INDUSTRY -->
+    <div class="quiz-card" data-card="q2" data-q="industry">
+      <div class="q-label">Question 2 of 6</div>
+      <h2 class="q-title">What <em>industry</em> are you in?</h2>
+      <p class="q-help">Recommendations vary heavily by vertical — this one matters.</p>
+      <div class="options" id="q2-opts">
+        <button class="opt" data-value="Real estate / mortgage"><span class="opt-key">1</span>Real estate / mortgage</button>
+        <button class="opt" data-value="Agency / consulting"><span class="opt-key">2</span>Agency / consulting</button>
+        <button class="opt" data-value="Coaching / online education"><span class="opt-key">3</span>Coaching / online education</button>
+        <button class="opt" data-value="Home services (HVAC, contractor, cleaning, etc.)"><span class="opt-key">4</span>Home services (HVAC, contractor, etc.)</button>
+        <button class="opt" data-value="Professional services (legal, financial, bookkeeping)"><span class="opt-key">5</span>Professional services (legal, financial, bookkeeping)</button>
+        <button class="opt" data-value="Healthcare or wellness"><span class="opt-key">6</span>Healthcare or wellness</button>
+        <button class="opt" data-value="E-commerce / D2C brand"><span class="opt-key">7</span>E-commerce / D2C brand</button>
+        <button class="opt" data-value="SaaS / tech"><span class="opt-key">8</span>SaaS / tech</button>
+        <button class="opt" data-value="Something else"><span class="opt-key">9</span>Something else</button>
+      </div>
+    </div>
+
+    <!-- Q3: BIGGEST TIME LEAK (determines archetype) -->
+    <div class="quiz-card" data-card="q3" data-q="time_leak">
+      <div class="q-label">Question 3 of 6</div>
+      <h2 class="q-title">Where do you lose <em>the most time?</em></h2>
+      <p class="q-help">Pick the one that hurts the most. This drives your whole plan.</p>
+      <div class="options" id="q3-opts">
+        <button class="opt" data-value="admin" data-label="Email, scheduling, and admin">
+          <span class="opt-key">1</span>Email, scheduling, and admin
+        </button>
+        <button class="opt" data-value="marketing" data-label="Content and marketing (doesn't get done)">
+          <span class="opt-key">2</span>Content and marketing (doesn't get done)
+        </button>
+        <button class="opt" data-value="leads" data-label="Responding to leads fast enough">
+          <span class="opt-key">3</span>Responding to leads fast enough
+        </button>
+        <button class="opt" data-value="onboarding" data-label="Client onboarding and proposals">
+          <span class="opt-key">4</span>Client onboarding and proposals
+        </button>
+        <button class="opt" data-value="reporting" data-label="Reporting, data entry, and customer service">
+          <span class="opt-key">5</span>Reporting, data entry, and customer service
+        </button>
+        <button class="opt" data-value="delivery" data-label="Repetitive delivery work (same tasks per client)">
+          <span class="opt-key">6</span>Repetitive delivery work (same tasks per client)
+        </button>
+      </div>
+    </div>
+
+    <!-- Q4: AI EXPERIENCE -->
+    <div class="quiz-card" data-card="q4" data-q="ai_experience">
+      <div class="q-label">Question 4 of 6</div>
+      <h2 class="q-title">How <em>AI-experienced</em> are you?</h2>
+      <p class="q-help">Be honest — we calibrate tool recommendations to your level.</p>
+      <div class="options" id="q4-opts">
+        <button class="opt" data-value="Never tried any AI tool"><span class="opt-key">1</span>Never tried any AI tool</button>
+        <button class="opt" data-value="Dabbled with ChatGPT a few times"><span class="opt-key">2</span>Dabbled with ChatGPT a few times</button>
+        <button class="opt" data-value="Use AI tools regularly but no real system"><span class="opt-key">3</span>Use AI tools regularly but no real system</button>
+        <button class="opt" data-value="I've built workflows and automations"><span class="opt-key">4</span>I've built workflows and automations</button>
+      </div>
+    </div>
+
+    <!-- Q5: HOURS WANTED BACK -->
+    <div class="quiz-card" data-card="q5" data-q="hours_wanted">
+      <div class="q-label">Question 5 of 6</div>
+      <h2 class="q-title">How many hours a week do <em>you want back?</em></h2>
+      <p class="q-help">Shapes which wins we prioritize for you.</p>
+      <div class="options" id="q5-opts">
+        <button class="opt" data-value="1–5 hours" data-hours="5"><span class="opt-key">1</span>1–5 hours</button>
+        <button class="opt" data-value="5–10 hours" data-hours="10"><span class="opt-key">2</span>5–10 hours</button>
+        <button class="opt" data-value="10–20 hours" data-hours="15"><span class="opt-key">3</span>10–20 hours</button>
+        <button class="opt" data-value="20+ hours" data-hours="25"><span class="opt-key">4</span>20+ hours</button>
+      </div>
+    </div>
+
+    <!-- Q6: EMAIL CAPTURE -->
+    <div class="quiz-card" data-card="q6">
+      <div class="q-label">Last Step · Get Your Results</div>
+      <h2 class="q-title">Where should we send the <em>full plan?</em></h2>
+      <p class="q-help">We'll show your results right now — and email you a recap plus a free resource you can read later.</p>
+      <div class="field">
+        <label>Your first name</label>
+        <input type="text" id="q-name" placeholder="Jane" autocomplete="given-name">
+        <div class="err" id="err-name">Please enter your first name.</div>
+      </div>
+      <div class="field">
+        <label>Work email</label>
+        <input type="email" id="q-email" placeholder="jane@acmecorp.com" autocomplete="email">
+        <div class="err" id="err-email">Please enter a valid email.</div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-ghost" onclick="goBack()">← Back</button>
+        <button class="btn btn-primary" id="submit-btn" onclick="submitQuiz()">Show My Results →</button>
+      </div>
+      <p style="font-size: 12px; color: var(--muted); margin-top: 14px;">🔒 No spam. You can unsubscribe in one click. Your data is never sold.</p>
+    </div>
+
+    <!-- RESULTS -->
+    <div class="quiz-card" data-card="results">
+      <div class="result-hero">
+        <div class="result-archetype-label" id="r-label">Your Result</div>
+        <h2 class="result-archetype-name" id="r-name">—</h2>
+        <p class="result-diagnosis" id="r-diagnosis">—</p>
+      </div>
+
+      <div class="result-stat-row">
+        <div class="result-stat">
+          <div class="stat-num" id="r-hours">—</div>
+          <div class="stat-label">Hrs/week you could reclaim</div>
+        </div>
+        <div class="result-stat">
+          <div class="stat-num" id="r-annual">—</div>
+          <div class="stat-label">Hrs/year that unlocks</div>
+        </div>
+        <div class="result-stat">
+          <div class="stat-num">3</div>
+          <div class="stat-label">Quick wins below</div>
+        </div>
+      </div>
+
+      <div class="result-section-label">Your Three Quick Wins</div>
+      <h3 class="result-section-title">Start here. This week.</h3>
+      <div class="win-list" id="r-wins"></div>
+
+      <div class="result-cta">
+        <h3>Want the <em>full plan?</em></h3>
+        <p>The quiz gives you the direction. The <strong style="color:var(--white);">$999 AI Assessment</strong> gives you the playbook: 45-min audit, 10–15 page custom action plan, personalized prompt library, 30-day support. 100% money-back if we don't find 5+ hrs/week.</p>
+        <a href="/#book" class="btn btn-primary" style="background: var(--teal);">Book the Full Assessment →</a>
+      </div>
+
+      <p class="result-extra">
+        📧 We just emailed your full result to <strong id="r-email-confirm">you</strong>. Check spam if you don't see it in 5 min.
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<script src="signalarc-chat-widget.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  const STEP_CARDS = ['q1','q2','q3','q4','q5','q6'];
+  const ARCHETYPES = {
+    admin: {
+      name: 'The <em>Admin-Heavy</em> Operator',
+      diagnosis: "Your mornings are getting eaten alive by email, scheduling, invoicing, and the everyday paperwork of running your business. You keep telling yourself you'll batch it on Friday — but Friday never comes. Good news: this is the single fastest category of time leak AI can solve. You can reclaim most of it in your first week.",
+      wins: [
+        { title: 'Install a Claude "Inbox Triage" Project', body: 'Open a <strong>Claude Pro account ($20/mo)</strong>. Create a Project called "Inbox Drafts." Paste emails needing a reply → Claude drafts them in your voice. Set a 10-minute daily calendar block to run it. <strong>Typical saving: 45 min/day.</strong>' },
+        { title: 'Hand scheduling to Calendly', body: 'If you\'re still manually replying with "does Tuesday at 2 work?" — stop. <strong>Calendly free tier</strong> handles it. Paste your link in your email signature and in every outbound. <strong>Typical saving: 3–4 hours/week.</strong>' },
+        { title: 'Automate invoice reminders', body: 'Every major invoicing tool (Wave, QuickBooks, Stripe) has free auto-reminders built in — they\'re just usually turned off. Turn them on. <strong>Typical saving: 2 hours/week chasing payments.</strong>' }
+      ]
+    },
+    marketing: {
+      name: 'The <em>Marketing Ghost</em>',
+      diagnosis: "Your product/service is solid. You know marketing would grow the business. But between delivery and admin, content just never gets done. The LinkedIn post you wanted to write last month is still a draft. The newsletter hasn't gone out since February. This is the highest-ROI category of AI use — done right, it means marketing actually ships.",
+      wins: [
+        { title: 'Build a "Voice Memo → Content" pipeline', body: 'Record a 60-second voice memo with your thoughts on a topic. Paste the transcript into <strong>Claude (claude.ai)</strong>. Ask for a LinkedIn post, a newsletter blurb, and 3 tweet variants — all in your voice. <strong>Typical output: 3 pieces of content in 10 minutes.</strong>' },
+        { title: 'Turn one podcast/interview into 10 pieces', body: 'Every hour-long video you\'re in contains ~15 social clips, a full newsletter, and a blog post. Use <strong>Opus Clips (free tier)</strong> or <strong>Descript</strong> to auto-pull highlights. Claude rewrites them into native formats. <strong>Your content backlog disappears.</strong>' },
+        { title: 'Set up a "Monday draft queue"', body: 'Every Monday morning, spend 30 minutes in Claude drafting the week\'s content. You edit and schedule. Consistency beats brilliance — and this makes consistency possible. <strong>Typical saving: 4 hours/week of "I should post something" guilt.</strong>' }
+      ]
+    },
+    leads: {
+      name: 'The <em>Slow Responder</em>',
+      diagnosis: "You've got a lead-flow problem — but not the one you think. You're getting plenty of inquiries; they just go cold while you're busy delivering. Speed-to-lead is the #1 predictor of close rate in every B2B study ever run. Getting your response time under 5 minutes — even with AI doing the heavy lifting — can double your close rate.",
+      wins: [
+        { title: 'Set up an auto-acknowledge reply', body: 'The moment a lead form submits, they should get a warm, personalized auto-reply within 60 seconds. <strong>Gmail Templates + Filters</strong> (free) or <strong>HubSpot Free</strong> handles it. <strong>Typical impact: 2× response-to-reply rate.</strong>' },
+        { title: 'Use Claude to draft qualifying follow-ups', body: 'Create a Claude Project with your ideal-customer profile. Paste the lead info → it drafts a qualifying email that routes them to your Calendly if they\'re a fit. You approve and send. <strong>Typical saving: 2 hours/day on lead triage.</strong>' },
+        { title: 'Try a voice AI for after-hours', body: 'If your business has phone leads, <strong>Vapi or Retell AI</strong> can field first-contact calls, qualify, and book. Starts at ~$50/mo. Not for everyone — but if you\'re losing leads after 5pm, it pays for itself in a month.' }
+      ]
+    },
+    onboarding: {
+      name: 'The <em>Onboarding Bottleneck</em>',
+      diagnosis: "You're a good closer. Proposals land. Clients sign. Then — you disappear for a week while you figure out the kickoff package. Contracts, welcome emails, intake forms, kickoff docs — each one custom. This category isn't sexy but it's where scaling breaks. Standardize the first 7 days of every engagement and everything else gets easier.",
+      wins: [
+        { title: 'Build a "Proposal Generator" Claude Project', body: 'Paste a blank scoping doc and last 3 proposals you\'ve sent into a Claude Project. For each new lead, paste their needs → Claude drafts a proposal in your format, your voice, your pricing. You edit one paragraph. <strong>Typical saving: 3 hours per proposal.</strong>' },
+        { title: 'Standardize your kickoff with a Notion template', body: 'One <strong>Notion template</strong> (free) with: welcome video, intake form, calendar booking, first-deliverable checklist. Duplicate for every new client. Claude fills in the client-specific sections from the proposal. <strong>Typical saving: 4 hours per onboarding.</strong>' },
+        { title: 'Auto-send contracts + intake forms on sale', body: '<strong>Stripe → Zapier → DocuSign/HelloSign + Typeform</strong>. The moment a client pays, they get a contract and intake form automatically. You don\'t touch it. <strong>Typical saving: 1 hour per client, and your cash hits the bank faster.</strong>' }
+      ]
+    },
+    reporting: {
+      name: 'The <em>Reporting Robot</em>',
+      diagnosis: "You're drowning in spreadsheets, client reports, data entry, and the endless dashboard updates everyone wants but no one reads. The irony is that this is the category AI was literally invented for — structured data in, formatted output out. Most of your reporting time can evaporate in week one if you pick the right tools.",
+      wins: [
+        { title: 'Let Claude write your client reports', body: 'Paste the raw data (GA, Stripe, CRM export, whatever) into a Claude Project configured with your report template. Claude writes the narrative, finds the insights, formats the exec summary. You edit one section. <strong>Typical saving: 4 hours per report.</strong>' },
+        { title: 'Automate data entry with <strong>Airtable + Zapier</strong>', body: 'Anywhere you\'re manually copy-pasting from email → spreadsheet, from form → CRM, from CSV → database: a Zapier automation (~$20/mo) can do it instantly. <strong>Typical saving: 5+ hours/week once set up.</strong>' },
+        { title: 'Use ChatGPT/Claude to triage support tickets', body: 'Paste incoming support emails. Ask for: priority level, category, suggested reply, whether to escalate. You approve and send. <strong>Typical saving: 60% of customer-service time.</strong>' }
+      ]
+    },
+    delivery: {
+      name: 'The <em>Repetition Trap</em>',
+      diagnosis: "You deliver real value. Your clients love you. And every engagement looks suspiciously like the last one — same steps, same deliverables, same emails, just with different names. That\'s actually great news: repetition is automatable. You don\'t need to replace your expertise. You need to eliminate the 70% of delivery work that\'s boilerplate.",
+      wins: [
+        { title: 'Turn your top 5 deliverables into Claude Projects', body: 'Pick the 5 deliverables you produce most often. For each, create a Claude Project with your template, tone, and structure baked in. New clients plug in → you review and personalize the last 20%. <strong>Typical saving: 60% of delivery time.</strong>' },
+        { title: 'Build a personal "prompt library"', body: 'Every time you find yourself writing something for the third time — stop. Turn it into a reusable prompt in a shared doc. Label it. Use it. After 30 days you\'ll have 20 prompts that power most of your work. <strong>Compound time savings.</strong>' },
+        { title: 'Auto-generate the "status update" email', body: 'Clients want weekly updates. You hate writing them. Set up a Claude Project with the client context. Every Friday at 4pm, paste this week\'s notes → it writes the update in your voice. <strong>Typical saving: 1 hour/week per client.</strong>' }
+      ]
+    }
+  };
+
+  const state = {
+    step: 0,
+    answers: {}
+  };
+
+  // ---- NAVIGATION ----
+  function showCard(name) {
+    document.querySelectorAll('.quiz-card').forEach(c => c.classList.remove('active'));
+    const el = document.querySelector(`.quiz-card[data-card="${name}"]`);
+    if (el) { el.classList.add('active'); window.scrollTo({top: 0, behavior: 'smooth'}); }
+  }
+
+  function updateProgress() {
+    document.getElementById('progress-wrap').style.display = 'block';
+    const pct = Math.max(0, ((state.step + 1) / STEP_CARDS.length) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('cur-step').textContent = state.step + 1;
+    document.getElementById('total-steps').textContent = STEP_CARDS.length;
+  }
+
+  window.start = function() {
+    state.step = 0;
+    updateProgress();
+    showCard(STEP_CARDS[0]);
+    setTimeout(() => {
+      const firstOpt = document.querySelector('.quiz-card.active .opt');
+      if (firstOpt) firstOpt.focus();
+    }, 300);
+  };
+
+  window.goBack = function() {
+    if (state.step > 0) {
+      state.step--;
+      updateProgress();
+      showCard(STEP_CARDS[state.step]);
+    }
+  };
+
+  function goNext() {
+    if (state.step < STEP_CARDS.length - 1) {
+      state.step++;
+      updateProgress();
+      showCard(STEP_CARDS[state.step]);
+    }
+  }
+
+  // ---- ATTACH OPTION CLICKS ----
+  document.querySelectorAll('.quiz-card[data-q]').forEach(card => {
+    const qKey = card.getAttribute('data-q');
+    card.querySelectorAll('.opt').forEach(btn => {
+      btn.addEventListener('click', () => {
+        card.querySelectorAll('.opt').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        state.answers[qKey] = {
+          value: btn.getAttribute('data-value'),
+          hours: btn.getAttribute('data-hours') || null,
+          label: btn.getAttribute('data-label') || btn.getAttribute('data-value')
+        };
+        // auto-advance after brief pause
+        setTimeout(goNext, 280);
+      });
+    });
+  });
+
+  // ---- KEYBOARD ----
+  document.addEventListener('keydown', (e) => {
+    const activeCard = document.querySelector('.quiz-card.active');
+    if (!activeCard) return;
+    const name = activeCard.getAttribute('data-card');
+
+    if (name === 'intro' && e.key === 'Enter') {
+      e.preventDefault();
+      window.start();
+      return;
+    }
+
+    if (activeCard.hasAttribute('data-q') && /^[1-9]$/.test(e.key)) {
+      const opts = activeCard.querySelectorAll('.opt');
+      const idx = parseInt(e.key) - 1;
+      if (opts[idx]) { e.preventDefault(); opts[idx].click(); }
+    }
+  });
+
+  // ---- EMAIL SUBMIT ----
+  window.submitQuiz = async function() {
+    const name = document.getElementById('q-name').value.trim();
+    const email = document.getElementById('q-email').value.trim();
+    const errName = document.getElementById('err-name');
+    const errEmail = document.getElementById('err-email');
+    errName.classList.remove('show'); errEmail.classList.remove('show');
+
+    let valid = true;
+    if (!name) { errName.classList.add('show'); valid = false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEmail.classList.add('show'); valid = false; }
+    if (!valid) return;
+
+    state.answers.name = name;
+    state.answers.email = email;
+
+    const btn = document.getElementById('submit-btn');
+    btn.disabled = true;
+    btn.textContent = 'Generating your results…';
+
+    // Fire-and-forget — don't block results on Formspree
+    fetch('https://formspree.io/f/xojneaal', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({
+        _subject: `Quiz completion: ${name} — ${archetypeKey()}`,
+        form_type: 'AI Readiness Quiz',
+        name, email,
+        role: state.answers.role?.value,
+        industry: state.answers.industry?.value,
+        time_leak: state.answers.time_leak?.label,
+        ai_experience: state.answers.ai_experience?.value,
+        hours_wanted: state.answers.hours_wanted?.value,
+        archetype: archetypeKey()
+      })
+    }).catch(() => {});
+
+    setTimeout(renderResults, 600);
+  };
+
+  function archetypeKey() {
+    return state.answers.time_leak?.value || 'admin';
+  }
+
+  function renderResults() {
+    const key = archetypeKey();
+    const arch = ARCHETYPES[key] || ARCHETYPES.admin;
+    const hours = parseInt(state.answers.hours_wanted?.hours || '10', 10);
+    const annual = hours * 50;
+
+    document.getElementById('r-name').innerHTML = arch.name;
+    document.getElementById('r-diagnosis').innerHTML = arch.diagnosis;
+    document.getElementById('r-hours').textContent = hours;
+    document.getElementById('r-annual').textContent = annual;
+    document.getElementById('r-email-confirm').textContent = state.answers.email;
+
+    const wins = document.getElementById('r-wins');
+    wins.innerHTML = '';
+    arch.wins.forEach((w, i) => {
+      const el = document.createElement('div');
+      el.className = 'win';
+      el.innerHTML = `<div class="win-num">QUICK WIN ${i+1}</div><div class="win-title">${w.title}</div><div class="win-body">${w.body}</div>`;
+      wins.appendChild(el);
+    });
+
+    document.getElementById('progress-wrap').style.display = 'none';
+    showCard('results');
+  }
+})();
+</script>
+
+</body>
+</html>
