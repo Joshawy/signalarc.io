@@ -366,6 +366,50 @@
   .who-card.no li::before { content: '✕'; color: var(--muted); font-weight: 800; flex-shrink: 0; }
   .who-card.no li { color: var(--muted); }
 
+  /* FOUNDER BLOCK */
+  .founder-section { background: var(--bg); border-top: 1px solid rgba(255,255,255,0.06); }
+  .founder-grid {
+    display: grid; grid-template-columns: 240px 1fr; gap: 56px;
+    align-items: center; max-width: 900px; margin: 40px auto 0;
+  }
+  .founder-photo-wrap {
+    width: 220px; height: 220px; border-radius: 50%;
+    overflow: hidden; position: relative;
+    border: 2px solid var(--teal-border);
+    background: var(--bg2);
+  }
+  .founder-photo-wrap::after {
+    content: ''; position: absolute; inset: 0;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 1px rgba(0,212,168,0.15);
+    pointer-events: none;
+  }
+  .founder-photo-wrap img {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  .founder-content h3 {
+    font-family: var(--font-display); font-size: 34px; font-weight: 900;
+    line-height: 1.1; margin-bottom: 16px;
+  }
+  .founder-content h3 em { color: var(--teal); font-style: normal; }
+  .founder-content p {
+    font-size: 15px; color: var(--muted); line-height: 1.7; margin-bottom: 14px;
+  }
+  .founder-content p strong { color: var(--white); font-weight: 600; }
+  .founder-chips {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px;
+  }
+  .founder-chip {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.04em;
+    color: var(--teal); background: var(--teal-dim);
+    border: 1px solid var(--teal-border);
+    padding: 5px 12px; border-radius: 100px;
+  }
+  .founder-signoff {
+    margin-top: 20px; font-family: var(--font-display);
+    font-size: 18px; font-weight: 800; color: var(--white);
+  }
+
   /* FAQ */
   .faq-section { }
   .faq-list { margin-top: 52px; max-width: 820px; }
@@ -498,6 +542,9 @@
     .included-wrap { grid-template-columns: 1fr; gap: 32px; }
     .price-card { position: static; }
     .who-grid { grid-template-columns: 1fr; }
+    .founder-grid { grid-template-columns: 1fr !important; gap: 32px !important; text-align: center; }
+    .founder-photo-wrap { margin: 0 auto; }
+    .founder-chips { justify-content: center; }
     footer { flex-direction: column; gap: 12px; text-align: center; }
     .form-row { grid-template-columns: 1fr; }
     .form-wrap { padding: 28px 22px; }
@@ -704,6 +751,29 @@
     </div>
   </div>
   <p style="margin-top: 24px; font-size: 13px; color: var(--muted);">*Unless you upgrade to the done-for-you build — quoted separately after the audit.</p>
+</section>
+
+<!-- FOUNDER -->
+<section class="founder-section">
+  <div class="section-label">Who's Behind It</div>
+  <h2 class="section-title">Hi, I'm <em>Josh.</em></h2>
+  <div class="founder-grid">
+    <div class="founder-photo-wrap">
+      <img src="https://joshuaonofrio.com/assets/headshot.png" alt="Joshua Onofrio, founder of SignalARC" loading="lazy">
+    </div>
+    <div class="founder-content">
+      <p>For <strong>9 years</strong> I built B2B marketing systems inside companies ranging from 5-person startups to 1000+ person enterprises — most recently as a Marketing Manager at <strong>Future PLC</strong>.</p>
+      <p>Email programs, campaign automation, sales enablement, lifecycle journeys — the unglamorous plumbing that decides whether a team ships or stalls.</p>
+      <p>What I kept noticing: the same problems that drown enterprise marketers — repetitive work, slow speed-to-lead, manual admin — hit solopreneurs and small business owners <strong>10x harder</strong>. They just don't have a team to throw at it.</p>
+      <p>That's why I built SignalARC. Same systems thinking. AI doing the heavy lifting.</p>
+      <div class="founder-signoff">— Josh</div>
+      <div class="founder-chips">
+        <span class="founder-chip">9 YRS B2B MARKETING</span>
+        <span class="founder-chip">EX-FUTURE PLC</span>
+        <span class="founder-chip">KELOWNA, BC</span>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- FAQ -->
