@@ -23,7 +23,7 @@ async function sendAssessmentConfirmation(email, name, orderId) {
           <p>Hey ${firstName},</p>
           <p>You're all set. Your AI Assessment is confirmed and we're ready to go.</p>
           <p><strong>Here's how it works:</strong></p>
-          <p><strong>1.</strong> Call Andrew at <strong>+1(978)510-6633</strong> — he'll walk you through a 20–25 minute discovery call. No pitch, just questions.</p>
+          <p><strong>1.</strong> Call Andrew at <strong>+1(978)510-6633</strong> — the call usually takes 8–12 minutes, but you set the pace. Share as much detail as you want. No pitch, just questions.</p>
           <p><strong>2.</strong> Within 48 hours of your call, Josh will have your custom report in your inbox. It'll show you exactly where AI can give you time back — with tools, costs, and a 4-day action plan.</p>
           <p><strong>3.</strong> Once you've had some time to review the report and Josh's walkthrough, book a quick call to discuss next steps and any questions you have.</p>
           <p style="color: #888; font-size: 13px;">Your assessment number: ${orderId}</p>

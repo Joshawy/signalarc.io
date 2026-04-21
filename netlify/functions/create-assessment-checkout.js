@@ -60,7 +60,7 @@ exports.handler = async (event) => {
           currency: 'usd',
           product_data: {
             name: tier.label,
-            description: '45-min workflow audit + 10–15 page custom AI Action Plan + prompt library + 30-day Loom support. Delivered within 48 hours of the call. 100% money-back guarantee if we don\'t identify 5+ hrs/week of savings.'
+            description: 'Client-paced workflow audit call (8–12 min, longer if you want) + 10–15 page custom AI Action Plan + prompt library + 30-day Loom support. Delivered within 48 hours of the call. 100% money-back guarantee if we don\'t identify 5+ hrs/week of savings.'
           },
           unit_amount: tier.amount_cents
         },

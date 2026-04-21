@@ -152,7 +152,7 @@
     how_it_works: {
       messages: [
         "**The SignalARC Method: Audit → Optimize → Automate (AOA)**",
-        "**1. Audit** (45-min call) — we map every repeatable workflow in your business and find the 5–10 hour/week time leaks.\n\n**2. Optimize** — we simplify broken processes first. Automating a messy 12-step workflow just creates a faster mess.\n\n**3. Automate** — you get the exact AI stack, prompts, and automations tailored to your business. Each one installable in under 60 minutes.",
+        "**1. Audit** (8–12 min call, longer if you want to dig in) — we map every repeatable workflow in your business and find the 5–10 hour/week time leaks.\n\n**2. Optimize** — we simplify broken processes first. Automating a messy 12-step workflow just creates a faster mess.\n\n**3. Automate** — you get the exact AI stack, prompts, and automations tailored to your business. Each one installable in under 60 minutes.",
         "The full action plan is delivered as a written PDF within **48 hours** of the call."
       ],
       replies: [
@@ -164,7 +164,7 @@
     },
     included: {
       messages: [
-        "**In the $999 Assessment, you get:**\n\n✓ 45-minute live workflow audit call\n✓ Custom AI Action Plan (10–15 page PDF)\n✓ Personalized prompt library for your top 5 workflows\n✓ Exact tool stack recommendations — no affiliate hype\n✓ 30 days of Loom support for implementation questions\n✓ Optional done-for-you build (priced separately)"
+        "**In the $999 Assessment, you get:**\n\n✓ Client-paced workflow audit call (8–12 min, longer if you want)\n✓ Custom AI Action Plan (10–15 page PDF)\n✓ Personalized prompt library for your top 5 workflows\n✓ Exact tool stack recommendations — no affiliate hype\n✓ 30 days of Loom support for implementation questions\n✓ Optional done-for-you build (priced separately)"
       ],
       replies: [
         { text: "📅 Book now", action: "open_book", primary: true },
