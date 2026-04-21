@@ -126,80 +126,83 @@
     start: {
       messages: [
         "👋 Hey! I'm the SignalARC bot.",
-        "I can walk you through pricing, how content syndication works, or connect you with our team. What are you here for?"
+        "I can walk you through the **$999 AI Assessment**, pricing, or connect you with our team. What are you here for?"
       ],
       replies: [
         { text: "💰 Pricing", next: "pricing" },
-        { text: "✨ Why SignalARC?", next: "why_us" },
         { text: "⚙️ How it works", next: "how_it_works" },
-        { text: "📊 Does it work?", next: "does_it_work" },
-        { text: "🎯 Industries", next: "industries" },
-        { text: "🛒 Start an order", next: "order", primary: true },
+        { text: "📋 What's included", next: "included" },
+        { text: "🎯 Is this right for me?", next: "right_for_me" },
+        { text: "📅 Book the Assessment", next: "book", primary: true },
+        { text: "💬 I need B2B leads instead", next: "syndication" },
         { text: "👋 Talk to a human", next: "human_name" }
       ]
     },
     pricing: {
       messages: [
-        "**Simple, transparent pricing:**\n\n• **$25 per lead** (min 25 leads = $625)\n• **Prepay packs** — volume discounts baked in\n• **Subscription** — save **10%**\n• First-time buyers: **25 free bonus leads** 🎁"
+        "**Straight-up pricing:**\n\n• **$999** — AI Tools Assessment (one-time, no subscription)\n• **48-hour turnaround** on your custom action plan\n• **100% money-back** if we don't find 5+ hrs/week of time to return\n• Optional done-for-you implementation: **$1,500–$5,000**, quoted after the audit"
       ],
       replies: [
-        { text: "🛒 Start an order", action: "open_order", primary: true },
+        { text: "📅 Book now", action: "open_book", primary: true },
+        { text: "📋 What's included", next: "included" },
         { text: "💬 Talk to someone", next: "human_name" },
         { text: "← Back", next: "start" }
       ]
     },
     how_it_works: {
       messages: [
-        "**Three simple steps:**\n\n**1. Share your content** — whitepaper, guide, or case study (no content? we'll help make one)\n\n**2. We distribute it** — to decision-makers in your exact ICP, filtered by title, industry, and geo\n\n**3. Leads land in your inbox** — verified, ready for your CRM. Typically **~1 lead per week** until your order is fulfilled, though velocity depends on ICP narrowness and content quality."
+        "**The SignalARC Method: Audit → Optimize → Automate (AOA)**",
+        "**1. Audit** (45-min call) — we map every repeatable workflow in your business and find the 5–10 hour/week time leaks.\n\n**2. Optimize** — we simplify broken processes first. Automating a messy 12-step workflow just creates a faster mess.\n\n**3. Automate** — you get the exact AI stack, prompts, and automations tailored to your business. Each one installable in under 60 minutes.",
+        "The full action plan is delivered as a written PDF within **48 hours** of the call."
       ],
       replies: [
-        { text: "💰 See pricing", next: "pricing" },
-        { text: "🛒 Start an order", action: "open_order", primary: true },
-        { text: "← Back", next: "start" }
-      ]
-    },
-    industries: {
-      messages: [
-        "**We specialize in 6 B2B industries:**\n\n🏦 Financial Services & Insurance\n🏥 Healthcare & Medical Devices\n🏭 Manufacturing & Industrial\n🚚 Logistics & Supply Chain\n👥 HR & Workforce Management\n🏢 Commercial Real Estate",
-        "These sectors have long sales cycles and heavy content-research habits — so your leads arrive with real buying intent."
-      ],
-      replies: [
-        { text: "💰 See pricing", next: "pricing" },
-        { text: "🛒 Start an order", action: "open_order", primary: true },
-        { text: "💬 My industry isn't listed", next: "human_name" },
-        { text: "← Back", next: "start" }
-      ]
-    },
-    why_us: {
-      messages: [
-        "**Why SignalARC:**\n\n✓ **Transparent pricing** — $25/lead, published. No \"contact sales for a quote\" games.\n✓ **Self-serve orders** — buy leads in 2 minutes via Stripe, no demo calls required.\n✓ **Client portal** — see your credit balance, leads list, and delivery history in real time.\n✓ **25 free bonus leads** for first-time buyers. Low risk to try.\n✓ **100% verified leads** — real names, real work emails, real companies. No junk lists."
-      ],
-      replies: [
-        { text: "📊 But does it work?", next: "does_it_work" },
-        { text: "🛒 Start an order", action: "open_order", primary: true },
+        { text: "📅 Book the Assessment", action: "open_book", primary: true },
+        { text: "📋 What's included", next: "included" },
         { text: "💰 See pricing", next: "pricing" },
         { text: "← Back", next: "start" }
       ]
     },
-    does_it_work: {
+    included: {
       messages: [
-        "**Fair question.** Here's the honest answer:\n\n• Content syndication leads convert to SQLs at **15–25%** when paired with a proper email nurture — roughly **2.4x** the rate of cold outbound (source: our [2026 Benchmark Report](/benchmark-report.html))\n\n• Every lead is **verified** before delivery — real work email, title match, company match. Bounces get replaced free.\n\n• Your first 25 leads are **free** after kickoff. So you can actually measure the channel before spending a dollar.\n\n• Full playbook on how to make leads convert: [The 2026 B2B Lead Gen Playbook](/b2b-lead-gen-playbook.html)"
+        "**In the $999 Assessment, you get:**\n\n✓ 45-minute live workflow audit call\n✓ Custom AI Action Plan (10–15 page PDF)\n✓ Personalized prompt library for your top 5 workflows\n✓ Exact tool stack recommendations — no affiliate hype\n✓ 30 days of Loom support for implementation questions\n✓ Optional done-for-you build (priced separately)"
       ],
       replies: [
-        { text: "🧮 Try the ROI calculator", action: "open_calculator" },
-        { text: "🛒 Start an order", action: "open_order", primary: true },
+        { text: "📅 Book now", action: "open_book", primary: true },
+        { text: "💰 See pricing", next: "pricing" },
+        { text: "🎯 Is it right for me?", next: "right_for_me" },
+        { text: "← Back", next: "start" }
+      ]
+    },
+    right_for_me: {
+      messages: [
+        "**You'll get the most out of this if you...**\n\n✓ Run a solo or small business and wear every hat\n✓ Have tried ChatGPT but don't have a real system\n✓ Want practical wins this week, not another 10-hour course\n✓ Are willing to spend 30–60 min implementing quick wins\n✓ Don't already have a full-time AI team",
+        "If that sounds like you, the Assessment is a no-brainer — especially with the money-back guarantee."
+      ],
+      replies: [
+        { text: "📅 Sounds like me — book", action: "open_book", primary: true },
+        { text: "💬 Not sure — talk to someone", next: "human_name" },
+        { text: "← Back", next: "start" }
+      ]
+    },
+    book: {
+      messages: [
+        "Nice. Two ways to go from here:",
+        "👉 [**Request your Assessment**](/#book) — quick form, we reply with a booking link within one business day.\n\nOr chat with a human first if you have questions."
+      ],
+      replies: [
+        { text: "📅 Go to booking form", action: "open_book", primary: true },
+        { text: "💬 Quick question first", next: "human_name" },
+        { text: "← Back", next: "start" }
+      ]
+    },
+    syndication: {
+      messages: [
+        "Got it — we still run our B2B content syndication service too.",
+        "👉 [**See the content syndication page**](/content-syndication.html) — verified B2B leads starting at **$25/lead**, across 6 industries (finance, healthcare, manufacturing, logistics, HR, commercial real estate)."
+      ],
+      replies: [
+        { text: "📰 Open B2B Leads page", action: "open_syndication", primary: true },
         { text: "💬 Talk to someone", next: "human_name" },
-        { text: "← Back", next: "start" }
-      ]
-    },
-    order: {
-      messages: [
-        "Nice. If you've got your ICP and a content asset ready, you can skip the sales call:",
-        "👉 [**Start your order**](/order.html) — takes ~2 minutes. Stripe handles payment, and your client portal unlocks immediately."
-      ],
-      replies: [
-        { text: "🛒 Go to order page", action: "open_order", primary: true },
-        { text: "❓ Quick question first", next: "human_name" },
         { text: "← Back", next: "start" }
       ]
     },
@@ -215,18 +218,18 @@
       input: { field: "email", placeholder: "you@company.com", validate: "email", next: "human_msg" }
     },
     human_msg: {
-      messages: [ "Got it. Last one — **what can we help you with?** (industry, goals, questions)" ],
-      input: { field: "message", placeholder: "Tell us about your goals...", next: "human_submit" }
+      messages: [ "Got it. Last one — **what can we help you with?** (your business, biggest time leak, or any questions)" ],
+      input: { field: "message", placeholder: "Tell us about your business and goals...", next: "human_submit" }
     },
     human_submit: { action: "submit_lead" },
     thanks: {
       messages: [
         "🎉 Got it — we'll be in touch within **one business day** at {email}.",
-        "In the meantime, want to browse the blog or start an order?"
+        "In the meantime, want to go straight to booking or read more?"
       ],
       replies: [
-        { text: "🛒 Start an order", action: "open_order", primary: true },
-        { text: "📰 Read the blog", action: "open_blog" },
+        { text: "📅 Book the Assessment", action: "open_book", primary: true },
+        { text: "📋 What's included", next: "included" },
         { text: "← Main menu", next: "start" }
       ]
     },
@@ -386,7 +389,9 @@
   }
 
   async function handleAction(action) {
-    if (action === 'open_order') window.location.href = '/order.html';
+    if (action === 'open_book') window.location.href = '/#book';
+    else if (action === 'open_syndication') window.location.href = '/content-syndication.html';
+    else if (action === 'open_order') window.location.href = '/order.html';
     else if (action === 'open_blog') window.location.href = '/blog/';
     else if (action === 'open_calculator') window.location.href = '/roi-calculator.html';
     else if (action === 'submit_lead') await submitLead();
