@@ -140,6 +140,90 @@
   }
   .stat-label { font-size: 14px; color: var(--muted); line-height: 1.4; }
 
+  /* SOCIAL PROOF */
+  .social-proof {
+    padding: 80px 48px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .sp-label {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--teal); text-transform: uppercase; margin-bottom: 30px;
+    text-align: center;
+  }
+  .sp-grid {
+    display: grid; grid-template-columns: 2fr 1fr; gap: 32px;
+    align-items: center;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .sp-card {
+    background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
+    border: 1px solid var(--teal-border);
+    border-radius: 16px;
+    padding: 36px 36px;
+  }
+  .sp-badge {
+    display: inline-block;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    color: var(--teal); background: var(--teal-dim);
+    padding: 4px 12px; border-radius: 100px;
+    margin-bottom: 18px; text-transform: uppercase;
+  }
+  .sp-title {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 3.2vw, 40px);
+    font-weight: 900; line-height: 1.05;
+    margin-bottom: 14px;
+  }
+  .sp-title em { color: var(--teal); font-style: normal; }
+  .sp-body { font-size: 15.5px; color: var(--muted); line-height: 1.65; margin-bottom: 18px; }
+  .sp-perks { list-style: none; padding: 0; }
+  .sp-perks li {
+    padding: 8px 0 8px 26px; position: relative;
+    font-size: 14.5px; color: var(--white);
+  }
+  .sp-perks li::before {
+    content: '✓'; position: absolute; left: 0;
+    color: var(--teal); font-weight: 800;
+  }
+  .sp-stat-col {
+    text-align: center;
+    display: flex; flex-direction: column; gap: 20px;
+    align-items: stretch;
+  }
+  .sp-big-stat {
+    background: var(--bg2); border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px; padding: 32px 20px;
+  }
+  .sp-big-num {
+    font-family: var(--font-display);
+    font-size: 88px; font-weight: 900;
+    color: var(--teal); line-height: 1; margin-bottom: 6px;
+  }
+  .sp-big-label { font-size: 13px; color: var(--muted); line-height: 1.4; }
+  .sp-cta { justify-content: center; }
+
+  /* SOCIAL PROOF — active testimonial form (hidden until you swap in) */
+  .sp-quote {
+    background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
+    border: 1px solid var(--teal-border);
+    border-radius: 16px; padding: 36px;
+    position: relative;
+  }
+  .sp-quote::before {
+    content: '"'; position: absolute; top: -20px; left: 24px;
+    font-family: var(--font-display); font-size: 120px; color: var(--teal);
+    line-height: 1; opacity: 0.35;
+  }
+  .sp-stars { color: var(--teal); letter-spacing: 4px; margin-bottom: 14px; font-size: 16px; }
+  .sp-quote blockquote {
+    font-size: 22px; line-height: 1.45;
+    color: var(--white); font-weight: 500;
+    margin-bottom: 22px; position: relative; z-index: 1;
+  }
+  .sp-quote figcaption { display: grid; gap: 2px; }
+  .sp-attr-name { font-weight: 700; color: var(--white); font-size: 15px; }
+  .sp-attr-role, .sp-attr-loc { font-size: 13px; color: var(--muted); }
+
   /* SECTION BASE */
   section { padding: 100px 48px; }
   .section-label {
@@ -403,6 +487,10 @@
     .stats { margin: 0 24px; grid-template-columns: 1fr; }
     .stat { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 28px 24px; }
     .stat:last-child { border-bottom: none; }
+    .social-proof { padding: 50px 24px; }
+    .sp-grid { grid-template-columns: 1fr; gap: 20px; }
+    .sp-card { padding: 28px 24px; }
+    .sp-big-num { font-size: 64px; }
     .problem-grid { grid-template-columns: 1fr; }
     .aoa-grid { grid-template-columns: 1fr; }
     .aoa-card { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); min-height: auto; }
@@ -432,13 +520,13 @@
 <!-- HERO -->
 <section class="hero">
   <div class="hero-badge">AI Assessment · For Small Businesses</div>
-  <h1>Turn Your Business Into an <em>AI-Powered System.</em></h1>
-  <p class="lede">We audit your workflows, map the AI tools that actually fit, and hand you a step-by-step plan to reclaim 10+ hours every week. No tech skills. No 10-hour courses. No fluff.</p>
+  <h1>Reclaim 10+ Hours a Week — <em>Without Becoming a Tech Person.</em></h1>
+  <p class="lede">Take the free 2-minute AI Readiness Quiz. We'll diagnose your biggest time leak and give you three AI quick wins you can set up this week. No fluff, no 10-hour courses, no jargon.</p>
   <div class="hero-actions">
-    <a href="#book" class="btn-primary">Book Your $999 Assessment →</a>
-    <a href="/quiz.html" class="btn-secondary">Not Ready? Take the 2-Min Quiz</a>
+    <a href="/quiz.html" class="btn-primary">Start the Free 2-Min Quiz →</a>
+    <a href="#book" class="btn-secondary">Skip the quiz — Book $999 Assessment</a>
   </div>
-  <p class="hero-trust"><strong>48-hour turnaround.</strong> &nbsp;·&nbsp; <strong>100% money-back guarantee.</strong> &nbsp;·&nbsp; Built for non-technical founders.</p>
+  <p class="hero-trust"><strong>Trusted by solopreneurs, coaches, and consultants.</strong> &nbsp;·&nbsp; 48-hour report turnaround &nbsp;·&nbsp; 100% money-back guarantee</p>
 </section>
 
 <!-- STATS -->
@@ -456,6 +544,52 @@
     <div class="stat-label">Typical weekly time returned<br>after implementation</div>
   </div>
 </div>
+
+<!-- SOCIAL PROOF / FOUNDING COHORT -->
+<section class="social-proof">
+  <div class="sp-label">Real Words, Real Impact</div>
+  <div class="sp-grid">
+
+    <!-- ACTIVE TESTIMONIAL SLOT.
+         When you land a great quote, replace the contents of <div class="sp-card placeholder">
+         with the populated <figure class="sp-quote"> pattern shown below.
+         Keep this block's wrapper classes intact so spacing stays right. -->
+    <div class="sp-card placeholder">
+      <div class="sp-badge">Founding Cohort · Open Now</div>
+      <h3 class="sp-title">Be one of our <em>first five</em> published success stories.</h3>
+      <p class="sp-body">We launched in April 2026. Our first five clients become the case studies every future client reads before buying. Finish your assessment, implement the plan, and your story goes right here.</p>
+      <ul class="sp-perks">
+        <li>Featured case study on this page</li>
+        <li>Founding-client pricing locked in for life</li>
+        <li>Direct Loom line to Joshua, no tier gates</li>
+      </ul>
+    </div>
+
+    <!--
+    ========== WHEN YOU HAVE YOUR FIRST TESTIMONIAL, REPLACE THE BLOCK ABOVE WITH: ==========
+    <figure class="sp-quote">
+      <div class="sp-stars">★★★★★</div>
+      <blockquote>
+        "YOUR CLIENT'S EXACT WORDS HERE — keep it under 30 words, specific, ideally with a concrete number of hours or dollars saved."
+      </blockquote>
+      <figcaption>
+        <span class="sp-attr-name">Jane Smith</span>
+        <span class="sp-attr-role">Owner, Acme Consulting</span>
+        <span class="sp-attr-loc">Boston, MA</span>
+      </figcaption>
+    </figure>
+    ====================================================================================
+    -->
+
+    <div class="sp-stat-col">
+      <div class="sp-big-stat">
+        <div class="sp-big-num">5</div>
+        <div class="sp-big-label">Founding spots remaining</div>
+      </div>
+      <a href="/#book" class="btn-primary sp-cta">Claim My Spot →</a>
+    </div>
+  </div>
+</section>
 
 <!-- PROBLEM -->
 <section>
