@@ -235,7 +235,7 @@
     },
     error: {
       messages: [
-        "Hmm, something went wrong sending your message. Please email **hello@signalarc.io** directly or use the contact form at the bottom of the page."
+        "Hmm, something went wrong sending your message. Please email **joshua@signalarc.io** directly or use the contact form at the bottom of the page."
       ],
       replies: [ { text: "← Main menu", next: "start" } ]
     }
