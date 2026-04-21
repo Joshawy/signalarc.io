@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free AI Prompt Library — 20 Prompts for Small Businesses | SignalARC</title>
+<meta name="description" content="20 free AI prompts organized by industry and outcome. For realtors, agencies, coaches, home services, professional services, and e-commerce. Copy-paste ready, no signup required.">
+<meta property="og:title" content="Free AI Prompt Library for Small Businesses | SignalARC">
+<meta property="og:description" content="20 copy-paste AI prompts to reclaim hours. Filter by industry or by outcome. Free, no signup.">
+<meta property="og:url" content="https://signalarc.io/prompt-library.html">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://signalarc.io/prompt-library.html">
+<link rel="icon" type="image/svg+xml" href="signal-arc-logo.svg">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "SignalARC AI Prompt Library",
+  "description": "20 AI prompts organized by industry and outcome for small business owners.",
+  "url": "https://signalarc.io/prompt-library.html",
+  "publisher": { "@type": "Organization", "name": "SignalARC", "url": "https://signalarc.io" }
+}
+</script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #071012;
+    --bg2: #0d1c20;
+    --bg3: #112228;
+    --teal: #00d4a8;
+    --teal-dim: rgba(0,212,168,0.12);
+    --teal-border: rgba(0,212,168,0.25);
+    --white: #f0f8f6;
+    --muted: #7a9e98;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--white); font-family: var(--font-body);
+    font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(7,16,18,0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,212,168,0.1);
+  }
+  nav .logo img { height: 36px; width: auto; display: block; }
+  nav .nav-right { display: flex; gap: 28px; align-items: center; }
+  nav .nav-right a.nav-link { color: var(--muted); font-size: 14px; font-weight: 600; text-decoration: none; transition: color 0.2s; }
+  nav .nav-right a.nav-link:hover { color: var(--white); }
+  nav .nav-right a.nav-link.current { color: var(--teal); }
+  nav a.cta-nav {
+    background: var(--teal); color: #071012; font-weight: 700; font-size: 14px;
+    padding: 10px 22px; border-radius: 6px; text-decoration: none; transition: opacity 0.2s;
+  }
+  nav a.cta-nav:hover { opacity: 0.85; }
+
+  /* HERO */
+  .hero {
+    padding: 140px 48px 60px;
+    max-width: 1200px; margin: 0 auto;
+    position: relative;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: 40px; right: -100px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(0,212,168,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--teal-dim); border: 1px solid var(--teal-border);
+    color: var(--teal); font-size: 13px; font-weight: 600; letter-spacing: 0.05em;
+    padding: 6px 14px; border-radius: 100px; margin-bottom: 24px;
+  }
+  .hero-badge::before { content: '●'; font-size: 8px; }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-size: clamp(44px, 6vw, 68px);
+    font-weight: 900; line-height: 1; letter-spacing: -1px;
+    margin-bottom: 20px; max-width: 820px;
+  }
+  .hero h1 em { color: var(--teal); font-style: normal; }
+  .hero p.lede {
+    font-size: 18px; color: var(--muted); max-width: 640px;
+    line-height: 1.6;
+  }
+  .hero-stats {
+    margin-top: 32px;
+    display: flex; gap: 32px; flex-wrap: wrap;
+    font-size: 14px; color: var(--muted);
+  }
+  .hero-stats strong { color: var(--white); font-weight: 700; }
+
+  /* FILTER BAR */
+  .filter-bar {
+    max-width: 1200px; margin: 0 auto;
+    padding: 20px 48px 30px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .filter-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .filter-row .filter-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+    color: var(--teal); text-transform: uppercase;
+    margin-right: 8px; min-width: 70px;
+  }
+  .chip {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: var(--muted);
+    font-family: var(--font-body); font-size: 13px; font-weight: 600;
+    padding: 7px 14px; border-radius: 100px;
+    cursor: pointer; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .chip:hover { border-color: var(--teal-border); color: var(--white); }
+  .chip.active { background: var(--teal); border-color: var(--teal); color: #071012; }
+
+  /* GRID */
+  .grid-wrap { max-width: 1200px; margin: 0 auto; padding: 10px 48px 80px; }
+  .grid-meta {
+    font-size: 13px; color: var(--muted);
+    margin-bottom: 20px;
+  }
+  .grid-meta strong { color: var(--white); font-weight: 700; }
+  .prompt-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 16px;
+  }
+  .prompt-card {
+    background: var(--bg2);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 24px 22px;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s, background 0.2s;
+    display: flex; flex-direction: column;
+    min-height: 200px;
+  }
+  .prompt-card:hover {
+    border-color: var(--teal-border);
+    background: var(--bg3);
+    transform: translateY(-2px);
+  }
+  .pc-tags { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+  .pc-tag {
+    font-size: 10px; font-weight: 800; letter-spacing: 0.08em;
+    padding: 3px 9px; border-radius: 100px;
+    text-transform: uppercase;
+  }
+  .pc-tag.outcome {
+    color: var(--teal);
+    background: var(--teal-dim);
+  }
+  .pc-tag.industry {
+    color: var(--muted);
+    background: rgba(255,255,255,0.05);
+  }
+  .pc-title {
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 800;
+    line-height: 1.15; margin-bottom: 10px;
+    letter-spacing: -0.2px;
+  }
+  .pc-desc {
+    font-size: 14px; color: var(--muted);
+    line-height: 1.55; flex: 1;
+    margin-bottom: 14px;
+  }
+  .pc-foot {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.06);
+  }
+  .pc-hours {
+    font-size: 12px; font-weight: 700; color: var(--teal);
+    text-transform: uppercase; letter-spacing: 0.05em;
+  }
+  .pc-view {
+    font-size: 12px; font-weight: 700; color: var(--muted);
+    transition: color 0.2s;
+  }
+  .prompt-card:hover .pc-view { color: var(--teal); }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    z-index: 200;
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 40px 20px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .modal-overlay.open { display: flex; opacity: 1; }
+  .modal {
+    background: var(--bg2);
+    border: 1px solid var(--teal-border);
+    border-radius: 16px;
+    max-width: 740px; width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 36px 40px 28px;
+    position: relative;
+  }
+  .modal-close {
+    position: absolute; top: 16px; right: 20px;
+    background: transparent; border: none; color: var(--muted);
+    font-size: 28px; cursor: pointer; line-height: 1;
+    transition: color 0.2s; font-family: inherit;
+  }
+  .modal-close:hover { color: var(--white); }
+  .modal-tags { display: flex; gap: 6px; margin-bottom: 16px; flex-wrap: wrap; }
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: clamp(30px, 4vw, 40px); font-weight: 900;
+    line-height: 1.05; letter-spacing: -0.5px;
+    margin-bottom: 10px;
+    padding-right: 40px;
+  }
+  .modal-desc {
+    font-size: 15px; color: var(--muted);
+    margin-bottom: 22px;
+    line-height: 1.6;
+  }
+  .modal-hours {
+    font-size: 12px; font-weight: 700; color: var(--teal);
+    text-transform: uppercase; letter-spacing: 0.05em;
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .modal-prompt-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+    color: var(--muted); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .modal-prompt {
+    background: var(--bg);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 22px;
+    font-family: var(--font-body);
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: var(--white);
+    white-space: pre-wrap;
+    margin-bottom: 16px;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+  .modal-actions {
+    display: flex; gap: 12px; flex-wrap: wrap;
+    padding-top: 6px;
+  }
+  .copy-btn {
+    background: var(--teal); color: #071012; border: none;
+    font-family: var(--font-body); font-weight: 700; font-size: 14px;
+    padding: 12px 22px; border-radius: 8px; cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .copy-btn:hover { opacity: 0.88; }
+  .copy-btn.copied { background: rgba(0,212,168,0.25); color: var(--teal); }
+  .assess-link {
+    background: transparent; border: 1px solid var(--teal-border);
+    color: var(--white); font-weight: 600; font-size: 14px;
+    padding: 12px 22px; border-radius: 8px;
+    text-decoration: none; transition: background 0.2s;
+    display: inline-flex; align-items: center;
+  }
+  .assess-link:hover { background: var(--teal-dim); }
+
+  /* BOTTOM CTA */
+  .bottom-cta {
+    text-align: center;
+    padding: 90px 48px;
+    background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
+    border-top: 1px solid var(--teal-border);
+    border-bottom: 1px solid var(--teal-border);
+    position: relative; overflow: hidden;
+  }
+  .bottom-cta::before {
+    content: ''; position: absolute; top: -300px; left: 50%; transform: translateX(-50%);
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,212,168,0.07) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .bottom-cta h2 {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 4.5vw, 52px);
+    font-weight: 900; line-height: 1.05;
+    margin-bottom: 14px;
+    position: relative; z-index: 1;
+  }
+  .bottom-cta h2 em { color: var(--teal); font-style: normal; }
+  .bottom-cta p { font-size: 17px; color: var(--muted); max-width: 560px; margin: 0 auto 32px; position: relative; z-index: 1; }
+  .bottom-cta a.btn-primary {
+    background: var(--teal); color: #071012; font-weight: 700; font-size: 16px;
+    padding: 16px 32px; border-radius: 8px; text-decoration: none;
+    transition: opacity 0.2s, transform 0.15s;
+    display: inline-block;
+    position: relative; z-index: 1;
+  }
+  .bottom-cta a.btn-primary:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  /* FOOTER */
+  footer {
+    padding: 40px 48px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  footer .logo img { height: 28px; width: auto; }
+  footer .foot-links { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; }
+  footer .foot-links a { color: var(--muted); font-size: 13px; text-decoration: none; transition: color 0.2s; }
+  footer .foot-links a:hover { color: var(--teal); }
+  footer p { font-size: 13px; color: var(--muted); }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+  }
+  .empty-state h3 {
+    font-family: var(--font-display);
+    font-size: 24px; color: var(--white); margin-bottom: 8px;
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 16px 20px; }
+    .nav-right { gap: 16px; }
+    .nav-right a.nav-link { display: none; }
+    .hero { padding: 120px 24px 40px; }
+    .filter-bar { padding: 10px 24px 20px; }
+    .grid-wrap { padding: 10px 24px 60px; }
+    .bottom-cta { padding: 60px 24px; }
+    .modal { padding: 28px 22px 22px; max-height: 90vh; }
+    footer { flex-direction: column; gap: 12px; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="logo"><img src="signal-arc-logo.svg" alt="SignalARC"></a>
+  <div class="nav-right">
+    <a href="/#how" class="nav-link">How it works</a>
+    <a href="/prompt-library.html" class="nav-link current">Prompt Library</a>
+    <a href="/quiz.html" class="nav-link">Free Quiz</a>
+    <a href="/#book" class="cta-nav">Book Assessment →</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">Free · No signup required</div>
+  <h1>AI Prompt <em>Library.</em></h1>
+  <p class="lede">Twenty copy-paste prompts built for real small-business workflows. Filter by your industry or by outcome — Audit, Optimize, or Automate. Every prompt is field-tested, not generic ChatGPT filler.</p>
+  <div class="hero-stats">
+    <span><strong>20</strong> prompts</span>
+    <span><strong>6</strong> industries covered</span>
+    <span><strong>0</strong> signup barriers</span>
+  </div>
+</section>
+
+<!-- FILTERS -->
+<div class="filter-bar">
+  <div class="filter-row" id="outcome-filters">
+    <span class="filter-label">Outcome</span>
+    <button class="chip active" data-filter="outcome" data-value="all">All</button>
+    <button class="chip" data-filter="outcome" data-value="Audit">Audit</button>
+    <button class="chip" data-filter="outcome" data-value="Optimize">Optimize</button>
+    <button class="chip" data-filter="outcome" data-value="Automate">Automate</button>
+  </div>
+  <div class="filter-row" id="industry-filters">
+    <span class="filter-label">Industry</span>
+    <button class="chip active" data-filter="industry" data-value="all">All</button>
+    <button class="chip" data-filter="industry" data-value="Realtor">Realtor</button>
+    <button class="chip" data-filter="industry" data-value="Agency">Agency</button>
+    <button class="chip" data-filter="industry" data-value="Coaching">Coaching</button>
+    <button class="chip" data-filter="industry" data-value="Home Services">Home Services</button>
+    <button class="chip" data-filter="industry" data-value="Pro Services">Pro Services</button>
+    <button class="chip" data-filter="industry" data-value="E-commerce">E-commerce</button>
+    <button class="chip" data-filter="industry" data-value="All Industries">All Industries</button>
+  </div>
+</div>
+
+<!-- GRID -->
+<div class="grid-wrap">
+  <div class="grid-meta" id="grid-meta">Showing <strong id="count">20</strong> prompts</div>
+  <div class="prompt-grid" id="prompt-grid"></div>
+  <div class="empty-state" id="empty-state" style="display:none;">
+    <h3>No prompts match those filters.</h3>
+    <p>Try clearing a filter or picking a different industry.</p>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()" aria-label="Close">×</button>
+    <div class="modal-tags" id="m-tags"></div>
+    <h2 class="modal-title" id="m-title"></h2>
+    <p class="modal-desc" id="m-desc"></p>
+    <div class="modal-hours" id="m-hours"></div>
+    <div class="modal-prompt-label">The prompt</div>
+    <div class="modal-prompt" id="m-prompt"></div>
+    <div class="modal-actions">
+      <button class="copy-btn" id="copy-btn" onclick="copyPrompt()">Copy prompt</button>
+      <a href="/#book" class="assess-link">Want 10× more? Book the $999 Audit →</a>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM CTA -->
+<section class="bottom-cta">
+  <h2>Good prompts save hours. <em>Great systems save days.</em></h2>
+  <p>Books every tool + workflow into a custom roadmap in under 48 hours. One-off prompts only go so far.</p>
+  <a href="/#book" class="btn-primary">Book Your $999 Assessment →</a>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="/" class="logo"><img src="signal-arc-logo.svg" alt="SignalARC"></a>
+  <div class="foot-links">
+    <a href="/content-syndication.html">B2B Lead Generation</a>
+    <a href="/prompt-library.html">Prompt Library</a>
+    <a href="/quiz.html">Free Quiz</a>
+    <a href="/account.html">Client Portal</a>
+    <a href="mailto:joshua@signalarc.io">Contact</a>
+  </div>
+  <p>© 2026 SignalARC.</p>
+</footer>
+
+<script>
+/* ======================= PROMPT DATA ======================= */
+const PROMPTS = [
+  {
+    id: 1,
+    title: "CMA Narrative Writer",
+    desc: "Turn raw comp data into a client-ready comparative market analysis with a pricing recommendation in minutes.",
+    outcome: "Optimize",
+    industry: "Realtor",
+    hours: "Saves 2+ hours per listing",
+    prompt: `You are a seasoned real estate agent writing a client-ready comparative market analysis (CMA). Take the raw comp data I paste and produce a professional CMA summary a listing client would receive.
+
+INPUT FORMAT: I'll paste 5-8 comps with: address, sale/list price, sqft, beds/baths, days on market, condition notes, sale date.
+
+OUTPUT:
+1. **Executive summary** (2-3 sentences): your recommended list price range based on these comps
+2. **Market context** (1 paragraph): what the comp sales tell us about demand, pricing trends, and seasonality
+3. **Comp analysis table** with columns: address, sale price, $/sqft, DOM, adjustment notes
+4. **Pricing recommendation** (1 paragraph): the exact list price recommendation with reasoning, and an "if market shifts" contingency
+5. **Position statement** (1 sentence): the elevator pitch for why this price wins
+
+TONE: confident, client-friendly, no real-estate jargon unless it adds value. Never invent data not in the comps.
+
+PASTE COMPS BELOW:`
+  },
+  {
+    id: 2,
+    title: "Post-Showing Buyer Follow-Up",
+    desc: "Warm, non-pushy follow-up email 24 hours after a showing. Recalls specific details, proposes a concrete next step.",
+    outcome: "Automate",
+    industry: "Realtor",
+    hours: "Saves 1-2 hours per week",
+    prompt: `You are a real estate agent writing a warm, non-pushy follow-up to a buyer 24 hours after a property showing. Write the follow-up email.
+
+INPUT: I'll paste (1) the property address + key features, (2) the buyer's name + anything they said they liked or disliked during the showing, (3) whether there are upcoming open houses for similar properties.
+
+OUTPUT: A 120-word email with:
+- Subject line that references the specific property
+- Warm opening that recalls one specific thing they mentioned
+- 2-3 sentence objective recap with a subtle framing (e.g., motivated seller, features they noted)
+- One clear next step: book a second showing, see a comparable, or call to discuss
+- Friendly sign-off
+
+Write in first person. Don't use "just checking in" or any cliché opening. Sound like a human who remembered them.
+
+PASTE DETAILS BELOW:`
+  },
+  {
+    id: 3,
+    title: "MLS Listing → Week of Social Captions",
+    desc: "Turn one listing into 5 social captions, each with a distinct angle, hashtags, and call-to-action.",
+    outcome: "Automate",
+    industry: "Realtor",
+    hours: "Saves 30 min per listing",
+    prompt: `You are a real estate marketer turning an MLS listing into a week of social captions.
+
+INPUT: I'll paste the MLS listing details (address, price, beds/baths, sqft, key features).
+
+OUTPUT: 5 different social media captions, each 50-120 words, each with a distinct angle:
+1. Lifestyle angle ("imagine your Saturday morning here…")
+2. Neighborhood angle (what's within a 10-min walk)
+3. "Why this price makes sense" angle (builds urgency)
+4. First-time buyer angle (for starter homes)
+5. Investor angle (for income properties or rehab opportunities)
+
+Each caption includes: 3-5 relevant hashtags, a CTA ("DM me for a private showing"), and one property-specific detail that isn't in the MLS marketing fluff.
+
+No emoji spam. Max 2 emojis per caption.
+
+PASTE MLS LISTING BELOW:`
+  },
+  {
+    id: 4,
+    title: "Monthly Client Performance Report",
+    desc: "Transform raw metrics into a client-ready performance narrative with wins, concerns, and next steps.",
+    outcome: "Optimize",
+    industry: "Agency",
+    hours: "Saves 2+ hours per client",
+    prompt: `You are an agency account manager writing a monthly performance report for a marketing client. Turn raw metrics into a client-ready narrative.
+
+INPUT: I'll paste (1) the client's business context + main KPIs, (2) this month's raw numbers, (3) last month's numbers for comparison, (4) any notable events (launches, campaigns, issues).
+
+OUTPUT:
+- **Headline** (1 sentence): the most important takeaway
+- **Wins** (3 bullets): metrics that improved meaningfully
+- **Watch list** (1-3 bullets): metrics that slipped or are concerning
+- **Why** (1 paragraph): what drove the results — attribution beyond "the algorithm changed"
+- **Next month's focus** (3 action items): specific, measurable moves we're making
+
+TONE: direct, calm, honest about what didn't work. No "synergy" or "leveraged" anywhere.
+
+PASTE DATA BELOW:`
+  },
+  {
+    id: 5,
+    title: "Discovery Call → Proposal",
+    desc: "Turn a messy discovery-call transcript into a tight, senior-level proposal draft in under 10 minutes.",
+    outcome: "Optimize",
+    industry: "Agency",
+    hours: "Saves 3+ hours per proposal",
+    prompt: `You are an agency principal turning a discovery-call transcript into a compelling proposal.
+
+INPUT: I'll paste the discovery call transcript (can be messy; Fathom/Otter output is fine).
+
+OUTPUT:
+- **Executive summary** (2 sentences): what the client needs and how we deliver it
+- **Understanding of the problem** (1 paragraph): mirror back their situation in their language
+- **Proposed approach** (3-5 bullets): the method, specific enough to feel real but flexible
+- **Scope and deliverables** (a table)
+- **Investment** (leave as "$TBD" with a note on pricing approach below)
+- **Why us** (2-3 bullets, specific to their situation)
+- **Next steps** (3 sentences max)
+
+Don't invent commitments the client didn't confirm. Tone: confident, senior, not salesy.
+
+PASTE TRANSCRIPT BELOW:`
+  },
+  {
+    id: 6,
+    title: "Capabilities Deck Outline",
+    desc: "Generate a 10-slide capabilities deck outline tailored to a specific pitch context and audience.",
+    outcome: "Audit",
+    industry: "Agency",
+    hours: "Saves 1-2 hours per pitch",
+    prompt: `You are a new-business consultant building a 10-slide capabilities deck outline for my agency.
+
+INPUT: I'll paste my positioning, 3 sample case studies, 3 target client archetypes, and the pitch context (RFP, warm intro, referral, etc.).
+
+OUTPUT: A 10-slide outline with:
+1. Cover
+2. The problem (framed for the audience)
+3. The insight (why our approach is different)
+4. Method (our process in 3-5 phases)
+5-7. Case studies (one per slide)
+8. Team / capabilities
+9. Investment model (retainer vs. project, ranges)
+10. Next steps
+
+For each slide: the headline, 2-3 bullets of body content, and a note on what visual belongs there.
+
+TONE: senior, differentiated, no generic "we're full-service" claims.
+
+PASTE CONTEXT BELOW:`
+  },
+  {
+    id: 7,
+    title: "Podcast Episode → Week of Content",
+    desc: "Turn one episode into 7+ content pieces across LinkedIn, Twitter, Instagram, newsletter, and shorts.",
+    outcome: "Automate",
+    industry: "Coaching",
+    hours: "Saves 5+ hours per episode",
+    prompt: `You are a content strategist turning a podcast episode into a week of multi-channel content.
+
+INPUT: I'll paste the full episode transcript.
+
+OUTPUT: From this one episode, generate:
+1. One LinkedIn article (600-800 words) — main argument, 3 subheads
+2. 3 LinkedIn text posts (200 words each) — each from a different insight
+3. 1 Twitter/X thread (7-10 posts) — hook, insights, CTA to listen
+4. 1 Instagram carousel (8 slides, ~25 words each) — tactical takeaway version
+5. 2 short-form video hooks (for Reels/Shorts)
+6. 1 email newsletter draft (300-400 words) — subject line + body
+7. Top 5 pull-quotes formatted for a graphics template
+
+Keep my voice. If my voice is direct and uses specific examples, don't sanitize it. Don't add buzzwords I would never say.
+
+PASTE TRANSCRIPT BELOW:`
+  },
+  {
+    id: 8,
+    title: "5-Email Nurture Sequence",
+    desc: "Generate a 5-email sequence with belief shift, story, case study, objection-buster, and close — all on-brand.",
+    outcome: "Optimize",
+    industry: "Coaching",
+    hours: "Saves 2+ hours per launch",
+    prompt: `You are an email marketer writing a 5-email nurture sequence for a new offer.
+
+INPUT: I'll paste (1) the offer details + ideal client, (2) my tone-of-voice samples, (3) the top 3 objections I hear.
+
+OUTPUT: 5 emails, each 200-300 words, sent over 7 days (day 0, 1, 3, 5, 7). Each email has a subject line, personal opener, one insight that moves their thinking forward, a single specific CTA, and a sign-off.
+
+STRUCTURE:
+- Email 1: belief shift — challenge the default thinking about their problem
+- Email 2: my story — how I ran into this problem and what worked
+- Email 3: case study — client result, specific numbers
+- Email 4: objection buster — address the #1 objection head-on
+- Email 5: close — direct offer, deadline, what happens if they don't act
+
+Tone match my samples. No "I wanted to reach out" openers, ever.
+
+PASTE INPUTS BELOW:`
+  },
+  {
+    id: 9,
+    title: "Voice Memo → Newsletter",
+    desc: "Clean a messy voice-memo brainstorm into a publishable newsletter — without losing your voice.",
+    outcome: "Automate",
+    industry: "Coaching",
+    hours: "Saves 1-2 hours per issue",
+    prompt: `You are an editor turning a messy voice-memo brainstorm into a publishable newsletter.
+
+INPUT: I'll paste a transcribed voice memo (200-1000 words, rough, with tangents).
+
+OUTPUT: A 400-600 word newsletter with:
+- Subject line: specific, curiosity-inducing, not clickbait
+- Opening hook: 1-2 sentences that earn the next line
+- The body: my argument, cleaned up, with my specific examples preserved
+- One practical takeaway the reader can use today
+- Sign-off + PS (PS should reference something I do — not a generic plug)
+
+RULES: preserve my specific word choices, examples, and point of view. Cut all "um", tangents, repetitions. Don't add buzzwords I didn't use. Don't turn my directness into corporate-speak.
+
+PASTE VOICE MEMO BELOW:`
+  },
+  {
+    id: 10,
+    title: "Quote Writer from Rough Notes",
+    desc: "Turn scrappy site-visit notes into a professional, branded quote with scope, exclusions, and warranty language.",
+    outcome: "Automate",
+    industry: "Home Services",
+    hours: "Saves 1-2 hours per quote",
+    prompt: `You are a service-business estimator turning field notes into a professional, branded quote.
+
+INPUT: I'll paste (1) the customer's name + property details, (2) my rough notes from the site visit, (3) my price-per-item list.
+
+OUTPUT: A client-ready quote with:
+- Header: customer info, quote date, valid-until date (30 days)
+- Scope of work (bullets): clearly what IS included
+- Not included (bullets): clearly what ISN'T (prevents disputes)
+- Itemized pricing (table): line items with quantities + prices
+- Total + payment terms: deposit required, balance due on completion
+- Warranty/guarantee statement (1 sentence)
+- Next steps: how to accept and what happens next
+
+TONE: professional, confident, not hedgy. Explain any unusual line items in plain English.
+
+PASTE NOTES BELOW:`
+  },
+  {
+    id: 11,
+    title: "Google Review Response Batch",
+    desc: "Tailored, non-defensive responses to a whole batch of reviews — positive and negative — in one pass.",
+    outcome: "Automate",
+    industry: "Home Services",
+    hours: "Saves 30 min per week",
+    prompt: `You are a service-business owner responding to Google reviews — a batch of reviews, both positive and negative.
+
+INPUT: I'll paste each review with: star rating, reviewer name, review text.
+
+OUTPUT: For each review, a tailored response (60-100 words each):
+- 5-star reviews: warm thanks, reference something specific they mentioned, light invitation to refer or rebook
+- 4-star reviews: thanks + acknowledge what they noted + invitation to reach out so we can make it right
+- 3-star and below: non-defensive, own what's ownable, offer to make it right offline (don't resolve in public), include phone/email
+
+Every response signed off with my first name. No "we apologize for any inconvenience" — be specific.
+
+PASTE REVIEWS BELOW:`
+  },
+  {
+    id: 12,
+    title: "Seasonal Customer Re-Engagement",
+    desc: "Re-engagement email to past customers tied to a specific season — with offer, trust, and single-action CTA.",
+    outcome: "Optimize",
+    industry: "Home Services",
+    hours: "Saves 2+ hours per campaign",
+    prompt: `You are a marketing copywriter for a local service business. Write a seasonal re-engagement email to past customers.
+
+INPUT: I'll paste (1) my business + services, (2) the target season + relevant services (winter furnace tune-up, summer AC check, fall gutter clean, etc.), (3) any promotional offer.
+
+OUTPUT: A 180-250 word email with:
+- Subject line: curiosity + urgency, no exclamation points
+- Opening: reference they've worked with us before (specific if I give specifics)
+- The value: why now — one tangible reason tied to the season
+- The offer: clear $ or % discount, deadline
+- Trust element: years in business, # of reviews, or our guarantee
+- CTA: single button, specific verb ("Book my tune-up")
+- PS: mild urgency — slots fill up
+
+No spammy CAPS. No clip-art exclamation points.
+
+PASTE INPUTS BELOW:`
+  },
+  {
+    id: 13,
+    title: "Client Onboarding Email Series",
+    desc: "4-email onboarding sequence for a new client — welcome, doc requests, progress check, first milestone complete.",
+    outcome: "Automate",
+    industry: "Pro Services",
+    hours: "Saves 2+ hours per client",
+    prompt: `You are a professional-services firm (legal/accounting/financial/bookkeeping) writing a 4-email client onboarding series.
+
+INPUT: I'll paste (1) my firm's context + services, (2) what the client just signed up for, (3) any docs/info they need to provide.
+
+OUTPUT: 4 onboarding emails over 2 weeks:
+- Email 1 (Day 0): Welcome. What happens next. Who's on their team. Portal link.
+- Email 2 (Day 2): Document request checklist. Clear list of what we need + by when + what happens if we don't get it on time.
+- Email 3 (Day 7): Progress update. What we've done, what we're doing next, outstanding items from them.
+- Email 4 (Day 14): First milestone complete. What to expect next and when.
+
+Each email: 150-250 words, clear subject line, warm-professional tone, single CTA per email. No "we are pleased to inform you" corporate openers.
+
+PASTE INPUTS BELOW:`
+  },
+  {
+    id: 14,
+    title: "Meeting → Client Action Items",
+    desc: "Turn a messy client meeting transcript into decisions, action items, owners, deadlines, and parked items.",
+    outcome: "Optimize",
+    industry: "Pro Services",
+    hours: "Saves 1-2 hours per meeting",
+    prompt: `You are a professional-services advisor turning a messy client meeting transcript into a clean recap and action list.
+
+INPUT: I'll paste the meeting transcript.
+
+OUTPUT:
+- **TL;DR** (2-3 sentences): what we decided
+- **Decisions made** (bullets): final calls with context
+- **Client action items** (numbered, with owner + deadline): what they need to do, by when
+- **Our action items** (numbered, with owner + deadline): what we're doing, by when
+- **Parked items** (bullets): things raised but deferred
+- **Next meeting**: when, agenda preview
+
+TONE: neutral, specific. Don't smooth over disagreements — note them. If deadlines weren't agreed, flag them with "[needs confirmation]".
+
+PASTE TRANSCRIPT BELOW:`
+  },
+  {
+    id: 15,
+    title: "Complex Document → Plain English",
+    desc: "Translate a tax notice, legal letter, contract, or financial statement into clear steps your client can act on.",
+    outcome: "Optimize",
+    industry: "Pro Services",
+    hours: "Saves 30 min per document",
+    prompt: `You are a plain-English translator helping a professional-services client understand a complex document they received (tax notice, legal letter, contract, financial statement, etc.).
+
+INPUT: I'll paste the document.
+
+OUTPUT:
+- **What this is** (1 sentence): in normal-person English
+- **What it's saying** (3-5 bullets): the key substantive points
+- **What it's asking/doing** (1-2 sentences): the ask or effect
+- **What you need to do** (numbered steps): specific actions + deadlines
+- **What happens if you do nothing** (1-2 sentences): consequences
+- **What it doesn't mean** (1-3 bullets): common misreadings to avoid
+
+TONE: calm, direct, zero jargon. If a term is truly unavoidable, define it in parens the first time.
+
+PASTE DOCUMENT BELOW:`
+  },
+  {
+    id: 16,
+    title: "Product Description Variations",
+    desc: "Generate 10 product-description variations across benefit, feature, story, comparison, and urgency angles.",
+    outcome: "Automate",
+    industry: "E-commerce",
+    hours: "Saves 2+ hours per SKU",
+    prompt: `You are an e-commerce copywriter generating product description variations.
+
+INPUT: I'll paste (1) product name + category, (2) technical specs, (3) target buyer, (4) brand voice sample, (5) 3 buyer objections we commonly hear.
+
+OUTPUT: 10 product description variations, each 80-120 words. Across the 10, hit these angles:
+- 3x benefit-led (what the buyer gains in their life)
+- 2x feature-led (technical differentiators, for spec-shoppers)
+- 2x story-led (origin, craft, inspiration)
+- 2x comparison-led (vs. the category default)
+- 1x scarcity/urgency-led (limited, handmade, seasonal)
+
+Each includes: headline, 3-4 sentence body, 3-5 bullet features, implied CTA. Match the brand voice exactly — playful if playful, clinical if clinical.
+
+PASTE INPUTS BELOW:`
+  },
+  {
+    id: 17,
+    title: "Abandoned Cart Email Sequence",
+    desc: "3-email abandoned-cart sequence over 72 hours — check-in, social proof, last-chance with discount.",
+    outcome: "Optimize",
+    industry: "E-commerce",
+    hours: "Saves 2+ hours per setup",
+    prompt: `You are an email marketer writing a 3-email abandoned cart sequence.
+
+INPUT: (1) brand name + voice samples, (2) the product + price + key selling points, (3) common reasons for cart abandonment in this category.
+
+OUTPUT: 3 emails sent over 72 hours:
+- Email 1 (1 hour after abandonment): "Did something break?" — friendly check-in, screenshot of their cart, 1-click resume
+- Email 2 (24 hours later): Social proof + address the most common objection (shipping, sizing, guarantee)
+- Email 3 (72 hours later): Last-chance + 10% discount code, deadline in 24 hours
+
+Each email: subject line (no ALL CAPS, no siren emoji), ~150-200 words, one CTA, one image callout. Voice matches the brand samples.
+
+PASTE INPUTS BELOW:`
+  },
+  {
+    id: 18,
+    title: "Ad Copy Across 3 Angles",
+    desc: "3 ad variations each for Meta, Google, and TikTok — problem/solution, social proof, and before/after angles.",
+    outcome: "Optimize",
+    industry: "E-commerce",
+    hours: "Saves 1-2 hours per product",
+    prompt: `You are a performance marketer generating ad copy variations for the same product across 3 different messaging angles.
+
+INPUT: The product, target audience, one existing ad, and its performance (CTR, CVR, any insights).
+
+OUTPUT: For Meta, Google, and TikTok — produce 3 ad variations EACH — one per angle:
+- Problem/solution angle: the pain we solve
+- Social proof angle: what customers say
+- Before/after angle: the transformation
+
+Each ad = headline (under 40 chars), primary text (90-125 words), CTA. Note platform-specific tweaks (TikTok native/casual; Google precise; Meta between).
+
+At the end, 3 testing hypotheses: which angle should win for this audience and why.
+
+PASTE INPUTS BELOW:`
+  },
+  {
+    id: 19,
+    title: "Calendar Audit for Hidden Time Leaks",
+    desc: "Paste last week's calendar. Get back a breakdown of where the time actually went and the single biggest change to make.",
+    outcome: "Audit",
+    industry: "All Industries",
+    hours: "Saves 30 min, unlocks hours",
+    prompt: `You are a productivity coach auditing my weekly calendar for hidden time leaks.
+
+INPUT: I'll paste (1) last week's calendar — every meeting, time block, and task slot, (2) a 1-sentence "what did I actually accomplish" reflection.
+
+OUTPUT:
+- **Time-class breakdown** (a table): how many hours I spent on: revenue-generating work, team/internal, admin, learning, meetings that should've been emails, context-switching gaps
+- **Top 3 hidden leaks**: specific patterns I didn't see (e.g., "you have 7 meetings over 45 minutes that could all be 30")
+- **The single biggest change I should make** (1 sentence)
+- **A rebuilt calendar template** showing what an ideal week looks like with the same commitments
+
+TONE: direct, honest, not harsh. Don't say "prioritize better" — name specific things.
+
+PASTE CALENDAR BELOW:`
+  },
+  {
+    id: 20,
+    title: "Slack Thread → Decision Memo",
+    desc: "Turn a sprawling Slack thread into a clean decision memo — with owners, deadlines, and dissenting views captured.",
+    outcome: "Optimize",
+    industry: "All Industries",
+    hours: "Saves 30 min per thread",
+    prompt: `You are an executive assistant turning a long Slack thread into a clean decision memo.
+
+INPUT: I'll paste the full Slack thread (50-500 messages).
+
+OUTPUT:
+- **Decision** (1-2 sentences): what was decided
+- **Context** (1 paragraph): why this was under discussion
+- **Options considered** (bullets): what was on the table
+- **The path chosen + why** (1 paragraph): the rationale, citing the participants who made the key points
+- **Who owns what, by when** (a table): name + action + deadline
+- **Dissenting views** (bullets): concerns raised that didn't change the decision — captured so they're on the record
+
+TONE: neutral, professional. Preserve the actual substance — don't smooth over disagreements. If the thread didn't resolve, say so explicitly.
+
+PASTE SLACK THREAD BELOW:`
+  }
+];
+
+/* ======================= STATE ======================= */
+const state = {
+  outcome: 'all',
+  industry: 'all',
+  currentPromptId: null
+};
+
+/* ======================= RENDER ======================= */
+function render() {
+  const filtered = PROMPTS.filter(p => {
+    if (state.outcome !== 'all' && p.outcome !== state.outcome) return false;
+    if (state.industry !== 'all' && p.industry !== state.industry) return false;
+    return true;
+  });
+
+  const grid = document.getElementById('prompt-grid');
+  const empty = document.getElementById('empty-state');
+  const count = document.getElementById('count');
+  count.textContent = filtered.length;
+
+  if (filtered.length === 0) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+
+  empty.style.display = 'none';
+  grid.innerHTML = filtered.map(p => `
+    <div class="prompt-card" onclick="openModal(${p.id})">
+      <div class="pc-tags">
+        <span class="pc-tag outcome">${p.outcome}</span>
+        <span class="pc-tag industry">${p.industry}</span>
+      </div>
+      <div class="pc-title">${p.title}</div>
+      <div class="pc-desc">${p.desc}</div>
+      <div class="pc-foot">
+        <span class="pc-hours">⏱ ${p.hours}</span>
+        <span class="pc-view">View →</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ======================= FILTERS ======================= */
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const filter = chip.dataset.filter;
+    const value = chip.dataset.value;
+    state[filter] = value;
+    document.querySelectorAll(`.chip[data-filter="${filter}"]`).forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    render();
+  });
+});
+
+/* ======================= MODAL ======================= */
+function openModal(id) {
+  const p = PROMPTS.find(x => x.id === id);
+  if (!p) return;
+  state.currentPromptId = id;
+  document.getElementById('m-tags').innerHTML = `
+    <span class="pc-tag outcome">${p.outcome}</span>
+    <span class="pc-tag industry">${p.industry}</span>
+  `;
+  document.getElementById('m-title').textContent = p.title;
+  document.getElementById('m-desc').textContent = p.desc;
+  document.getElementById('m-hours').textContent = '⏱ ' + p.hours;
+  document.getElementById('m-prompt').textContent = p.prompt;
+  document.getElementById('copy-btn').textContent = 'Copy prompt';
+  document.getElementById('copy-btn').classList.remove('copied');
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow = '';
+  state.currentPromptId = null;
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+/* ======================= COPY ======================= */
+async function copyPrompt() {
+  const id = state.currentPromptId;
+  if (!id) return;
+  const p = PROMPTS.find(x => x.id === id);
+  const btn = document.getElementById('copy-btn');
+  try {
+    await navigator.clipboard.writeText(p.prompt);
+    btn.textContent = '✓ Copied — open ChatGPT/Claude and paste';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'Copy prompt';
+      btn.classList.remove('copied');
+    }, 2800);
+  } catch (err) {
+    // Fallback — select the text element
+    const el = document.getElementById('m-prompt');
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+    btn.textContent = 'Press Ctrl/Cmd+C to copy';
+  }
+}
+
+/* ======================= INIT ======================= */
+render();
+</script>
+</body>
+</html>
