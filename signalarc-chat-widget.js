@@ -135,7 +135,6 @@
         { text: "🎯 Is this right for me?", next: "right_for_me" },
         { text: "🧠 Try the free 2-min quiz", action: "open_quiz" },
         { text: "📅 Book the Assessment", next: "book", primary: true },
-        { text: "💬 I need B2B leads instead", next: "syndication" },
         { text: "👋 Talk to a human", next: "human_name" }
       ]
     },
@@ -193,17 +192,6 @@
       replies: [
         { text: "📅 Go to booking form", action: "open_book", primary: true },
         { text: "💬 Quick question first", next: "human_name" },
-        { text: "← Back", next: "start" }
-      ]
-    },
-    syndication: {
-      messages: [
-        "Got it — we still run our B2B content syndication service too.",
-        "👉 [**See the content syndication page**](/content-syndication.html) — verified B2B leads starting at **$25/lead**, across 6 industries (finance, healthcare, manufacturing, logistics, HR, commercial real estate)."
-      ],
-      replies: [
-        { text: "📰 Open B2B Leads page", action: "open_syndication", primary: true },
-        { text: "💬 Talk to someone", next: "human_name" },
         { text: "← Back", next: "start" }
       ]
     },
@@ -392,7 +380,6 @@
   async function handleAction(action) {
     if (action === 'open_book') window.location.href = '/#book';
     else if (action === 'open_quiz') window.location.href = '/quiz.html';
-    else if (action === 'open_syndication') window.location.href = '/content-syndication.html';
     else if (action === 'open_order') window.location.href = '/order.html';
     else if (action === 'open_blog') window.location.href = '/blog/';
     else if (action === 'open_calculator') window.location.href = '/roi-calculator.html';
