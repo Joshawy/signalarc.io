@@ -36,7 +36,10 @@ exports.handler = async (event) => {
       .eq('email', email)
       .single();
 
-    if (type === 'prepay_credits') {
+    if (type === 'ai_assessment') {
+      // AI Assessment — don't touch credit_accounts. Just log the purchase.
+      // Client row already upserted above; transaction logged below.
+    } else if (type === 'prepay_credits') {
       // Add to credit balance
       if (existing) {
         await supabase.from('credit_accounts').update({

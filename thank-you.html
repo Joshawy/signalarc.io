@@ -102,8 +102,7 @@
     }
   </style>
 
-  <!-- Optional: auto-redirect to Calendly after a few seconds -->
-  <meta http-equiv="refresh" content="7;url=https://calendly.com/joshua_signalarc/30min" />
+  <!-- Note: auto-redirect removed so we can customize per type via query string below -->
 </head>
 
 <body>
@@ -114,20 +113,35 @@
     </div>
 
     <div class="card">
-      <h1>Thanks — got it.</h1>
-      <p>
+      <h1 id="ty-title">Thanks — got it.</h1>
+      <p id="ty-message">
         Your request is in. If you want the fastest turnaround, book a quick 30-minute call and we’ll map your goals to the right service.
       </p>
 
       <div class="cta-row">
-        <a class="btn primary" href="https://calendly.com/joshua_signalarc/30min" target="_blank" rel="noopener">
+        <a class="btn primary" id="ty-primary-cta" href="https://calendly.com/joshua_signalarc/30min" target="_blank" rel="noopener">
           Book a 30-min call
         </a>
         <a class="btn" href="mailto:joshua@signalarc.io">
-          Email instead
+          Email Joshua
         </a>
       </div>
 
-      <p class="fine">
-        You’ll be redirected to the calendar automatically in a few seconds. If that doesn’t happen, click the “Book a 30-min call” button.
+      <p class="fine" id="ty-fine">
+        If the calendar doesn’t open, click the button above or email joshua@signalarc.io.
       </p>
+  <script>
+    (function(){
+      var params = new URLSearchParams(window.location.search);
+      var type = params.get('type');
+      if (type === 'assessment') {
+        document.getElementById('ty-title').textContent = 'Payment received. Let\u2019s book your audit.';
+        document.getElementById('ty-message').innerHTML =
+          'Your <strong>$999 AI Assessment</strong> is confirmed \u2014 a Stripe receipt is on the way to your inbox.<br><br>' +
+          '<strong>Next step:</strong> pick a 45-minute slot on Joshua\u2019s calendar. We\u2019ll do the live workflow audit, then you\u2019ll get your custom AI Action Plan within 48 hours.';
+        document.getElementById('ty-primary-cta').textContent = 'Book my 45-min audit';
+        document.getElementById('ty-fine').textContent =
+          'Questions before the call? Email joshua@signalarc.io and we\u2019ll reply within one business day.';
+      }
+    })();
+  </script>

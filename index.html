@@ -657,34 +657,32 @@
 <!-- BOOKING / CTA -->
 <section class="cta-section" id="book">
   <h2>Your Next 45 Minutes Could Save You <em>10 Hours a Week.</em></h2>
-  <p>Request your AI Assessment. We'll reply within one business day with a booking link and next steps.</p>
+  <p>Reserve your AI Assessment now. Secure payment via Stripe — we'll email a booking link within one business day.</p>
   <div class="form-wrap">
     <h3>Book Your AI Assessment</h3>
     <p class="form-sub">$999 · 48-hour turnaround · 100% money-back if we don't find 5+ hours of weekly savings.</p>
-    <form action="https://formspree.io/f/xojneaal" method="POST">
-      <input type="hidden" name="_subject" value="New AI Assessment Request">
-      <input type="hidden" name="form_type" value="AI Assessment Booking">
+    <form id="assessment-form" novalidate>
       <div class="form-row">
         <div class="field">
           <label>Your Name *</label>
-          <input type="text" name="name" placeholder="Jane Smith" required>
+          <input type="text" name="name" id="a-name" placeholder="Jane Smith" required>
         </div>
         <div class="field">
           <label>Company *</label>
-          <input type="text" name="company" placeholder="Acme Consulting" required>
+          <input type="text" name="company" id="a-company" placeholder="Acme Consulting" required>
         </div>
       </div>
       <div class="field">
         <label>Work Email *</label>
-        <input type="email" name="email" placeholder="jane@acme.com" required>
+        <input type="email" name="email" id="a-email" placeholder="jane@acme.com" required>
       </div>
       <div class="field">
         <label>What does your business do? *</label>
-        <input type="text" name="business_type" placeholder="e.g. Realtor, Marketing Agency, Bookkeeping Firm" required>
+        <input type="text" name="business_type" id="a-business-type" placeholder="e.g. Realtor, Marketing Agency, Bookkeeping Firm" required>
       </div>
       <div class="field">
         <label>Team size</label>
-        <select name="team_size">
+        <select name="team_size" id="a-team-size">
           <option value="" disabled selected>Select...</option>
           <option>Just me (solo)</option>
           <option>2–5 people</option>
@@ -695,13 +693,72 @@
       </div>
       <div class="field">
         <label>Where are you losing the most time right now?</label>
-        <textarea name="biggest_pain" placeholder="e.g. Manually writing proposals, chasing leads, data entry, client onboarding..."></textarea>
+        <textarea name="biggest_pain" id="a-biggest-pain" placeholder="e.g. Manually writing proposals, chasing leads, data entry, client onboarding..."></textarea>
       </div>
-      <button type="submit" class="submit-btn">Request My Assessment →</button>
+      <div id="a-error" style="display:none; background:rgba(255,107,107,0.1); border:1px solid rgba(255,107,107,0.3); color:#ff6b6b; font-size:13px; padding:10px 14px; border-radius:8px; margin-bottom:12px;"></div>
+      <button type="submit" class="submit-btn" id="a-submit-btn">Pay $999 &amp; Book →</button>
     </form>
-    <p class="form-note">No spam. We reply with a booking link within one business day.</p>
+    <p class="form-note">🔒 Secure payment via Stripe. Money-back guarantee. No subscription.</p>
   </div>
 </section>
+
+<script>
+  (function(){
+    const form = document.getElementById('assessment-form');
+    const btn = document.getElementById('a-submit-btn');
+    const errEl = document.getElementById('a-error');
+
+    function showError(msg){
+      errEl.textContent = msg;
+      errEl.style.display = 'block';
+    }
+    function clearError(){
+      errEl.textContent = '';
+      errEl.style.display = 'none';
+    }
+
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      clearError();
+
+      const data = {
+        name:         document.getElementById('a-name').value.trim(),
+        company:      document.getElementById('a-company').value.trim(),
+        email:        document.getElementById('a-email').value.trim(),
+        business_type:document.getElementById('a-business-type').value.trim(),
+        team_size:    document.getElementById('a-team-size').value,
+        biggest_pain: document.getElementById('a-biggest-pain').value.trim()
+      };
+
+      if (!data.name || !data.company || !data.email || !data.business_type) {
+        showError('Please fill in all required fields.');
+        return;
+      }
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) {
+        showError('Please enter a valid work email.');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Redirecting to secure checkout…';
+
+      try {
+        const res = await fetch('/.netlify/functions/create-assessment-checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const json = await res.json();
+        if (!res.ok || !json.url) throw new Error(json.error || 'Checkout could not be started.');
+        window.location.href = json.url;
+      } catch (err) {
+        showError(err.message || 'Something went wrong. Please try again or email joshua@signalarc.io.');
+        btn.disabled = false;
+        btn.textContent = 'Pay $999 & Book →';
+      }
+    });
+  })();
+</script>
 
 <!-- FOOTER -->
 <footer>
