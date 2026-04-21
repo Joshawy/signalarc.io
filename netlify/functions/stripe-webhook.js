@@ -8,7 +8,7 @@ const supabase = createClient(
 
 async function sendAssessmentConfirmation(email, name, orderId) {
   const firstName = (name || 'there').split(' ')[0];
-  await fetch('https://api.resend.com/emails', {
+  const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
@@ -33,6 +33,8 @@ async function sendAssessmentConfirmation(email, name, orderId) {
       `
     })
   });
+  const resBody = await res.json();
+  console.log('Resend response:', JSON.stringify(resBody));
 }
 
 exports.handler = async (event) => {
@@ -43,15 +45,39 @@ exports.handler = async (event) => {
   try {
     stripeEvent = stripe.webhooks.constructEvent(event.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
+    console.log('Webhook signature error:', err.message);
     return { statusCode: 400, body: 'Webhook Error: ' + err.message };
   }
 
+  console.log('Event type:', stripeEvent.type);
+
+  // Handle checkout.session.completed (fires for $0 coupon orders too)
+  if (stripeEvent.type === 'checkout.session.completed') {
+    const session = stripeEvent.data.object;
+    const email = session.customer_email || session.metadata?.email;
+    const name = session.metadata?.name;
+    const type = session.metadata?.type || 'standard';
+
+    console.log('Checkout session email:', email, 'type:', type);
+
+    if (!email) return { statusCode: 200, body: 'No email in session' };
+
+    await supabase.from('clients').upsert({ email }, { onConflict: 'email' });
+
+    if (type === 'ai_assessment' || type === 'ai_assessment_founding') {
+      await sendAssessmentConfirmation(email, name, session.id);
+    }
+  }
+
+  // Handle payment_intent.succeeded (fires for real payments > $0)
   if (stripeEvent.type === 'payment_intent.succeeded') {
     const pi = stripeEvent.data.object;
     const email = pi.metadata?.email;
     const amount = pi.amount / 100;
     const type = pi.metadata?.type || 'standard';
     const description = pi.description || 'Lead order';
+
+    console.log('PaymentIntent email:', email, 'type:', type, 'amount:', amount);
 
     if (!email) return { statusCode: 200, body: 'No email in metadata' };
 
