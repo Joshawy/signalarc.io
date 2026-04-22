@@ -964,6 +964,7 @@
     -->
     <form id="assessment-form" novalidate>
       <input type="hidden" id="a-variant" name="variant" value="regular">
+      <input type="hidden" name="source" value="assessment-quiz">
       <div class="form-row">
         <div class="field">
           <label>Your Name *</label>
@@ -1030,7 +1031,8 @@
         business_type:document.getElementById('a-business-type').value.trim(),
         team_size:    document.getElementById('a-team-size').value,
         biggest_pain: document.getElementById('a-biggest-pain').value.trim(),
-        variant:      document.getElementById('a-variant').value
+        variant:      document.getElementById('a-variant').value,
+        source:       'assessment-quiz'
       };
 
       if (!data.name || !data.company || !data.email || !data.business_type) {
@@ -1046,6 +1048,14 @@
       btn.textContent = 'Redirecting to secure checkout…';
 
       try {
+        // Step 1: Submit to Formspree (fire and forget — we don't wait for response)
+        fetch('https://formspree.io/f/xojneaal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        }).catch(err => console.log('Formspree submission logged'));
+
+        // Step 2: Create Stripe checkout session and redirect
         const res = await fetch('/.netlify/functions/create-assessment-checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
