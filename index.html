@@ -30,13 +30,33 @@
       "@type": "Organization",
       "@id": "https://signalarc.io/#organization",
       "name": "SignalARC",
+      "alternateName": ["Signal ARC", "Signal Arc", "SignalArc", "signalarc"],
       "url": "https://signalarc.io",
       "logo": "https://signalarc.io/signal-arc-logo.svg",
-      "description": "AI assessment and implementation agency for small businesses.",
+      "description": "AI assessment and implementation agency for small businesses. SignalARC audits workflows, identifies AI tools, and delivers a custom action plan in 48 hours.",
+      "foundingLocation": { "@type": "Place", "addressCountry": "CA" },
+      "areaServed": ["US", "CA"],
+      "sameAs": ["https://signalarc.io"],
       "contactPoint": {
         "@type": "ContactPoint",
         "email": "josh@signalarc.io",
         "contactType": "customer service"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://signalarc.io/#website",
+      "name": "SignalARC",
+      "alternateName": ["Signal ARC", "Signal Arc"],
+      "url": "https://signalarc.io",
+      "publisher": { "@id": "https://signalarc.io/#organization" },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://signalarc.io/blog/?s={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
       }
     },
     {
