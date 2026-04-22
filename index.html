@@ -1048,14 +1048,21 @@
       btn.textContent = 'Redirecting to secure checkout…';
 
       try {
-        // Step 1: Submit to Formspree (fire and forget — we don't wait for response)
+        // Step 1: Submit to Formspree (fire and forget)
         fetch('https://formspree.io/f/xojneaal', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         }).catch(err => console.log('Formspree submission logged'));
 
-        // Step 2: Create Stripe checkout session and redirect
+        // Step 2: Send quiz email via Cloudflare Worker
+        fetch('/api/send-quiz-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        }).catch(err => console.log('Quiz email submission logged'));
+
+        // Step 3: Create Stripe checkout session and redirect
         const res = await fetch('/.netlify/functions/create-assessment-checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
