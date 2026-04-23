@@ -1095,6 +1095,7 @@
           </div>
         `;
 
+        // Step 2: Send quiz email via Resend directly (fire and forget)
         fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
@@ -1107,11 +1108,10 @@
             subject: 'Your AI Assessment Quiz Results → Ready to Book',
             html: emailHtml
           })
-        }).then(res => res.json()).then(json => {
-          console.log('Resend response:', json);
-        }).catch(err => console.error('Resend error:', err));
+        });
 
-        // Step 3: Create Stripe checkout session and redirect
+        // Small delay to let Resend request go out before redirect
+        setTimeout(() => {
         const res = await fetch('/.netlify/functions/create-assessment-checkout', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1120,6 +1120,7 @@
         const json = await res.json();
         if (!res.ok || !json.url) throw new Error(json.error || 'Checkout could not be started.');
         window.location.href = json.url;
+        }, 100);
       } catch (err) {
         showError(err.message || 'Something went wrong. Please try again or email joshua@signalarc.io.');
         btn.disabled = false;
