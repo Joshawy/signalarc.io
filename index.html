@@ -1095,7 +1095,7 @@
           </div>
         `;
 
-        // Step 2: Send quiz email via Resend directly (fire and forget)
+        // Step 2: Send quiz email via Resend directly
         fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
@@ -1108,19 +1108,17 @@
             subject: 'Your AI Assessment Quiz Results → Ready to Book',
             html: emailHtml
           })
+        }).then(res => {
+          if (res.ok) {
+            btn.disabled = false;
+            btn.textContent = 'Email sent! Check your inbox.';
+            form.reset();
+          }
+        }).catch(err => {
+          console.error('Resend error:', err);
+          btn.disabled = false;
+          btn.textContent = 'Pay $999 & Book →';
         });
-
-        // Small delay to let Resend request go out before redirect
-        setTimeout(() => {
-        const res = await fetch('/.netlify/functions/create-assessment-checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-        const json = await res.json();
-        if (!res.ok || !json.url) throw new Error(json.error || 'Checkout could not be started.');
-        window.location.href = json.url;
-        }, 100);
       } catch (err) {
         showError(err.message || 'Something went wrong. Please try again or email joshua@signalarc.io.');
         btn.disabled = false;
