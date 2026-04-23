@@ -1107,7 +1107,9 @@
             subject: 'Your AI Assessment Quiz Results → Ready to Book',
             html: emailHtml
           })
-        }).catch(err => console.log('Email sent'));
+        }).then(res => res.json()).then(json => {
+          console.log('Resend response:', json);
+        }).catch(err => console.error('Resend error:', err));
 
         // Step 3: Create Stripe checkout session and redirect
         const res = await fetch('/.netlify/functions/create-assessment-checkout', {
