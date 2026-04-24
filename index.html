@@ -34,13 +34,48 @@
       "url": "https://signalarc.io",
       "logo": "https://signalarc.io/signal-arc-logo.png",
       "description": "AI assessment and implementation agency for small businesses. SignalARC audits workflows, identifies AI tools, and delivers a custom action plan in 48 hours.",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Kelowna",
+        "addressRegion": "BC",
+        "postalCode": "V1Y",
+        "addressCountry": "CA"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": "49.8880",
+        "longitude": "-119.4960"
+      },
       "foundingLocation": { "@type": "Place", "addressCountry": "CA" },
-      "areaServed": ["US", "CA"],
+      "areaServed": [
+        {
+          "@type": "City",
+          "name": "Kelowna",
+          "containedInPlace": {
+            "@type": "AdministrativeArea",
+            "name": "British Columbia"
+          }
+        },
+        {
+          "@type": "AdministrativeArea",
+          "name": "Okanagan Valley"
+        },
+        {
+          "@type": "Country",
+          "name": "United States"
+        },
+        {
+          "@type": "Country",
+          "name": "Canada"
+        }
+      ],
       "sameAs": ["https://signalarc.io", "https://www.linkedin.com/company/114994400/"],
       "contactPoint": {
         "@type": "ContactPoint",
         "email": "josh@signalarc.io",
-        "contactType": "customer service"
+        "contactType": "customer service",
+        "areaServed": ["CA", "US"],
+        "availableLanguage": "English"
       }
     },
     {
