@@ -15,7 +15,7 @@ async function sendAssessmentConfirmation(email, name, orderId) {
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-      from: 'Josh at Signal Arc <josh@signalarc.io>',
+      from: 'Josh at Signal Arc <joshua@signalarc.io>',
       to: email,
       subject: "You're booked — here's everything you need",
       html: `

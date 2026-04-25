@@ -345,7 +345,7 @@
 
   <div class="card">
     <h2>Questions?</h2>
-    <p>Email <strong>josh@signalarc.io</strong> anytime. I usually respond within a few hours during business days.</p>
+    <p>Email <strong>joshua@signalarc.io</strong> anytime. I usually respond within a few hours during business days.</p>
     <p style="margin-bottom: 0;">Or reply to your payment confirmation email from Stripe — it goes to the same inbox.</p>
   </div>
 
@@ -355,6 +355,23 @@
 <footer>
   <p>© 2026 SignalARC · Kelowna, BC · AI Consulting for Small Business</p>
 </footer>
+
+<script>
+  // Trigger confirmation email send (idempotent server-side)
+  (function () {
+    var params = new URLSearchParams(window.location.search);
+    var sessionId = params.get('session_id');
+    if (!sessionId || !sessionId.indexOf || sessionId.indexOf('cs_') !== 0) return;
+
+    fetch('/api/send-assessment-confirmation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ session_id: sessionId })
+    }).catch(function (err) {
+      console.warn('Confirmation send error (non-blocking):', err);
+    });
+  })();
+</script>
 
 </body>
 </html>
