@@ -1090,22 +1090,12 @@
           body: JSON.stringify(data)
         }).catch(err => console.log('Formspree submission logged'));
 
-        // Step 2: Create Stripe checkout session
-        const checkoutRes = await fetch('/api/create-assessment-checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data)
-        });
-
-        if (!checkoutRes.ok) {
-          const errData = await checkoutRes.json();
-          throw new Error(errData.error || 'Checkout failed');
-        }
-
-        const { url } = await checkoutRes.json();
+        // Step 2: Redirect directly to Stripe Payment Link
+        const stripeUrl = new URL('https://buy.stripe.com/14A3cv2FE7zn5sSftrdZ600');
+        stripeUrl.searchParams.set('prefilled_email', data.email);
+        stripeUrl.searchParams.set('client_reference_id', data.email);
         
-        // Redirect to Stripe checkout
-        window.location.href = url;
+        window.location.href = stripeUrl.toString();
 
       } catch (err) {
         showError(err.message || 'Something went wrong. Please try again or email joshua@signalarc.io.');
