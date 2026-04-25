@@ -2,8 +2,6 @@
 // Path: /functions/api/create-assessment-checkout.js
 // Endpoint: https://signalarc.io/api/create-assessment-checkout
 
-import Stripe from 'stripe';
-
 // Pricing variants for the AI Assessment
 const VARIANTS = {
   founding: {
@@ -24,7 +22,12 @@ export async function onRequestPost(context) {
   const { request, env } = context;
   
   try {
-    const stripe = new Stripe(env.STRIPE_SECRET_KEY);
+    // Dynamically import Stripe
+    const Stripe = (await import('stripe')).default;
+    const stripe = new Stripe(env.STRIPE_SECRET_KEY, {
+      apiVersion: '2023-10-16',
+    });
+    
     const body = await request.json();
     const { name, email, company, business_type, team_size, biggest_pain, variant } = body;
 
@@ -88,14 +91,20 @@ export async function onRequestPost(context) {
 
     return new Response(JSON.stringify({ url: session.url }), {
       status: 200,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
     });
 
   } catch (err) {
     console.error('create-assessment-checkout error:', err);
     return new Response(JSON.stringify({ error: err.message || 'Could not start checkout. Please try again.' }), {
       status: 500,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      }
     });
   }
 }
