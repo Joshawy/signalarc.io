@@ -1,25 +1,162 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://signalarc.io/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>
-  <url><loc>https://signalarc.io/quiz.html</loc><changefreq>weekly</changefreq><priority>0.95</priority></url>
-  <url><loc>https://signalarc.io/blog/</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/what-is-an-ai-business-assessment.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/find-hidden-time-leaks-business.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/how-much-does-an-ai-audit-cost.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/best-ai-tools-small-business-2026.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/ai-for-real-estate-agents.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/ai-tools-for-small-business-owners.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/how-to-save-time-with-ai.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/ai-automation-for-small-business.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/ai-consulting-for-small-business.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/ai-for-accountants-bookkeepers.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/ai-for-law-firms.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/ai-for-coaches-consultants.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/ai-for-dental-practices.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/ai-for-ecommerce-businesses.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/ai-for-marketing-agencies.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/ai-for-home-service-businesses.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/ai-for-restaurants.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/blog/ai-workflow-audit.html</loc><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://signalarc.io/prompt-library.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  
+  <!-- AI Assessment Pages - Highest Priority -->
+  <url>
+    <loc>https://signalarc.io/</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/quiz.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/kelowna-ai-consulting.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  
+  <!-- Blog Posts - AI Assessment Focus -->
+  <url>
+    <loc>https://signalarc.io/blog/ai-consulting-kelowna-bc.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/blog/best-ai-tools-small-business-2026.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/blog/ai-consulting-for-small-business.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/blog/ai-automation-for-small-business.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/blog/ai-workflow-audit.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/blog/ai-tools-for-small-business-owners.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- Industry-Specific AI Blog Posts -->
+  <url>
+    <loc>https://signalarc.io/blog/ai-for-real-estate-agents.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/blog/ai-for-marketing-agencies.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/blog/ai-for-law-firms.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/blog/ai-for-accountants-bookkeepers.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/blog/ai-for-coaches-consultants.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/blog/ai-for-home-service-businesses.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/blog/ai-for-dental-practices.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/blog/ai-for-restaurants.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/blog/ai-for-ecommerce-businesses.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
+  <!-- Utility Pages -->
+  <url>
+    <loc>https://signalarc.io/prompt-library.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/account.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.3</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/privacy.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://signalarc.io/terms.html</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
 </urlset>

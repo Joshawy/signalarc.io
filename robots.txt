@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
 
+# Block legacy content syndication pages
+Disallow: /content-syndication.html
+Disallow: /what-is-content-syndication.html
+Disallow: /order.html
+
 Sitemap: https://signalarc.io/sitemap.xml
