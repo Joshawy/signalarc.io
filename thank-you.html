@@ -1,172 +1,360 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>You're Booked | Signal Arc</title>
-  <meta name="robots" content="noindex, follow">
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;600;700&family=Barlow+Condensed:wght@700;900&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --bg: #071012;
-      --card: #0d1c20;
-      --text: #f0f8f6;
-      --muted: rgba(240,248,246,.7);
-      --teal: #00d4a8;
-      --teal-dim: rgba(0,212,168,0.12);
-      --teal-border: rgba(0,212,168,0.25);
-      --border: rgba(255,255,255,.08);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Barlow', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 32px 16px;
-    }
-    .wrap { width: 100%; max-width: 620px; }
-    .top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-    .brand {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 900;
-      font-size: 20px;
-      letter-spacing: 0.04em;
-      color: var(--teal);
-    }
-    .back {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--muted);
-      text-decoration: none;
-      border: 1px solid var(--border);
-      padding: 8px 16px;
-      border-radius: 8px;
-      transition: color 0.2s;
-    }
-    .back:hover { color: var(--text); }
-    .card {
-      background: var(--card);
-      border: 1px solid var(--teal-border);
-      border-radius: 16px;
-      padding: 40px;
-      box-shadow: 0 12px 40px rgba(0,0,0,.4);
-    }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--teal-dim);
-      border: 1px solid var(--teal-border);
-      color: var(--teal);
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      padding: 5px 12px;
-      border-radius: 100px;
-      margin-bottom: 20px;
-    }
-    h1 {
-      font-family: 'Barlow Condensed', sans-serif;
-      font-size: 42px;
-      font-weight: 900;
-      line-height: 1;
-      margin-bottom: 16px;
-    }
-    h1 em { color: var(--teal); font-style: normal; }
-    .steps {
-      margin: 28px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .step {
-      display: flex;
-      gap: 16px;
-      align-items: flex-start;
-    }
-    .step-num {
-      width: 32px;
-      height: 32px;
-      min-width: 32px;
-      border-radius: 50%;
-      background: var(--teal-dim);
-      border: 1px solid var(--teal-border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Barlow Condensed', sans-serif;
-      font-weight: 800;
-      font-size: 16px;
-      color: var(--teal);
-    }
-    .step-text { font-size: 15px; line-height: 1.6; color: var(--muted); padding-top: 4px; }
-    .step-text strong { color: var(--text); }
-    .cta-btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%;
-      background: var(--teal);
-      color: #071012;
-      font-family: 'Barlow', sans-serif;
-      font-weight: 700;
-      font-size: 16px;
-      padding: 14px 24px;
-      border-radius: 10px;
-      text-decoration: none;
-      margin-top: 8px;
-      transition: opacity 0.2s;
-    }
-    .cta-btn:hover { opacity: 0.88; }
-    .fine {
-      margin-top: 16px;
-      font-size: 13px;
-      color: var(--muted);
-      text-align: center;
-    }
-    .fine a { color: var(--teal); text-decoration: none; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Thank You - AI Assessment Booked | SignalARC</title>
+<meta name="robots" content="noindex, follow">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400&family=Barlow+Condensed:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #071012;
+    --bg2: #0d1c20;
+    --bg3: #112228;
+    --teal: #00d4a8;
+    --teal-dim: rgba(0,212,168,0.12);
+    --teal-border: rgba(0,212,168,0.25);
+    --white: #f0f8f6;
+    --muted: #7a9e98;
+    --font-display: 'Barlow Condensed', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(7,16,18,0.9);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0,212,168,0.1);
+  }
+  .logo img { height: 36px; width: auto; display: block; }
+
+  .container {
+    max-width: 700px;
+    margin: 120px auto 80px;
+    padding: 0 32px;
+    text-align: center;
+  }
+
+  .success-icon {
+    width: 80px; height: 80px;
+    margin: 0 auto 32px;
+    background: var(--teal-dim);
+    border: 2px solid var(--teal);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+  }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(36px, 5vw, 56px);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+  }
+
+  h1 em { color: var(--teal); font-style: normal; }
+
+  .subtitle {
+    font-size: 18px;
+    color: var(--muted);
+    margin-bottom: 48px;
+  }
+
+  .card {
+    background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
+    border: 1px solid var(--teal-border);
+    border-radius: 16px;
+    padding: 40px 36px;
+    margin-bottom: 32px;
+    text-align: left;
+  }
+
+  .card h2 {
+    font-family: var(--font-display);
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--teal);
+    margin-bottom: 20px;
+  }
+
+  .card p {
+    font-size: 16px;
+    line-height: 1.7;
+    margin-bottom: 16px;
+    color: var(--white);
+  }
+
+  .card strong { color: var(--teal); font-weight: 700; }
+
+  .phone-number {
+    background: var(--bg);
+    border: 2px solid var(--teal);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin: 24px 0;
+  }
+
+  .phone-number .label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--teal);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .phone-number .number {
+    font-family: var(--font-display);
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: 1px;
+  }
+
+  .steps {
+    list-style: none;
+    margin: 24px 0;
+  }
+
+  .steps li {
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .steps li:last-child { border-bottom: none; }
+
+  .step-num {
+    background: var(--teal-dim);
+    border: 1px solid var(--teal-border);
+    color: var(--teal);
+    font-weight: 700;
+    font-size: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .step-content {
+    flex: 1;
+  }
+
+  .step-content strong {
+    display: block;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+
+  .step-content p {
+    font-size: 14px;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  .timeline {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 24px;
+  }
+
+  .timeline h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--teal);
+    margin-bottom: 16px;
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .timeline-item:last-child { margin-bottom: 0; }
+
+  .timeline-dot {
+    width: 12px;
+    height: 12px;
+    background: var(--teal);
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .timeline-text {
+    flex: 1;
+  }
+
+  .timeline-text strong {
+    font-weight: 700;
+    color: var(--white);
+  }
+
+  .timeline-text span {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  .btn-primary {
+    background: var(--teal);
+    color: #071012;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 14px 32px;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 24px;
+    transition: opacity 0.2s;
+  }
+
+  .btn-primary:hover { opacity: 0.88; }
+
+  footer {
+    padding: 40px 48px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 20px; }
+    .container { margin: 100px auto 60px; padding: 0 20px; }
+    .card { padding: 28px 24px; }
+  }
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="top">
-      <div class="brand">SIGNAL ARC</div>
-      <a class="back" href="/">Back to site</a>
-    </div>
-    <div class="card">
-      <div class="badge">✓ Payment Confirmed</div>
-      <h1>You're all set.<br><em>Andrew is ready.</em></h1>
-      <p style="color: var(--muted); font-size: 15px; line-height: 1.6;">Your $999 AI Assessment is confirmed — a receipt is on its way to your inbox along with everything you need to get started.</p>
 
-      <div class="steps">
-        <div class="step">
-          <div class="step-num">1</div>
-          <div class="step-text"><strong>Call Andrew at +1 (978) 510-6633</strong> — he's available now. The call usually takes 8–12 minutes, but you set the pace — share as much detail as you want. No pitch, just questions.</div>
+<nav>
+  <a href="/" class="logo"><img src="signal-arc-logo.png" alt="SignalARC"></a>
+</nav>
+
+<div class="container">
+  <div class="success-icon">✓</div>
+  
+  <h1>You're All Set! <em>Here's What's Next.</em></h1>
+  <p class="subtitle">Payment confirmed. Your AI Assessment is officially booked.</p>
+
+  <div class="card">
+    <h2>Step 1: Call Andrew (Our AI Agent)</h2>
+    <p>Andrew will walk you through a quick workflow audit — typically 8-12 minutes, but take as long as you need. He's an AI voice agent, so you can call anytime, day or night.</p>
+
+    <div class="phone-number">
+      <div class="label">Call this number now</div>
+      <div class="number">(XXX) XXX-XXXX</div>
+    </div>
+
+    <p><strong>What Andrew will ask:</strong></p>
+    <ul class="steps">
+      <li>
+        <span class="step-num">1</span>
+        <div class="step-content">
+          <strong>Your name & business</strong>
+          <p>Just a quick intro so we know who you are</p>
         </div>
-        <div class="step">
-          <div class="step-num">2</div>
-          <div class="step-text"><strong>Get your custom report within 48 hours</strong> of your call. Josh will review the transcript and build your AI Action Plan — tools, costs, and a 4-day quick-start plan.</div>
+      </li>
+      <li>
+        <span class="step-num">2</span>
+        <div class="step-content">
+          <strong>What's eating up your time?</strong>
+          <p>Your biggest pain points — admin, emails, lead response, whatever drives you crazy</p>
         </div>
-        <div class="step">
-          <div class="step-num">3</div>
-          <div class="step-text"><strong>Once you've reviewed the report</strong>, Josh will follow up to walk through your recommendations and discuss next steps.</div>
+      </li>
+      <li>
+        <span class="step-num">3</span>
+        <div class="step-content">
+          <strong>What tools you're using now</strong>
+          <p>CRM, calendar, email, project management — helps us see what's already in your stack</p>
+        </div>
+      </li>
+      <li>
+        <span class="step-num">4</span>
+        <div class="step-content">
+          <strong>How much time you want back</strong>
+          <p>5 hours? 10? This helps us prioritize the quick wins</p>
+        </div>
+      </li>
+    </ul>
+
+    <p style="margin-top: 24px;"><strong>No prep required.</strong> Just call when you're ready. Andrew asks the right questions — you just answer naturally.</p>
+  </div>
+
+  <div class="card">
+    <h2>What Happens After Your Call</h2>
+    
+    <div class="timeline">
+      <h3>Your Timeline</h3>
+      
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-text">
+          <strong>Within 48 hours:</strong> <span>You'll receive your custom AI Action Plan via email (10-15 page report)</span>
         </div>
       </div>
 
-      <a class="cta-btn" href="tel:+19785106633">Call Andrew Now → (978) 510-6633</a>
-      <p class="fine">Questions? <a href="mailto:joshua@signalarc.io">joshua@signalarc.io</a> — we reply within one business day.</p>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-text">
+          <strong>What's in the report:</strong> <span>5-7 AI tool recommendations, ROI calculations, 4-day implementation plan, personalized prompt library</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-text">
+          <strong>Then:</strong> <span>We'll schedule a 30-min Zoom to walk through the report and answer questions</span>
+        </div>
+      </div>
+
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-text">
+          <strong>Support:</strong> <span>30 days of Loom video support included if you get stuck on implementation</span>
+        </div>
+      </div>
     </div>
   </div>
+
+  <div class="card">
+    <h2>Questions?</h2>
+    <p>Email <strong>josh@signalarc.io</strong> anytime. I usually respond within a few hours during business days.</p>
+    <p style="margin-bottom: 0;">Or reply to your payment confirmation email from Stripe — it goes to the same inbox.</p>
+  </div>
+
+  <a href="/" class="btn-primary">← Back to Homepage</a>
+</div>
+
+<footer>
+  <p>© 2026 SignalARC · Kelowna, BC · AI Consulting for Small Business</p>
+</footer>
+
 </body>
 </html>
